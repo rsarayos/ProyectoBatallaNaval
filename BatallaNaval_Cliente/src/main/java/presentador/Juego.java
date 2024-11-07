@@ -4,8 +4,11 @@ import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import vista.EstadosJuego;
 import vista.PanelJuego;
 import vista.VentanaJuego;
+import vista.VistaBienvenida;
+import vista.VistaMenu;
 
 /**
  * Clase principal que representa el juego. Implementa la interfaz Runnable para
@@ -22,8 +25,11 @@ public class Juego implements Runnable {
     protected static final int FPS_SET = 60;
     // UPS deseados 
     protected static final int UPS_SET = 150;
-    public final static int GAME_ANCHO = 1280;
-    public final static int GAME_ALTO = 720;
+    public final static int GAME_ANCHO = 640;
+    public final static int GAME_ALTO = 480;
+    
+    private VistaBienvenida vBienvenida;
+    private VistaMenu vMenu;
     
     /**
      * Constructor de la clase Juego.
@@ -37,6 +43,14 @@ public class Juego implements Runnable {
         venta = new VentanaJuego(panel);
         panel.setFocusable(true);
         panel.requestFocus();
+
+        // Inicializa las vistas
+        vBienvenida = new VistaBienvenida(panel);
+        vMenu = new VistaMenu(panel);
+
+        // Establece el estado inicial
+        EstadosJuego.estado = EstadosJuego.BIENVENIDA;
+
         // Inicia el bucle principal del juego
         this.inicioJuegoLoop();
 
@@ -55,6 +69,7 @@ public class Juego implements Runnable {
      */
     public void update() {
         
+        
     }
 
     /**
@@ -64,6 +79,17 @@ public class Juego implements Runnable {
      */
     public void renderizar(Graphics g) {
         
+        switch (EstadosJuego.estado) {
+            case BIENVENIDA:
+                if(vBienvenida != null)
+                vBienvenida.dibujar(g);
+                break;
+            case MENU:
+                vMenu.dibujar(g);
+                break;
+            default:
+                throw new AssertionError();
+        }
 
     }
 

@@ -2,6 +2,7 @@ package vista;
 
 import java.awt.Dimension;
 import java.awt.Graphics;
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 import presentador.Juego;
 
@@ -31,6 +32,7 @@ public class PanelJuego extends JPanel {
         // Agrega un escuchador de eventos de teclado
 //        addKeyListener(new Teclado(this));
         requestFocus();
+        setLayout(null);
         // Agrega un escuchador de eventos de clic del mouse
 //        addMouseListener(mouse);
         // Agrega un escuchador de eventos de movimiento del mouse
@@ -48,6 +50,19 @@ public class PanelJuego extends JPanel {
         setPreferredSize(size);
         // Muestra las dimensiones en la consola
         System.out.println("Size: " + Juego.GAME_ANCHO + " : " + Juego.GAME_ALTO);
+    }
+    
+    public void agregarComponente(JComponent componente, int x, int y, int ancho, int alto) {
+        componente.setBounds(x, y, ancho, alto);
+        add(componente);
+        revalidate(); // Revalidar el panel para mostrar el nuevo componente
+        repaint(); // Repintar el panel
+    }
+    
+    public void quitarComponente(JComponent componente) {
+        remove(componente);
+        revalidate();
+        repaint();
     }
 
     /**
