@@ -1,2 +1,75 @@
 /BatallaNaval_Libreria/nbproject/private/
 /BatallaNaval_Cliente/target/
+
+
+# Bytecode de clase y carpetas de compilación
+*.class
+target/
+
+# Archivos generados por Maven
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+
+# Archivos de dependencias descargadas por Maven
+dependency-reduced-pom.xml
+buildNumber.properties
+
+# Directorios de configuración de IDE
+# IntelliJ IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Eclipse
+.project
+.classpath
+.settings/
+
+# NetBeans
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/nbactions.xml
+/nb-configuration.xml
+
+# VS Code
+.vscode/
+
+# Directorios de logs y archivos temporales
+logs/
+*.log
+tmp/
+*.tmp
+*.bak
+*.swp
+
+# Archivos generados por el sistema operativo
+.DS_Store
+Thumbs.db
+
+# Archivos de compilación y temporales
+.mvn/
+!/src/main//mvn*
+!/src/test//mvn*
+
+# Archivos específicos del sistema
+*.out
+*.rej
+*.orig
+*.patch
+
+# Librerías locales
+lib/
+*.jar
+
+# Archivos de configuración de Maven Wrapper
+.mvn/wrapper/maven-wrapper.jar
+.mvn/wrapper/maven-wrapper.properties
+
+# Metadata de Git
+**/.git/
