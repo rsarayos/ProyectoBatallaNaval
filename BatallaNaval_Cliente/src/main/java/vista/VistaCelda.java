@@ -35,4 +35,12 @@ public class VistaCelda extends JPanel {
         }
     }
 
+    public int getFila() {
+        return fila;
+    }
+
+    public int getColumna() {
+        return columna;
+    }
+
 }

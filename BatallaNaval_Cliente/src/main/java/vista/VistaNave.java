@@ -2,6 +2,7 @@ package vista;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.util.Set;
 import javax.swing.JPanel;
 
 /**
@@ -10,10 +11,10 @@ import javax.swing.JPanel;
  */
 public class VistaNave extends JPanel {
 
-    private VistaCelda ubicacion[];
+    private Set<VistaCelda> celdasOcupadas;
     
-    public VistaNave(VistaCelda ubicacion[]) {
-        this.ubicacion = ubicacion;
+    public VistaNave(Set<VistaCelda> celdasOcupadas) {
+        this.celdasOcupadas = celdasOcupadas;
     }
     
     protected void paintComponent(Graphics g, int x, int y, int width, int height) {
@@ -22,8 +23,10 @@ public class VistaNave extends JPanel {
         g.fillRect(x, y, width, height); 
     }
 
-    public VistaCelda[] getUbicacion() {
-        return ubicacion;
+    public Set<VistaCelda> getCeldasOcupadas() {
+        return celdasOcupadas;
     }
+
+    
     
 }

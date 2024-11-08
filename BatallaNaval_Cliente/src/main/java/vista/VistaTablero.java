@@ -22,18 +22,34 @@ public class VistaTablero extends JPanel {
 
     }
 
-    public boolean colocarNave(VistaNave nave, int filaInicial, int columnaInicial, boolean horizontal) {
-        // lógica para verificar si hay espacio y colocar la nave (preliminar)
-        for (int i = 0; i < nave.getUbicacion().length; i++) {
-            int fila = filaInicial + (horizontal ? 0 : i);
-            int columna = columnaInicial + (horizontal ? i : 0);
+    public boolean colocarNave(VistaNave nave) {
+
+        VistaCelda primeraCelda = nave.getCeldasOcupadas().iterator().next();
+        int filaInicial = primeraCelda.getFila();
+        int columnaInicial = primeraCelda.getColumna();
+
+        // Orientacion pendiente
+        boolean horizontal = true;
+
+        // Verificar si hay espacio para la nave
+        for (VistaCelda celda : nave.getCeldasOcupadas()) {
+            int fila = filaInicial + (horizontal ? 0 : celda.getFila() - primeraCelda.getFila());
+            int columna = columnaInicial + (horizontal ? celda.getColumna() - primeraCelda.getColumna() : 0);
+
             if (fila < 0 || fila >= 10 || columna < 0 || columna >= 10 || celdas[fila][columna].getNave() != null) {
                 return false; // No hay espacio
             }
-            celdas[fila][columna].setNave(nave);
-            System.out.println("Se coloco nave");
         }
+
+        // Colocar la nave en el tablero
+        for (VistaCelda celda : nave.getCeldasOcupadas()) {
+            int fila = filaInicial + (horizontal ? 0 : celda.getFila() - primeraCelda.getFila());
+            int columna = columnaInicial + (horizontal ? celda.getColumna() - primeraCelda.getColumna() : 0);
+            celdas[fila][columna].setNave(nave);
+        }
+
         return true;
+
     }
 
 }
