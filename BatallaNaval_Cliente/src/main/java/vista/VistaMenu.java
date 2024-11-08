@@ -13,9 +13,16 @@ import presentador.Juego;
 public class VistaMenu implements EstadoJuego {
 
     private PanelJuego panelJuego;
+    private JButton botonIniciar;
 
     public VistaMenu(PanelJuego panelJuego) {
         this.panelJuego = panelJuego;
+        this.botonIniciar = new JButton("Iniciar Juego");
+        // Agregar acción al botón
+        botonIniciar.addActionListener(e -> {
+            panelJuego.quitarComponente(botonIniciar);
+            EstadosJuego.estado = EstadosJuego.ORGANIZAR; // Cambiar el estado
+        });
     }
     
     @Override
@@ -27,10 +34,13 @@ public class VistaMenu implements EstadoJuego {
         // Dibujar el texto
         g.setColor(Color.BLUE);
         g.setFont(new Font("Arial", Font.BOLD, 20));
-        g.drawString("MENU PRINCIPAL", 50, 50);
+        g.drawString("Menu", (Juego.GAME_ANCHO / 3), 50);
+
+        // Agregar componentes al panel si no están ya agregados
+        if (!panelJuego.isAncestorOf(botonIniciar)) {
+            panelJuego.agregarComponente(botonIniciar, 80, 120, 150, 30);
+        }
         
-        JButton botonIniciar = new JButton("Crear partida");
-        panelJuego.agregarComponente(botonIniciar, 150, 120, 150, 30);
     }
 
     @Override

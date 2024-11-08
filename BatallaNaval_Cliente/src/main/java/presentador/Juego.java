@@ -9,6 +9,7 @@ import vista.PanelJuego;
 import vista.VentanaJuego;
 import vista.VistaBienvenida;
 import vista.VistaMenu;
+import vista.VistaOrganizar;
 
 /**
  * Clase principal que representa el juego. Implementa la interfaz Runnable para
@@ -30,6 +31,7 @@ public class Juego implements Runnable {
     
     private VistaBienvenida vBienvenida;
     private VistaMenu vMenu;
+    private VistaOrganizar vOrganizar;
     
     /**
      * Constructor de la clase Juego.
@@ -47,7 +49,8 @@ public class Juego implements Runnable {
         // Inicializa las vistas
         vBienvenida = new VistaBienvenida(panel);
         vMenu = new VistaMenu(panel);
-
+        vOrganizar = new VistaOrganizar(panel);
+        
         // Establece el estado inicial
         EstadosJuego.estado = EstadosJuego.BIENVENIDA;
 
@@ -86,6 +89,9 @@ public class Juego implements Runnable {
                 break;
             case MENU:
                 vMenu.dibujar(g);
+                break;
+            case ORGANIZAR:
+                vOrganizar.dibujar(g);
                 break;
             default:
                 throw new AssertionError();

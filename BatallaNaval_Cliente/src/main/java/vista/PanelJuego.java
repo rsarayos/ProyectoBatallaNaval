@@ -55,8 +55,8 @@ public class PanelJuego extends JPanel {
     public void agregarComponente(JComponent componente, int x, int y, int ancho, int alto) {
         componente.setBounds(x, y, ancho, alto);
         add(componente);
-        revalidate(); // Revalidar el panel para mostrar el nuevo componente
-        repaint(); // Repintar el panel
+        revalidate(); 
+        repaint();
     }
     
     public void quitarComponente(JComponent componente) {
