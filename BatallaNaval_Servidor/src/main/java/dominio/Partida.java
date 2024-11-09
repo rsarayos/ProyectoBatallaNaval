@@ -32,7 +32,6 @@ public class Partida {
         return instance;
     }
     
-    
     private void actualizarTurno(Jugador jugador) {
         this.jugadorTurno = jugador;
     }
