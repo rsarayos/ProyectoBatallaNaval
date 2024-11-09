@@ -24,13 +24,18 @@ public class VistaOrganizar implements EstadoJuego {
         this.colorSelector = new JComboBox();
 
         Set<VistaCelda> celdasNave1 = new HashSet<>();
-        celdasNave1.add(new VistaCelda(1, 1, tablero));
-        VistaNave nave1 = new VistaNave(celdasNave1);
+        celdasNave1.add(new VistaCelda(2, 4, tablero));
+        celdasNave1.add(new VistaCelda(2, 3, tablero));
+        celdasNave1.add(new VistaCelda(2, 5, tablero));
+        VistaNave nave1 = new VistaNave(celdasNave1, true);
         tablero.colocarNave(nave1);
 
         Set<VistaCelda> celdasNave2 = new HashSet<>();
-        celdasNave2.add(new VistaCelda(2, 3, tablero));
-        VistaNave nave2 = new VistaNave(celdasNave2);
+        celdasNave2.add(new VistaCelda(3, 4, tablero));
+        celdasNave2.add(new VistaCelda(4, 4, tablero));
+        celdasNave2.add(new VistaCelda(5, 4, tablero));
+        celdasNave2.add(new VistaCelda(6, 4, tablero));
+        VistaNave nave2 = new VistaNave(celdasNave2, false);
         tablero.colocarNave(nave2);
     }
 

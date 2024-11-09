@@ -57,12 +57,19 @@ public class VistaTablero extends JPanel {
         VistaCelda celda = celdas[fila][columna];
 
         if (celda.getNave() != null) {
-            isDragging = true;
-            celdaOriginal = celda;
-            celdaSeleccionada = celda;
-            System.out.println("Se selecciona la nave en celda " + celdaSeleccionada.toString());
-            celda.setHighlighted(true);
+            if (e.getButton() == MouseEvent.BUTTON3) { // Botón derecho
+                System.out.println("se presiono rotar");
+                rotar(celda.getNave());
+                repaint();
+            } else {
+                isDragging = true;
+                celdaOriginal = celda;
+                celdaSeleccionada = celda;
+                System.out.println("Se selecciona la nave: " + celdaSeleccionada.getNave());
+                celda.setHighlighted(true);
+            }
         }
+
     }
 
     private void mouseSoltado(MouseEvent e) {
@@ -78,7 +85,7 @@ public class VistaTablero extends JPanel {
                 // se crea la nueva nave
                 Set<VistaCelda> celdasNave = new HashSet<>();
                 celdasNave.add(celdaDestino);
-                VistaNave naveNueva = new VistaNave(celdasNave);
+                VistaNave naveNueva = new VistaNave(celdasNave, true);
                 colocarNave(naveNueva);
                 
             }
@@ -101,32 +108,94 @@ public class VistaTablero extends JPanel {
             repaint();
         }
     }
+    
+    public void rotar(VistaNave nave) {
+        Set<VistaCelda> celdasOcupadas = nave.getCeldasOcupadas();
+        System.out.println("Se encontraron las siguientes celdas: ");
+        for (VistaCelda celdasOcupada : celdasOcupadas) {
+            System.out.println(celdasOcupada.toString());
+        }
+        boolean horizontal = nave.isDireccion();
 
-    public boolean colocarNave(VistaNave nave) {
+        // Encontrar la primera celda de la nave
+        VistaCelda primeraCelda = null;
+        for (VistaCelda celda : celdasOcupadas) {
+            if (primeraCelda == null || (horizontal && celda.getColumna() < primeraCelda.getColumna()) || (!horizontal && celda.getFila() < primeraCelda.getFila())) {
+                primeraCelda = celda;
+                
+            }
+        }
+        
+        System.out.println("La primera celda de la nave es: ");
+        System.out.println(primeraCelda.toString());
 
-        VistaCelda primeraCelda = nave.getCeldasOcupadas().iterator().next();
-        int filaInicial = primeraCelda.getFila();
-        int columnaInicial = primeraCelda.getColumna();
+        // Actualizar las celdas ocupadas según la nueva orientación
+        Set<VistaCelda> nuevasCeldasOcupadas = new HashSet<>();
+        for (VistaCelda celda : celdasOcupadas) {
+            int nuevaFila, nuevaColumna;
+            if (horizontal) {
+                nuevaFila = primeraCelda.getFila() + (celda.getColumna() - primeraCelda.getColumna());
+                nuevaColumna = primeraCelda.getColumna();
+            } else {
+                nuevaFila = primeraCelda.getFila();
+                nuevaColumna = primeraCelda.getColumna() + (celda.getFila() - primeraCelda.getFila());
+            }
+            VistaCelda nuevaCelda = celdas[nuevaFila][nuevaColumna];
+            nuevasCeldasOcupadas.add(nuevaCelda);
+        }
+        
+        // excluir primera celda
+        for (VistaCelda c : nuevasCeldasOcupadas) {
+            if (c.getFila() == primeraCelda.getFila() && c.getColumna() == primeraCelda.getColumna()) {
+                primeraCelda = c;
+            } 
+        }
+        
+        nuevasCeldasOcupadas.remove(primeraCelda);
+        
+        System.out.println("Las nuevas celdas a ocupar son: ");
+        for (VistaCelda celdasOcupada : nuevasCeldasOcupadas) {
+            System.out.println(celdasOcupada.toString());
+        }
 
-        // Orientacion pendiente
-        boolean horizontal = true;
-
-        for (VistaCelda celda : nave.getCeldasOcupadas()) {
-            int fila = filaInicial + (horizontal ? 0 : celda.getFila() - primeraCelda.getFila());
-            int columna = columnaInicial + (horizontal ? celda.getColumna() - primeraCelda.getColumna() : 0);
-
+        // Verificar si la nueva orientación cabe en el tablero
+        if (puedeColocarNave(nuevasCeldasOcupadas)) {
+            // una ves se verifico volver a agregar la primera celda
+            nuevasCeldasOcupadas.add(primeraCelda);
+            
+            // Eliminar la nave antigua 
+            for (VistaCelda celda : celdasOcupadas) {
+                this.celdas[celda.getFila()][celda.getColumna()].setNave(null);
+            }
+            // Colocar la nave en la nueva orientación
+            nave.setCeldasOcupadas(nuevasCeldasOcupadas);
+            nave.setDireccion(!horizontal);
+            colocarNave(nave);
+        }
+        
+    }
+    
+    private boolean puedeColocarNave(Set<VistaCelda> celdasOcupadas) {
+        for (VistaCelda celda : celdasOcupadas) {
+            int fila = celda.getFila();
+            int columna = celda.getColumna();
             if (fila < 0 || fila >= 10 || columna < 0 || columna >= 10 || celdas[fila][columna].getNave() != null) {
+                System.out.println(celdas[fila][columna].toString() + " esta ocupada");
                 return false; // No hay espacio
             }
         }
-
-        for (VistaCelda celda : nave.getCeldasOcupadas()) {
-            int fila = filaInicial + (horizontal ? 0 : celda.getFila() - primeraCelda.getFila());
-            int columna = columnaInicial + (horizontal ? celda.getColumna() - primeraCelda.getColumna() : 0);
-            celdas[fila][columna].setNave(nave);
-        }
-
         return true;
+    }
+
+    public boolean colocarNave(VistaNave nave) {
+        Set<VistaCelda> celdasOcupadas = nave.getCeldasOcupadas();
+        if (puedeColocarNave(celdasOcupadas)) {
+            for (VistaCelda celda : celdasOcupadas) {
+                this.celdas[celda.getFila()][celda.getColumna()].setNave(nave);
+            }
+            return true;
+        }
+        return false;
     }
 
     private boolean verificarNave(VistaCelda celdaOrigen, VistaCelda celdaDestino) {
