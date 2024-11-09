@@ -6,8 +6,12 @@ package dominio;
 
 /**
  *
- * @author alex_
+ * @author af_da
  */
-public class D {
+public class TipoUnidad {
+    static final int BARCOS = 1;
+    static final int SUBMARINOS = 2;
+    static final int CRUCEROS = 2;
+    static final int PORTAAVIONES = 3;
     
 }
