@@ -12,6 +12,7 @@ import javax.swing.JPanel;
 public class VistaNave extends JPanel {
 
     private Set<VistaCelda> celdasOcupadas;
+    private boolean direccion;
     
     public VistaNave(Set<VistaCelda> celdasOcupadas) {
         this.celdasOcupadas = celdasOcupadas;
