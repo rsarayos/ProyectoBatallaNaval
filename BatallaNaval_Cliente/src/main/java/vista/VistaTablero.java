@@ -110,7 +110,7 @@ public class VistaTablero extends JPanel {
                 }
 
                 // Colocar la nave en la nueva posición
-                VistaNave naveNueva = new VistaNave(nuevasCeldasOcupadas, true);
+                VistaNave naveNueva = new VistaNave(nuevasCeldasOcupadas, naveSeleccionada.isDireccion()); // ahora no se pone en automatico la orientacion, se pasa con la nave original
                 colocarNave(naveNueva);
 
                 System.out.println("Nave movida a la nueva posición: ");
