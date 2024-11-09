@@ -43,7 +43,7 @@ public class VistaCelda extends JPanel {
         // Cambiar el color del borde si la celda está resaltada
         if (isHighlighted) {
             // Color para resaltar
-            g.setColor(Color.YELLOW); 
+            g.setColor(Color.RED); 
         } else {
             // Color normal
             g.setColor(Color.BLACK); 

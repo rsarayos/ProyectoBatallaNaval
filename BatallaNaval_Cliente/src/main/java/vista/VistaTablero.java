@@ -2,10 +2,13 @@ package vista;
 
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseMotionAdapter;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import javax.swing.JPanel;
 
@@ -19,9 +22,13 @@ public class VistaTablero extends JPanel {
     private boolean isDragging = false;
     private VistaCelda celdaSeleccionada;
     private VistaCelda celdaOriginal;
+    private Set<VistaCelda> celdasOcupadasNaveSeleccionada;
+    private Set<VistaCelda> celdasOcupadasNaveInicio;
+    private List<Point> desplazamientosRelativos;
+    private VistaNave naveSeleccionada;
 
     public VistaTablero() {
-        
+
         setLayout(new GridLayout(10, 10));
         for (int i = 0; i < 10; i++) {
             for (int j = 0; j < 10; j++) {
@@ -54,19 +61,31 @@ public class VistaTablero extends JPanel {
     private void mousePresionado(MouseEvent e) {
         int fila = e.getY() / getTamañoCelda().height;
         int columna = e.getX() / getTamañoCelda().width;
-        VistaCelda celda = celdas[fila][columna];
+        celdaSeleccionada = celdas[fila][columna];
 
-        if (celda.getNave() != null) {
+        if (celdaSeleccionada.getNave() != null) {
             if (e.getButton() == MouseEvent.BUTTON3) { // Botón derecho
                 System.out.println("se presiono rotar");
-                rotar(celda.getNave());
+                rotar(celdaSeleccionada.getNave());
                 repaint();
             } else {
                 isDragging = true;
-                celdaOriginal = celda;
-                celdaSeleccionada = celda;
-                System.out.println("Se selecciona la nave: " + celdaSeleccionada.getNave());
-                celda.setHighlighted(true);
+                celdasOcupadasNaveSeleccionada = celdaSeleccionada.getNave().getCeldasOcupadas();
+                celdasOcupadasNaveInicio = celdaSeleccionada.getNave().getCeldasOcupadas();
+                naveSeleccionada = celdaSeleccionada.getNave();
+                celdaOriginal = celdaSeleccionada;
+
+                // Guardamos los desplazamientos relativos al inicio del arrastre
+                desplazamientosRelativos = new ArrayList<>();
+                for (VistaCelda celda : celdasOcupadasNaveSeleccionada) {
+                    int deltaFila = celda.getFila() - celdaSeleccionada.getFila();
+                    int deltaColumna = celda.getColumna() - celdaSeleccionada.getColumna();
+                    desplazamientosRelativos.add(new Point(deltaFila, deltaColumna));
+                }
+
+                System.out.println("Las celdas seleccionadas son:");
+                System.out.println(celdasOcupadasNaveSeleccionada.toString());
+                System.out.println("");
             }
         }
 
@@ -78,110 +97,158 @@ public class VistaTablero extends JPanel {
         VistaCelda celdaDestino = celdas[fila][columna];
 
         if (isDragging && celdaSeleccionada != null) {
-            if (verificarNave(celdaSeleccionada, celdaDestino)) {
-                // se elimina la nave anterior
-                celdas[celdaOriginal.getFila()][celdaOriginal.getColumna()].setNave(null);
-                System.out.println("Se borro la nave en celda " + celdaOriginal.toString());
-                // se crea la nueva nave
-                Set<VistaCelda> celdasNave = new HashSet<>();
-                celdasNave.add(celdaDestino);
-                VistaNave naveNueva = new VistaNave(celdasNave, true);
+            // Calcular las nuevas celdas ocupadas basadas en la celda de ancla (celdaDestino) y los desplazamientos relativos
+            Set<VistaCelda> nuevasCeldasOcupadas = celdasOcupadasNaveSeleccionada;
+
+            System.out.println(nuevasCeldasOcupadas.toString());
+
+            if (!nuevasCeldasOcupadas.isEmpty() && puedeColocarNave(nuevasCeldasOcupadas, naveSeleccionada)) {
+                // Limpiar las celdas anteriores
+                for (VistaCelda celda : celdasOcupadasNaveInicio) {
+                    this.celdas[celda.getFila()][celda.getColumna()].setNave(null);
+                    this.celdas[celda.getFila()][celda.getColumna()].setHighlighted(false);
+                }
+
+                // Colocar la nave en la nueva posición
+                VistaNave naveNueva = new VistaNave(nuevasCeldasOcupadas, true);
                 colocarNave(naveNueva);
-                
+
+                System.out.println("Nave movida a la nueva posición: ");
+                for (VistaCelda celda : nuevasCeldasOcupadas) {
+                    System.out.println(celda.toString());
+                }
+            } else {
+                System.out.println("Posición inválida. No se puede soltar la nave aquí.");
             }
-            celdaSeleccionada.setHighlighted(false);
+
+            // Resetear el estado de arrastre
+            for (VistaCelda celda : celdasOcupadasNaveSeleccionada) {
+                celda.setHighlighted(false);
+            }
             isDragging = false;
             celdaSeleccionada = null;
+            celdasOcupadasNaveSeleccionada = null;
             repaint();
         }
     }
 
     private void mouseArrastrado(MouseEvent e) {
-        int fila = e.getY() / getTamañoCelda().height;
-        int columna = e.getX() / getTamañoCelda().width;
-        VistaCelda celda = celdas[fila][columna];
-
         if (isDragging && celdaSeleccionada != null) {
-            celdaSeleccionada.setHighlighted(false);
-            celda.setHighlighted(true);
-            celdaSeleccionada = celda;
+            int fila = e.getY() / getTamañoCelda().height;
+            int columna = e.getX() / getTamañoCelda().width;
+            VistaCelda nuevaCeldaAncla = celdas[fila][columna];
+
+            // Desactivamos el resaltado anterior
+            for (VistaCelda celda : celdasOcupadasNaveSeleccionada) {
+                celda.setHighlighted(false);
+            }
+
+            // Calculamos las nuevas posiciones basadas en la celda de ancla y los desplazamientos relativos
+            Set<VistaCelda> nuevasCeldas = new HashSet<>();
+            for (Point desplazamiento : desplazamientosRelativos) {
+                int nuevaFila = nuevaCeldaAncla.getFila() + desplazamiento.x;
+                int nuevaColumna = nuevaCeldaAncla.getColumna() + desplazamiento.y;
+
+                if (nuevaFila >= 0 && nuevaFila < 10 && nuevaColumna >= 0 && nuevaColumna < 10) {
+                    nuevasCeldas.add(celdas[nuevaFila][nuevaColumna]);
+                } else {
+                    // Si alguna celda está fuera del tablero, salimos y no resaltamos nada
+                    nuevasCeldas.clear();
+                    break;
+                }
+            }
+
+            // Si la posición es válida, resalta las nuevas celdas
+            if (!nuevasCeldas.isEmpty() && puedeColocarNave(nuevasCeldas, naveSeleccionada)) {
+                for (VistaCelda celda : nuevasCeldas) {
+                    celda.setHighlighted(true);
+                }
+                celdasOcupadasNaveSeleccionada = nuevasCeldas;
+                System.out.println("Se movio a celdas");
+                System.out.println(celdasOcupadasNaveSeleccionada.toString());
+            }
+
+            // Actualizamos la posición de la celda ancla
+            celdaSeleccionada = nuevaCeldaAncla;
             repaint();
         }
     }
-    
+
+    private Set<VistaCelda> calcularNuevasCeldas(VistaCelda nuevaCelda) {
+        Set<VistaCelda> nuevasCeldas = new HashSet<>();
+        int filaInicial = nuevaCelda.getFila();
+        int columnaInicial = nuevaCelda.getColumna();
+
+        for (VistaCelda celda : celdasOcupadasNaveSeleccionada) {
+            int deltaFila = celda.getFila() - celdaOriginal.getFila();
+            int deltaColumna = celda.getColumna() - celdaOriginal.getColumna();
+            int nuevaFila = filaInicial + deltaFila;
+            int nuevaColumna = columnaInicial + deltaColumna;
+
+            if (nuevaFila >= 0 && nuevaFila < 10 && nuevaColumna >= 0 && nuevaColumna < 10) {
+                nuevasCeldas.add(celdas[nuevaFila][nuevaColumna]);
+            } else {
+                // Si alguna celda está fuera del tablero
+                return new HashSet<>();
+            }
+        }
+        return nuevasCeldas;
+    }
+
     public void rotar(VistaNave nave) {
         Set<VistaCelda> celdasOcupadas = nave.getCeldasOcupadas();
-        System.out.println("Se encontraron las siguientes celdas: ");
-        for (VistaCelda celdasOcupada : celdasOcupadas) {
-            System.out.println(celdasOcupada.toString());
-        }
         boolean horizontal = nave.isDireccion();
 
         // Encontrar la primera celda de la nave
         VistaCelda primeraCelda = null;
         for (VistaCelda celda : celdasOcupadas) {
-            if (primeraCelda == null || (horizontal && celda.getColumna() < primeraCelda.getColumna()) || (!horizontal && celda.getFila() < primeraCelda.getFila())) {
+            if (primeraCelda == null
+                    || (horizontal && celda.getColumna() < primeraCelda.getColumna())
+                    || (!horizontal && celda.getFila() < primeraCelda.getFila())) {
                 primeraCelda = celda;
-                
             }
         }
-        
-        System.out.println("La primera celda de la nave es: ");
-        System.out.println(primeraCelda.toString());
 
-        // Actualizar las celdas ocupadas según la nueva orientación
+        // Calcular las nuevas celdas según la dirección de rotación
         Set<VistaCelda> nuevasCeldasOcupadas = new HashSet<>();
-        for (VistaCelda celda : celdasOcupadas) {
-            int nuevaFila, nuevaColumna;
-            if (horizontal) {
-                nuevaFila = primeraCelda.getFila() + (celda.getColumna() - primeraCelda.getColumna());
-                nuevaColumna = primeraCelda.getColumna();
+        int tamañoNave = celdasOcupadas.size();
+
+        for (int i = 0; i < tamañoNave; i++) {
+            int nuevaFila = horizontal ? primeraCelda.getFila() + i : primeraCelda.getFila();
+            int nuevaColumna = horizontal ? primeraCelda.getColumna() : primeraCelda.getColumna() + i;
+
+            // Verificamos si la posición está dentro de los límites del tablero
+            if (nuevaFila >= 0 && nuevaFila < 10 && nuevaColumna >= 0 && nuevaColumna < 10) {
+                nuevasCeldasOcupadas.add(celdas[nuevaFila][nuevaColumna]);
             } else {
-                nuevaFila = primeraCelda.getFila();
-                nuevaColumna = primeraCelda.getColumna() + (celda.getFila() - primeraCelda.getFila());
+                // Si no cabe, abortamos la rotación
+                return;
             }
-            VistaCelda nuevaCelda = celdas[nuevaFila][nuevaColumna];
-            nuevasCeldasOcupadas.add(nuevaCelda);
-        }
-        
-        // excluir primera celda
-        for (VistaCelda c : nuevasCeldasOcupadas) {
-            if (c.getFila() == primeraCelda.getFila() && c.getColumna() == primeraCelda.getColumna()) {
-                primeraCelda = c;
-            } 
-        }
-        
-        nuevasCeldasOcupadas.remove(primeraCelda);
-        
-        System.out.println("Las nuevas celdas a ocupar son: ");
-        for (VistaCelda celdasOcupada : nuevasCeldasOcupadas) {
-            System.out.println(celdasOcupada.toString());
         }
 
-        // Verificar si la nueva orientación cabe en el tablero
-        if (puedeColocarNave(nuevasCeldasOcupadas)) {
-            // una ves se verifico volver a agregar la primera celda
+        if (puedeColocarNave(nuevasCeldasOcupadas, nave)) {
+            // Realizar la rotación si las celdas nuevas son válidas
             nuevasCeldasOcupadas.add(primeraCelda);
-            
-            // Eliminar la nave antigua 
             for (VistaCelda celda : celdasOcupadas) {
                 this.celdas[celda.getFila()][celda.getColumna()].setNave(null);
             }
-            // Colocar la nave en la nueva orientación
             nave.setCeldasOcupadas(nuevasCeldasOcupadas);
             nave.setDireccion(!horizontal);
             colocarNave(nave);
         }
-        
+
     }
-    
-    private boolean puedeColocarNave(Set<VistaCelda> celdasOcupadas) {
+
+    private boolean puedeColocarNave(Set<VistaCelda> celdasOcupadas, VistaNave naveActual) {
         for (VistaCelda celda : celdasOcupadas) {
             int fila = celda.getFila();
             int columna = celda.getColumna();
-            if (fila < 0 || fila >= 10 || columna < 0 || columna >= 10 || celdas[fila][columna].getNave() != null) {
-                System.out.println(celdas[fila][columna].toString() + " esta ocupada");
-                return false; // No hay espacio
+            VistaNave naveEnCelda = celdas[fila][columna].getNave();
+
+            // Ignorar las celdas ocupadas por la misma nave
+            if (naveEnCelda != null && naveEnCelda != naveActual) {
+                System.out.println(celdas[fila][columna].toString() + " está ocupada por otra nave.");
+                return false; // La celda está ocupada por otra nave
             }
         }
         return true;
@@ -189,7 +256,7 @@ public class VistaTablero extends JPanel {
 
     public boolean colocarNave(VistaNave nave) {
         Set<VistaCelda> celdasOcupadas = nave.getCeldasOcupadas();
-        if (puedeColocarNave(celdasOcupadas)) {
+        if (puedeColocarNave(celdasOcupadas, nave)) {
             for (VistaCelda celda : celdasOcupadas) {
                 this.celdas[celda.getFila()][celda.getColumna()].setNave(nave);
             }
