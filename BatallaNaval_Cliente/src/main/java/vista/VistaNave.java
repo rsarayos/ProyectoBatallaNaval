@@ -14,10 +14,12 @@ public class VistaNave extends JPanel {
     private Set<VistaCelda> celdasOcupadas;
     // true = horizontal, false = vertical
     private boolean direccion;
+    private int numNave;
     
-    public VistaNave(Set<VistaCelda> celdasOcupadas, boolean direccion) {
+    public VistaNave(Set<VistaCelda> celdasOcupadas, boolean direccion, int numNave) {
         this.celdasOcupadas = celdasOcupadas;
         this.direccion = direccion;
+        this.numNave = numNave;
     }
     
     protected void paintComponent(Graphics g, int x, int y, int width, int height) {
@@ -44,9 +46,39 @@ public class VistaNave extends JPanel {
         this.direccion = direccion;
     }
 
+    public int getNumNave() {
+        return numNave;
+    }
+
+    public void setNumNave(int numNave) {
+        this.numNave = numNave;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 3;
+        hash = 29 * hash + this.numNave;
+        return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        final VistaNave other = (VistaNave) obj;
+        return this.numNave == other.numNave;
+    }
+
     @Override
     public String toString() {
-        return "VistaNave{" + "celdasOcupadas=" + celdasOcupadas + '}';
-    } 
+        return "VistaNave{" + "celdasOcupadas=" + celdasOcupadas + ", direccion=" + direccion + ", numNave=" + numNave + '}';
+    }
     
 }

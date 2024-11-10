@@ -14,6 +14,7 @@ public class VistaCelda extends JPanel {
     private int fila, columna;
     private VistaNave nave;
     private boolean isHighlighted = false;
+    private boolean esAdyacente = false;
     private VistaTablero tablero;
 
     public VistaCelda(int fila, int columna, VistaTablero tablero) {
@@ -26,6 +27,14 @@ public class VistaCelda extends JPanel {
         this.isHighlighted = highlighted;
         // Repaint para actualizar el color
         repaint(); 
+    }
+
+    public boolean isEsAdyacente() {
+        return esAdyacente;
+    }
+
+    public void setEsAdyacente(boolean esAdyacente) {
+        this.esAdyacente = esAdyacente;
     }
 
     public void setNave(VistaNave nave) {
@@ -77,7 +86,7 @@ public class VistaCelda extends JPanel {
 
     @Override
     public String toString() {
-        return "VistaCelda{" + "fila=" + fila + ", columna=" + columna + '}';
+        return "VistaCelda{" + "fila=" + fila + ", columna=" + columna + '}' + "Es adyacente: " + esAdyacente;
     }
     
 }
