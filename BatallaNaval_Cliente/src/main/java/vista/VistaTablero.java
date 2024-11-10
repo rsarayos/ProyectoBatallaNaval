@@ -74,20 +74,50 @@ public class VistaTablero extends JPanel {
         if (celdaSeleccionada.getNave() != null) {
             if (e.getButton() == MouseEvent.BUTTON3) { // Botón derecho
                 System.out.println("se presiono rotar");
+                celdasOcupadasNaveSeleccionada = celdaSeleccionada.getNave().getCeldasOcupadas();
+                celdasOcupadasNaveInicio = celdaSeleccionada.getNave().getCeldasOcupadas();
+                naveSeleccionada = celdaSeleccionada.getNave();
+                System.out.println(naveSeleccionada.toString());
+                celdaOriginal = celdaSeleccionada;
+                // Desmarcar las celdas adyacentes de la posición anterior
+                // primero revisamos las celdas que rodean la nave:
+                Set<VistaCelda> celdasAdyacentesTotales = obtenerAdyacentes(celdasOcupadasNaveInicio);
+                Set<VistaCelda> celdasAdyacentesExclusivas = new HashSet();
+                // limpiamos la lista de celdas que son adyacentes con otra nave
+                for (VistaCelda c : celdasAdyacentesTotales) {
+                    if (verificarCeldasAlrededor(c, naveSeleccionada)) {
+                        celdasAdyacentesExclusivas.add(c);
+                    } else {
+                        celdasAdyacentesCompartidas.add(c);
+
+                    }
+                }
+
+                // finalmente desmarcamos solo las que sean exclusivas
+                marcarAdyacentes(celdasAdyacentesExclusivas, false);
+
                 rotar(celdaSeleccionada.getNave());
+                celdasAdyacentesCompartidas.clear();
+                celdaSeleccionada = null;
+                celdasOcupadasNaveSeleccionada = null;
+                // volvemos a marcar las celdas adyacentes de las otras naves, por que no se por que se desmarcan fak
+                for (VistaNave n : navesEnTablero) {
+                    if (naveSeleccionada.getNumNave() != n.getNumNave()) {
+                        marcarAdyacentes(n.getCeldasOcupadas(), true);
+                    }
+                }
                 repaint();
             } else {
                 isDragging = true;
                 celdasOcupadasNaveSeleccionada = celdaSeleccionada.getNave().getCeldasOcupadas();
                 celdasOcupadasNaveInicio = celdaSeleccionada.getNave().getCeldasOcupadas();
                 naveSeleccionada = celdaSeleccionada.getNave();
+                System.out.println("se selecciono nave");
+                System.out.println(naveSeleccionada.toString());
                 celdaOriginal = celdaSeleccionada;
                 // Desmarcar las celdas adyacentes de la posición anterior
                 // primero revisamos las celdas que rodean la nave:
                 Set<VistaCelda> celdasAdyacentesTotales = obtenerAdyacentes(celdasOcupadasNaveInicio);
-                System.out.println("---------------------------");
-                System.out.println("Las celdas adyacentes son:");
-                System.out.println(celdasAdyacentesTotales);
                 Set<VistaCelda> celdasAdyacentesExclusivas = new HashSet();
                 // limpiamos la lista de celdas que son adyacentes con otra nave
                 for (VistaCelda c : celdasAdyacentesTotales) {
@@ -100,13 +130,7 @@ public class VistaTablero extends JPanel {
                 }
                 
                 // finalmente desmarcamos solo las que sean exclusivas
-                System.out.println("---------------------------");
-                System.out.println("Las celdas exclusivas son:");
-                System.out.println(celdasAdyacentesExclusivas);
                 marcarAdyacentes(celdasAdyacentesExclusivas, false);
-                System.out.println("---------------------------");
-                System.out.println("Las celdas compartidas son:");
-                System.out.println(celdasAdyacentesCompartidas);
 
                 // Guardamos los desplazamientos relativos al inicio del arrastre
                 desplazamientosRelativos = new ArrayList<>();
@@ -115,12 +139,8 @@ public class VistaTablero extends JPanel {
                     int deltaColumna = celda.getColumna() - celdaSeleccionada.getColumna();
                     desplazamientosRelativos.add(new Point(deltaFila, deltaColumna));
                 }
-
-                System.out.println("La nave seleccionada es:");
-                System.out.println(naveSeleccionada.toString());
-                System.out.println("");
                 
-                // volvemos a marcar las celdas adyacentes de las otras naves, por que no se por que se desmarcan 
+                // volvemos a marcar las celdas adyacentes de las otras naves, por que no se por que se desmarcan fak
                 for (VistaNave n : navesEnTablero) {
                     if (naveSeleccionada.getNumNave() != n.getNumNave()) {
                         marcarAdyacentes(n.getCeldasOcupadas(), true);
@@ -259,8 +279,10 @@ public class VistaTablero extends JPanel {
                 primeraCelda = celda;
             }
         }
+        
+        
 
-        // Calcular las nuevas celdas según la dirección de rotación
+        // Calcular las nuevas celdas para la rotación
         Set<VistaCelda> nuevasCeldasOcupadas = new HashSet<>();
         int tamañoNave = celdasOcupadas.size();
 
@@ -268,24 +290,50 @@ public class VistaTablero extends JPanel {
             int nuevaFila = horizontal ? primeraCelda.getFila() + i : primeraCelda.getFila();
             int nuevaColumna = horizontal ? primeraCelda.getColumna() : primeraCelda.getColumna() + i;
 
-            // Verificamos si la posición está dentro de los límites del tablero
+            // Verificar si está dentro de los límites
             if (nuevaFila >= 0 && nuevaFila < 10 && nuevaColumna >= 0 && nuevaColumna < 10) {
                 nuevasCeldasOcupadas.add(celdas[nuevaFila][nuevaColumna]);
             } else {
-                // Si no cabe, abortamos la rotación
+                // Abortamos si está fuera de los límites
                 return;
             }
         }
 
+        // Verificar si las nuevas celdas no están ocupadas por otra nave
         if (puedeColocarNave(nuevasCeldasOcupadas, nave)) {
-            // Realizar la rotación si las celdas nuevas son válidas
-            nuevasCeldasOcupadas.add(primeraCelda);
+            // Verificar las adyacencias de las nuevas celdas ocupadas
+            for (VistaCelda nuevaCelda : nuevasCeldasOcupadas) {
+                Set<VistaCelda> adyacentes = obtenerAdyacentes(nuevaCelda);
+                for (VistaCelda adyacente : adyacentes) {
+                    if (adyacente.getNave() != null && adyacente.getNave() != nave) {
+                        // Cancelamos la rotación si hay otra nave en las adyacencias
+                        return;
+                    }
+                }
+            }
+
+            // Realizamos la rotación
             for (VistaCelda celda : celdasOcupadas) {
-                this.celdas[celda.getFila()][celda.getColumna()].setNave(null);
+                celda.setNave(null);
+            }
+            
+            for (VistaCelda celda : celdasOcupadas) {
+                for (int i = 0; i < 10; i++) {
+                    for (int j = 0; j < 10; j++) {
+                        if (celdas[i][j].getFila() == celda.getFila() && celdas[i][j].getColumna() == celda.getColumna()) {
+                            celdas[i][j].setNave(null);
+                        }
+                    }
+                }
+
+//            celda.setNave(null); // Limpia la referencia a la nave de las celdas anteriores
+//            celda.setHighlighted(false); // Limpia el resaltado, si es necesario
             }
             nave.setCeldasOcupadas(nuevasCeldasOcupadas);
             nave.setDireccion(!horizontal);
             colocarNave(nave);
+            // desdibujamos las posicion de la nave anterior
+            
         }
 
     }
@@ -312,6 +360,7 @@ public class VistaTablero extends JPanel {
                 this.celdas[celda.getFila()][celda.getColumna()].setNave(nave);
             }
             marcarAdyacentes(nave.getCeldasOcupadas(), true);
+            desmarcarCeldasNaveAdyacentes();
             return true;
         }
         return false;
@@ -442,6 +491,38 @@ public class VistaTablero extends JPanel {
 
     public void setNavesEnTablero(VistaNave nave) {
         this.navesEnTablero.add(nave);
+    }
+    
+    public void desmarcarCeldasNaveAdyacentes(){
+        for (int i = 0; i < 10; i++) {
+            for (int j = 0; j < 10; j++) {
+                if(celdas[i][j].getNave() != null){
+                    celdas[i][j].setEsAdyacente(false);
+                }
+            }
+        }
+    }
+    
+    public Set<VistaCelda> obtenerAdyacentes(VistaCelda celda) {
+        Set<VistaCelda> celdasAdyacentes = new HashSet<>();
+        int fila = celda.getFila();
+        int columna = celda.getColumna();
+
+        // Coordenadas de las 8 celdas adyacentes (arriba, abajo, izquierda, derecha y diagonales)
+        int[] desplazamientosFila = {-1, -1, -1, 0, 0, 1, 1, 1};
+        int[] desplazamientosColumna = {-1, 0, 1, -1, 1, -1, 0, 1};
+
+        for (int i = 0; i < desplazamientosFila.length; i++) {
+            int nuevaFila = fila + desplazamientosFila[i];
+            int nuevaColumna = columna + desplazamientosColumna[i];
+
+            // Verificamos si la celda adyacente está dentro de los límites del tablero
+            if (nuevaFila >= 0 && nuevaFila < celdas.length && nuevaColumna >= 0 && nuevaColumna < celdas[0].length) {
+                celdasAdyacentes.add(celdas[nuevaFila][nuevaColumna]);
+            }
+        }
+
+        return celdasAdyacentes;
     }
 
 }

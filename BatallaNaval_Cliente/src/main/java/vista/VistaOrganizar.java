@@ -38,7 +38,7 @@ public class VistaOrganizar implements EstadoJuego {
         celdasNave2.add(new VistaCelda(5, 0, tablero));
         celdasNave2.add(new VistaCelda(6, 0, tablero));
         celdasNave2.add(new VistaCelda(7, 0, tablero));
-        VistaNave nave2 = new VistaNave(celdasNave2, true, 2);
+        VistaNave nave2 = new VistaNave(celdasNave2, false, 2);
         tablero.colocarNave(nave2);
         tablero.setNavesEnTablero(nave2);
 

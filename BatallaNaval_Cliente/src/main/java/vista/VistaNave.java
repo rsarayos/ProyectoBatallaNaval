@@ -78,7 +78,7 @@ public class VistaNave extends JPanel {
 
     @Override
     public String toString() {
-        return "VistaNave{" + "celdasOcupadas=" + celdasOcupadas + ", direccion=" + direccion + ", numNave=" + numNave + '}';
+        return "VistaNave{" + numNave + '}';
     }
     
 }
