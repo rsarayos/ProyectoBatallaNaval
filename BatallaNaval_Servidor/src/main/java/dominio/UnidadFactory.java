@@ -6,8 +6,8 @@ package dominio;
 
 /**
  *
- * @author alex_
+ * @author af_da
  */
-public class D {
+public class UnidadFactory {
     
 }
