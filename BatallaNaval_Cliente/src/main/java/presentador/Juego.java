@@ -26,8 +26,8 @@ public class Juego implements Runnable {
     protected static final int FPS_SET = 60;
     // UPS deseados 
     protected static final int UPS_SET = 150;
-    public final static int GAME_ANCHO = 640;
-    public final static int GAME_ALTO = 480;
+    public final static int GAME_ANCHO = 900;
+    public final static int GAME_ALTO = 720;
     
     private VistaBienvenida vBienvenida;
     private VistaMenu vMenu;
