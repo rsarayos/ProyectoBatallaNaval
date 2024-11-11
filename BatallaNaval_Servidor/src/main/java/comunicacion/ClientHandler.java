@@ -13,7 +13,7 @@ public class ClientHandler implements Runnable {
     private final Socket clientSocket;
     private final Socket otherClientSocket;
     private final String clientName;
-
+    
     public ClientHandler(Socket clientSocket, Socket otherClientSocket, String clientName) {
         this.clientSocket = clientSocket;
         this.otherClientSocket = otherClientSocket;

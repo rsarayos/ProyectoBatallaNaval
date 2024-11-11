@@ -1,6 +1,7 @@
 package presentador;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import enums.AccionesJugador;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.util.HashMap;
@@ -46,10 +47,16 @@ public class Principal {
 
                         // Crear un mapa de datos como si fuera un JSON
                         Map<String, Object> data = new HashMap<>();
-                        data.put("accion", "ORDENAR");
-                        data.put("x", 200);
-                        data.put("y", 150);
-
+                        data.put("accion", AccionesJugador.ORDENAR.name());
+                        data.put("tipo_nave","portaaviones");
+                        data.put("x1", 200);
+                        data.put("y1", 150);
+                        data.put("x2", 150);
+                        data.put("y2", 150);
+                        data.put("x3", 150);
+                        data.put("y3", 150);
+                        data.put("x4", 150);
+                        data.put("y4", 150);
                         // Convertir el mapa a una cadena JSON usando Jackson
                         ObjectMapper objectMapper = new ObjectMapper();
                         String json = objectMapper.writeValueAsString(data);
