@@ -1,6 +1,7 @@
 package vista;
 
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.util.HashSet;
@@ -35,6 +36,7 @@ public class VistaOrganizar implements EstadoJuego {
         g.drawString("Organizar naves", (Juego.GAME_ANCHO / 3), 50);
 
         if (!panelJuego.isAncestorOf(tablero)) {
+            tablero.setCursor(new Cursor(Cursor.HAND_CURSOR));
             panelJuego.agregarComponente(tablero, 50, 50, 300, 300);
         }
         if (!panelJuego.isAncestorOf(colorSelector)) {
