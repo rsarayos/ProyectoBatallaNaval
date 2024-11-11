@@ -1,15 +1,15 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package comunicacion;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.msgpack.core.MessageUnpacker;
 import org.msgpack.core.MessagePack;
+
 import java.io.InputStream;
 import java.net.Socket;
+import java.util.Map;
 
 public class ClientHandler implements Runnable {
+
     private final Socket clientSocket;
     private final Socket otherClientSocket;
     private final String clientName;
@@ -22,17 +22,29 @@ public class ClientHandler implements Runnable {
 
     @Override
     public void run() {
-        try (InputStream inputStream = clientSocket.getInputStream();
-             MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(inputStream)) {
+        try (InputStream inputStream = clientSocket.getInputStream(); MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(inputStream)) {
 
-            // Continuar leyendo mensajes mientras el cliente esté conectado
+            // Continuar leyendo mientras el cliente esté conectado
             while (!clientSocket.isClosed()) {
                 if (unpacker.hasNext()) {
-                    String mensaje = unpacker.unpackString();
-                    System.out.println("Mensaje recibido de " + clientName + ": " + mensaje);
+                    // Leer la cadena JSON empaquetada con MessagePack
+                    String json = unpacker.unpackString();
 
-                    // Reenviar el mensaje al otro cliente
-                    MessageUtil.enviarMensaje(otherClientSocket, clientName + ": " + mensaje);
+                    // Usar Jackson para convertir la cadena JSON a un mapa
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    Map<String, Object> data = objectMapper.readValue(json, Map.class);
+
+//                    // Extraer la acción y los parámetros
+//                    String accion = (String) data.get("accion");
+//                    Integer x = (Integer) data.get("x");
+//                    Integer y = (Integer) data.get("y");
+//
+//                    // Mostrar la acción recibida y los parámetros
+//                    System.out.println("Acción recibida: " + accion + ", x: " + x + ", y: " + y);
+                    // Procesar la acción recibida
+                    HandlerActions handler = new HandlerActions();
+                    System.out.println("Apartir de aqui es la clase encargada de recibir cada peticion");
+                    handler.handlerAction(data);  // Llamamos al método que maneja la acción
                 }
             }
 

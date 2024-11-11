@@ -12,8 +12,10 @@ import java.net.Socket;
  * @author af_da
  */
 public class Servidor {
+
     private static Socket clientSocket1;
     private static Socket clientSocket2;
+
     /**
      * @param args the command line arguments
      */
@@ -23,17 +25,12 @@ public class Servidor {
             System.out.println("Servidor esperando conexiones en los puertos 5000 y 5001...");
 
             // Aceptar ambas conexiones de clientes
-            System.out.println("Esperando conexión del cliente en el puerto 5000...");
             clientSocket1 = serverSocket1.accept();
-            System.out.println("Cliente 1 conectado desde: " + clientSocket1.getInetAddress());
-
-            System.out.println("Esperando conexión del cliente en el puerto 5001...");
             clientSocket2 = serverSocket2.accept();
-            System.out.println("Cliente 2 conectado desde: " + clientSocket2.getInetAddress());
-
+            System.out.println(clientSocket1);
             // Informar a ambos clientes que están conectados
-            MessageUtil.enviarMensaje(clientSocket1, "Ambos clientes están conectados. Puedes continuar.");
-            MessageUtil.enviarMensaje(clientSocket2, "Ambos clientes están conectados. Puedes continuar.");
+            MessageUtil.enviarMensaje(clientSocket1, "Ambos clientes están conectados.");
+            MessageUtil.enviarMensaje(clientSocket2, "Ambos clientes están conectados.");
 
             // Iniciar hilos para manejar ambos clientes
             new Thread(new ClientHandler(clientSocket1, clientSocket2, "Cliente 1")).start();

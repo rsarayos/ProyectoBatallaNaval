@@ -73,3 +73,5 @@ lib/
 
 # Metadata de Git
 **/.git/
+/BatallaNaval_Libreria/dist/
+/BatallaNaval_Libreria/build/
