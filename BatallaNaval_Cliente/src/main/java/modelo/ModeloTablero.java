@@ -16,6 +16,8 @@ public class ModeloTablero {
 
     public ModeloTablero() {
 
+        casillas = new ModeloCasilla[FILAS][COLUMNAS];
+        
         // se crean las casillas
         for (int i = 0; i < 10; i++) {
             for (int j = 0; j < 10; j++) {
@@ -29,70 +31,19 @@ public class ModeloTablero {
 
     }
 
-    public ModeloCasilla getCasilla(int fila, int columna) {
-        if (fila >= 0 && fila < FILAS && columna >= 0 && columna < COLUMNAS) {
-            return casillas[fila][columna];
-        }
-        return null;
-    }
-
-    public boolean agregarUnidad(MUbicacionUnidad ubicacionUnidad) {
-        // Validamos que la ubicación no esté ocupada ni en celdas adyacentes
-        if (validarUbicacionLibre(ubicacionUnidad)) {
-            this.unidades.add(ubicacionUnidad);
-            marcarCasillasOcupadas(ubicacionUnidad);
-            return true;
-        }
-        return false;
-    }
-
-    private boolean validarUbicacionLibre(MUbicacionUnidad ubicacionUnidad) {
-        // Implementación que verifica que ninguna celda de `ubicacionUnidad`
-        // esté ocupada ni adyacente a otras unidades.
-        for (ModeloCasilla casilla : ubicacionUnidad.getUbicacion()) {
-            if (casilla.isEsAdyacente() || casillaOcupada(casilla)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private boolean casillaOcupada(ModeloCasilla casilla) {
-        return unidades.stream()
-                .flatMap(unidad -> unidad.getUbicacion().stream())
-                .anyMatch(c -> c.equals(casilla));
-    }
-
-    private void marcarCasillasOcupadas(MUbicacionUnidad ubicacionUnidad) {
-        for (ModeloCasilla casilla : ubicacionUnidad.getUbicacion()) {
-            Set<ModeloCasilla> adyacentes = obtenerCasillasAdyacentes(casilla);
-            adyacentes.forEach(c -> c.setEsAdyacente(true));
-        }
-    }
-
-    private Set<ModeloCasilla> obtenerCasillasAdyacentes(ModeloCasilla casilla) {
-        Set<ModeloCasilla> adyacentes = new HashSet<>();
-        int fila = casilla.getCoordenada().getX();
-        int columna = casilla.getCoordenada().getY();
-
-        int[] desplazamientos = {-1, 0, 1};
-        for (int dx : desplazamientos) {
-            for (int dy : desplazamientos) {
-                if (!(dx == 0 && dy == 0)) {
-                    int nuevaFila = fila + dx;
-                    int nuevaColumna = columna + dy;
-                    ModeloCasilla adyacente = getCasilla(nuevaFila, nuevaColumna);
-                    if (adyacente != null) {
-                        adyacentes.add(adyacente);
-                    }
-                }
-            }
-        }
-        return adyacentes;
+    public ModeloCasilla[][] getCasillas() {
+        return casillas;
     }
 
     public Set<MUbicacionUnidad> getUnidades() {
         return unidades;
+    }
+
+    public ModeloCasilla getCasilla(int x, int y) {
+        if (x >= 0 && x < FILAS && y >= 0 && y < COLUMNAS) {
+            return casillas[x][y];
+        }
+        return null;
     }
 
 }

@@ -10,11 +10,11 @@ import java.util.Set;
 public class MUbicacionUnidad {
     
     private ModeloUnidad unidad;
-    private Set<ModeloCasilla> ubicacion;
+    private Set<ModeloCasilla> casillasOcupadas;
 
-    public MUbicacionUnidad(ModeloUnidad unidad, Set<ModeloCasilla> ubicacion) {
+    public MUbicacionUnidad(ModeloUnidad unidad, Set<ModeloCasilla> casillasOcupadas) {
         this.unidad = unidad;
-        this.ubicacion = ubicacion;
+        this.casillasOcupadas = casillasOcupadas;
     }
 
     public ModeloUnidad getUnidad() {
@@ -25,12 +25,12 @@ public class MUbicacionUnidad {
         this.unidad = unidad;
     }
 
-    public Set<ModeloCasilla> getUbicacion() {
-        return ubicacion;
+    public Set<ModeloCasilla> getCasillasOcupadas() {
+        return casillasOcupadas;
     }
 
-    public void setUbicacion(Set<ModeloCasilla> ubicacion) {
-        this.ubicacion = ubicacion;
+    public void setCasillasOcupadas(Set<ModeloCasilla> casillasOcupadas) {
+        this.casillasOcupadas = casillasOcupadas;
     }
     
 }

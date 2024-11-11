@@ -1,29 +1,67 @@
 package modelo;
 
+import java.util.HashSet;
+import java.util.Set;
+
 /**
  *
  * @author alex_
  */
 public class ModeloCasilla {
-    
+
     private final MCoordenada coordenada;
-    private boolean esAdyacente;
+    private Set<MUbicacionUnidad> navesAdyacentes;
+    private MUbicacionUnidad unidadOcupante;
+    private boolean isHighlighted;
 
     public ModeloCasilla(MCoordenada coordenada) {
         this.coordenada = coordenada;
-        this.esAdyacente = false;
+        this.navesAdyacentes = new HashSet<>();
+        this.unidadOcupante = null;
+        this.isHighlighted = false;
     }
 
     public MCoordenada getCoordenada() {
         return coordenada;
     }
 
-    public boolean isEsAdyacente() {
-        return esAdyacente;
+    // Métodos para gestionar naves adyacentes
+    public void agregarNaveAdyacente(MUbicacionUnidad nave) {
+        navesAdyacentes.add(nave);
     }
 
-    public void setEsAdyacente(boolean esAdyacente) {
-        this.esAdyacente = esAdyacente;
+    public void eliminarNaveAdyacente(MUbicacionUnidad nave) {
+        navesAdyacentes.remove(nave);
     }
-    
+
+    public boolean esAdyacentePorOtraNave(MUbicacionUnidad naveActual) {
+        // Retorna true si hay alguna nave adyacente que no sea la actual
+        for (MUbicacionUnidad nave : navesAdyacentes) {
+            if (!nave.equals(naveActual)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public Set<MUbicacionUnidad> getNavesAdyacentes() {
+        return navesAdyacentes;
+    }
+
+    public MUbicacionUnidad getUnidadOcupante() {
+        return unidadOcupante;
+    }
+
+    public void setUnidadOcupante(MUbicacionUnidad unidadOcupante) {
+        this.unidadOcupante = unidadOcupante;
+    }
+
+    public boolean isHighlighted() {
+        return isHighlighted;
+    }
+
+    public void setHighlighted(boolean highlighted) {
+        this.isHighlighted = highlighted;
+    }
+
 }
