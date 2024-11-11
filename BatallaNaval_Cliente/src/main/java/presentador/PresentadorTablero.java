@@ -276,34 +276,6 @@ public class PresentadorTablero {
         return adyacentes;
     }
 
-    // Método para dibujar el tablero
-    public void dibujarTablero(Graphics g) {
-//        int tamañoCelda = vista.getTamañoCelda().width;
-//
-//        for (int i = 0; i < modeloTablero.getCasillas().length; i++) {
-//            for (int j = 0; j < modeloTablero.getCasillas()[i].length; j++) {
-//                ModeloCasilla casilla = modeloTablero.getCasilla(i, j);
-//
-//                int x = j * tamañoCelda;
-//                int y = i * tamañoCelda;
-//
-//                // Dibujar fondo
-//                if (casilla.getUnidadOcupante() != null) {
-//                    g.setColor(Color.BLUE);
-//                } else if (casilla.isEsAdyacente()) {
-//                    g.setColor(Color.LIGHT_GRAY);
-//                } else {
-//                    g.setColor(Color.WHITE);
-//                }
-//                g.fillRect(x, y, tamañoCelda, tamañoCelda);
-//
-//                // Dibujar borde
-//                g.setColor(Color.BLACK);
-//                g.drawRect(x, y, tamañoCelda, tamañoCelda);
-//            }
-//        }
-    }
-
     private void inicializarNaves() {
         // Lista para almacenar las unidades creadas
         List<ModeloUnidad> unidades = new ArrayList<>();
