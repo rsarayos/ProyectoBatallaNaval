@@ -3,6 +3,7 @@ package vista;
 import java.awt.Graphics;
 import javax.swing.JButton;
 import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
 import presentador.Juego;
 
 /**
@@ -15,17 +16,20 @@ public class VistaSalaEspera implements EstadoJuego {
     private JButton botonContinuar;
     private JButton botonSalir;
     private JTable listaJugadores;
+    private DefaultTableModel modeloTabla;
+    private String codigoAcceso;
+    private String idJugador;
     
     public VistaSalaEspera(PanelJuego panelJuego) {
         this.panelJuego = panelJuego;
         this.botonContinuar = UtilesVista.crearBoton("Continuar");
         this.botonSalir = UtilesVista.crearBoton("Regresar");
-        Object[][] datos = {
-            {"Jugador 1"},
-            {"Jugador 2"}
-        };
+
+        // Inicializar modelo de tabla
         String[] columnas = {"Nombre de Jugador"};
-        this.listaJugadores = UtilesVista.crearTabla(datos, columnas, 400, 60);
+        modeloTabla = new DefaultTableModel(columnas, 0);
+        this.listaJugadores = new JTable(modeloTabla);
+
         accionesComponentes();
     }
 
@@ -36,14 +40,12 @@ public class VistaSalaEspera implements EstadoJuego {
 
         g.setColor(UtilesVista.COLOR_TEXTO_AZUL_OSCURO);
         UtilesVista.dibujarTextoCentrado(g, "SALA DE ESPERA", 60, UtilesVista.FUENTE_TITULO);
-        UtilesVista.dibujarTextoCentrado(g, "Proporciona el codigo que se muestra debajo a otro jugador", 150, UtilesVista.FUENTE_SUBTITULO);
+        UtilesVista.dibujarTextoCentrado(g, "Proporciona el código que se muestra debajo a otro jugador", 150, UtilesVista.FUENTE_SUBTITULO);
         UtilesVista.dibujarTextoCentrado(g, "para que se pueda unir a esta sala", 180, UtilesVista.FUENTE_SUBTITULO);
-        UtilesVista.dibujarTextoCentrado(g, "Codigo de la sala:", 250, UtilesVista.FUENTE_SUBTITULO);
-        UtilesVista.dibujarTextoCentrado(g, "XXXX", 280, UtilesVista.FUENTE_SUBTITULO);
+        UtilesVista.dibujarTextoCentrado(g, "Código de la sala:", 250, UtilesVista.FUENTE_SUBTITULO);
+        UtilesVista.dibujarTextoCentrado(g, codigoAcceso != null ? codigoAcceso : "Esperando...", 280, UtilesVista.FUENTE_SUBTITULO);
         UtilesVista.dibujarTextoCentrado(g, "Lista de Jugadores en la sala", 410, UtilesVista.FUENTE_SUBTITULO);
-        
-        
-        
+
         // Agregar componentes al panel si no están ya agregados
         if (!panelJuego.isAncestorOf(botonContinuar)) {
             panelJuego.agregarComponente(botonContinuar, (Juego.GAME_ANCHO - 500) / 2, Juego.GAME_ALTO - 150, 200, 40);
@@ -54,8 +56,7 @@ public class VistaSalaEspera implements EstadoJuego {
         if (!panelJuego.isAncestorOf(listaJugadores)) {
             panelJuego.agregarComponente(listaJugadores, (Juego.GAME_ANCHO - 400) / 2, Juego.GAME_ALTO - 300, 400, 60);
         }
-        
-        
+
     }
 
     @Override
@@ -81,4 +82,18 @@ public class VistaSalaEspera implements EstadoJuego {
         });
     }
     
+    public void setCodigoAcceso(String codigoAcceso) {
+        this.codigoAcceso = codigoAcceso;
+        // Actualizar la interfaz gráfica
+        panelJuego.repaint();
+    }
+
+    public void setIdJugador(String idJugador) {
+        this.idJugador = idJugador;
+    }
+
+    public void agregarJugador(String nombreJugador) {
+        modeloTabla.addRow(new Object[]{nombreJugador});
+    }
+
 }

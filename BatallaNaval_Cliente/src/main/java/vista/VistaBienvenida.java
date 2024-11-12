@@ -3,7 +3,9 @@ package vista;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
+import modelo.ModeloJugador;
 import presentador.Juego;
 
 /**
@@ -55,14 +57,28 @@ public class VistaBienvenida implements EstadoJuego {
     public void accionesComponentes() {
         // Agregar acción al botón
         botonIniciar.addActionListener(e -> {
-            panelJuego.quitarComponente(campoNombre);
-            panelJuego.quitarComponente(botonIniciar);
-            EstadosJuego.estado = EstadosJuego.MENU; // Cambiar el estado
+            if (!campoNombre.getText().isBlank()) {
+                if (validarNombre(campoNombre.getText())) {
+                    ModeloJugador jugador = ModeloJugador.getInstance();
+                    jugador.setNombre(campoNombre.getText());
+                    panelJuego.quitarComponente(campoNombre);
+                    panelJuego.quitarComponente(botonIniciar);
+                    EstadosJuego.estado = EstadosJuego.MENU;
+                } else {
+                    JOptionPane.showMessageDialog(panelJuego, "El nombre no tiene el formato adecuado", "Nombre invalido", JOptionPane.INFORMATION_MESSAGE);
+                }
+            } else {
+                JOptionPane.showMessageDialog(panelJuego, "El nombre no puede estar vacio", "Nombre vacio", JOptionPane.INFORMATION_MESSAGE);
+            }
         });
     }
     
     public void cargarImagenes() {
         this.portada = UtilesVista.cargarImagen(UtilesVista.PORTADA);
+    }
+    
+    private boolean validarNombre(String nombre) {
+        return nombre.matches("^[a-zA-Z0-9]{1,15}$");
     }
 
 }

@@ -16,8 +16,8 @@ public class Partida {
 
     public static Partida instance;
     private List<Jugador> jugadores = new ArrayList<>();
-    private Tablero tableroJugador;
-    private Tablero tableroEnemigo;
+    private Tablero tableroJugador1;
+    private Tablero tableroJugador2;
     private Jugador ganador;
     private Long duracion;
     private EstadoPartida estado;
@@ -42,20 +42,20 @@ public class Partida {
         Partida.instance = instance;
     }
 
-    public Tablero getTableroJugador() {
-        return tableroJugador;
+    public Tablero getTableroJugador1() {
+        return tableroJugador1;
     }
 
-    public void setTableroJugador(Tablero tableroJugador) {
-        this.tableroJugador = tableroJugador;
+    public void setTableroJugador1(Tablero tableroJugador) {
+        this.tableroJugador1 = tableroJugador;
     }
 
-    public Tablero getTableroEnemigo() {
-        return tableroEnemigo;
+    public Tablero getTableroJugador2() {
+        return tableroJugador2;
     }
 
-    public void setTableroEnemigo(Tablero tableroEnemigo) {
-        this.tableroEnemigo = tableroEnemigo;
+    public void setTableroJugador2(Tablero tableroJugador2) {
+        this.tableroJugador2 = tableroJugador2;
     }
 
     public Jugador getGanador() {

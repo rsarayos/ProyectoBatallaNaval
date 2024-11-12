@@ -1,9 +1,14 @@
 package presentador;
 
+import comunicacion.ClientConnection;
 import java.awt.Graphics;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
+import modelo.ModeloJugador;
 import vista.EstadosJuego;
 import vista.PanelJuego;
 import vista.VentanaJuego;
@@ -51,6 +56,9 @@ public class Juego implements Runnable {
         venta = new VentanaJuego(panel);
         panel.setFocusable(true);
         panel.requestFocus();
+        
+        // Inicia la conexión con el servidor
+        iniciarConexion();
 
         // Inicializa las vistas
         vBienvenida = new VistaBienvenida(panel);
@@ -133,4 +141,93 @@ public class Juego implements Runnable {
 
     }
     
+    private void iniciarConexion() {
+        ClientConnection clientConnection = ClientConnection.getInstance();
+        boolean conectado = clientConnection.connect("localhost", 5000);
+        if (conectado) {
+            System.out.println("Conectado al servidor.");
+            // Configurar el listener de mensajes
+            clientConnection.setMessageListener(this::onMensajeRecibido);
+        } else {
+            System.out.println("No se pudo conectar al servidor.");
+            // Manejar el error de conexión, por ejemplo, mostrar un mensaje al usuario
+        }
+    }
+    
+    private void onMensajeRecibido(Map<String, Object> mensaje) {
+        SwingUtilities.invokeLater(() -> {
+            String accion = (String) mensaje.get("accion");
+            switch (accion) {
+                case "CREAR_PARTIDA":
+                    handleCrearPartidaResponse(mensaje);
+                    break;
+                case "NUEVO_JUGADOR":
+                    handleNuevoJugador(mensaje);
+                    break;
+                case "UNIRSE_PARTIDA":
+                    handleUnirsePartidaResponse(mensaje);
+                    break;
+                case "ATACAR":
+//                    handleAtacarResponse(mensaje);
+                    break;
+                // Manejar otras acciones
+                default:
+                    System.out.println("Acción desconocida recibida: " + accion);
+                    break;
+            }
+        });
+    }
+
+    private void handleCrearPartidaResponse(Map<String, Object> mensaje) {
+        String codigoAcceso = (String) mensaje.get("codigo_acceso");
+        String idJugador = (String) mensaje.get("id");
+
+        // Guardar el id del jugador en ModeloJugador
+        ModeloJugador jugador = ModeloJugador.getInstance();
+        jugador.setId(idJugador);
+
+        // Configurar la vista de sala de espera
+        vSalaEspera.setCodigoAcceso(codigoAcceso);
+        vSalaEspera.setIdJugador(idJugador);
+
+        // Actualizar la lista de jugadores en la sala de espera
+        vSalaEspera.agregarJugador(jugador.getNombre());
+
+        // Si no has cambiado el estado previamente, podrías hacerlo aquí
+        // EstadosJuego.estado = EstadosJuego.SALA_ESPERA;
+    }
+    
+    private void handleNuevoJugador(Map<String, Object> mensaje) {
+        String nombreJugador = (String) mensaje.get("nombre_jugador");
+        vSalaEspera.agregarJugador(nombreJugador);
+    }
+    
+    private void handleUnirsePartidaResponse(Map<String, Object> mensaje) {
+        if (mensaje.containsKey("error")) {
+            // Mostrar mensaje de error al usuario
+            String error = (String) mensaje.get("error");
+            JOptionPane.showMessageDialog(panel, error, "Error", JOptionPane.ERROR_MESSAGE);
+
+            // Volver al estado anterior si es necesario
+            EstadosJuego.estado = EstadosJuego.BUSCAR_PARTIDA;
+        } else {
+            String idJugador = (String) mensaje.get("id");
+            String codigoAcceso = (String) mensaje.get("codigo_acceso");
+
+            // Guardar el id del jugador en ModeloJugador
+            ModeloJugador jugador = ModeloJugador.getInstance();
+            jugador.setId(idJugador);
+
+            // Configurar la vista de sala de espera
+            vSalaEspera.setCodigoAcceso(codigoAcceso);
+            vSalaEspera.setIdJugador(idJugador);
+
+            // Agregar el propio jugador a la lista de jugadores
+            vSalaEspera.agregarJugador(jugador.getNombre());
+
+            // Cambiar al estado de sala de espera si no lo has hecho antes
+            EstadosJuego.estado = EstadosJuego.SALA_ESPERA;
+        }
+    }
+
 }

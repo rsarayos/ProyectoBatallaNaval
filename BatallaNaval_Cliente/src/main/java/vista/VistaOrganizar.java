@@ -70,11 +70,11 @@ public class VistaOrganizar implements EstadoJuego {
         if (!panelJuego.isAncestorOf(crucero)) {
             panelJuego.agregarComponente(crucero, 600, 400, (30 * 3), 30);
         }
-        g.drawString("Portaaviones", 600, 460);
+        g.drawString("Submarino", 600, 460);
         if (!panelJuego.isAncestorOf(submarino)) {
             panelJuego.agregarComponente(submarino, 600, 470, (30 * 2), 30);
         }
-        g.drawString("Portaaviones", 600, 530);
+        g.drawString("Barco", 600, 530);
         if (!panelJuego.isAncestorOf(barco)) {
             panelJuego.agregarComponente(barco, 600, 540, (30 * 1), 30);
         }

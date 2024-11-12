@@ -1,8 +1,11 @@
 package vista;
 
+import comunicacion.ClientConnection;
 import java.awt.Graphics;
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 import javax.swing.JTextField;
+import modelo.ModeloJugador;
 import presentador.Juego;
 
 /**
@@ -15,9 +18,13 @@ public class VistaBuscarPartida implements EstadoJuego {
     private JButton botonContinuar;
     private JButton botonSalir;
     private JTextField campoSala;
+    private ClientConnection clientConnection;
+    private ModeloJugador jugador;
 
     public VistaBuscarPartida(PanelJuego panelJuego) {
         this.panelJuego = panelJuego;
+        this.clientConnection = ClientConnection.getInstance();
+        this.jugador = ModeloJugador.getInstance();
         this.botonContinuar = UtilesVista.crearBoton("Continuar");
         this.botonSalir = UtilesVista.crearBoton("Regresar");
         this.campoSala = UtilesVista.crearCampoTexto(20);
@@ -60,10 +67,20 @@ public class VistaBuscarPartida implements EstadoJuego {
     public void accionesComponentes() {
         // Agregar acción al botón
         botonContinuar.addActionListener(e -> {
-            panelJuego.quitarComponente(botonContinuar);
-            panelJuego.quitarComponente(botonSalir);
-            panelJuego.quitarComponente(campoSala);
-            EstadosJuego.estado = EstadosJuego.SALA_ESPERA; // Cambiar el estado
+            String codigoAcceso = campoSala.getText().trim();
+            if (!codigoAcceso.isEmpty()) {
+                String nombreJugador = jugador.getNombre();
+                // Enviar solicitud al servidor para unirse a la partida
+                clientConnection.unirsePartida(codigoAcceso, nombreJugador);
+
+                // Cambiar al estado de sala de espera
+                panelJuego.quitarComponente(botonContinuar);
+                panelJuego.quitarComponente(botonSalir);
+                panelJuego.quitarComponente(campoSala);
+//                EstadosJuego.estado = EstadosJuego.SALA_ESPERA; // Cambiar el estado
+            } else {
+                JOptionPane.showMessageDialog(panelJuego, "Por favor, ingresa el código de la sala.", "Código vacío", JOptionPane.WARNING_MESSAGE);
+            }
         });
         // Agregar acción al botón
         botonSalir.addActionListener(e -> {

@@ -1,9 +1,11 @@
 package vista;
 
+import comunicacion.ClientConnection;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import javax.swing.JButton;
+import modelo.ModeloJugador;
 import presentador.Juego;
 
 /**
@@ -16,10 +18,14 @@ public class VistaMenu implements EstadoJuego {
     private JButton botonCrearPartia;
     private JButton botonUnirsePartida;
     private JButton botonInstrucciones;
+    private ClientConnection clientConnection;
+    private ModeloJugador jugador;
     
 
     public VistaMenu(PanelJuego panelJuego) {
         this.panelJuego = panelJuego;
+        this.clientConnection = ClientConnection.getInstance();
+        this.jugador = ModeloJugador.getInstance();
         this.botonCrearPartia = UtilesVista.crearBoton("Crear partida");
         this.botonUnirsePartida = UtilesVista.crearBoton("Unirse a partida");
         this.botonInstrucciones = UtilesVista.crearBoton("Instrucciones");
@@ -56,6 +62,10 @@ public class VistaMenu implements EstadoJuego {
     public void accionesComponentes() {
         // Agregar acción al botón
         botonCrearPartia.addActionListener(e -> {
+            String nombreJugador = jugador.getNombre();
+            // Enviar solicitud al servidor
+            clientConnection.crearPartida(nombreJugador);
+            // quitar componentes
             panelJuego.quitarComponente(botonCrearPartia);
             panelJuego.quitarComponente(botonUnirsePartida);
             panelJuego.quitarComponente(botonInstrucciones);
