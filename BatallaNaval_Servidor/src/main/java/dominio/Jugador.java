@@ -5,15 +5,18 @@
 package dominio;
 
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  *
  * @author af_da
  */
 public class Jugador {
+
     private String nombre;
     private Estadisticas estadisticas;
     private List<Unidad> unidades;
+    private String id;
 
     public Jugador(String nombre, Estadisticas estadisticas, List<Unidad> unidades) {
         this.nombre = nombre;
@@ -24,6 +27,14 @@ public class Jugador {
     public Jugador(String nombre, Estadisticas estadisticas) {
         this.nombre = nombre;
         this.estadisticas = estadisticas;
+    }
+
+    public Jugador() {
+    }
+
+    public Jugador(String id, String nombre) {
+        this.id = id;
+        this.nombre = nombre;
     }
 
     public String getNombre() {
@@ -42,6 +53,14 @@ public class Jugador {
         this.estadisticas = estadisticas;
     }
 
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
     public List<Unidad> getUnidades() {
         return unidades;
     }
@@ -49,9 +68,9 @@ public class Jugador {
     public void setUnidades(List<Unidad> unidades) {
         this.unidades = unidades;
     }
-    
-    public void addUnidad(Unidad unidad){
+
+    public void addUnidad(Unidad unidad) {
         this.unidades.add(unidad);
     }
-    
+
 }

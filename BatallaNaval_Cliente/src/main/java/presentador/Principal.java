@@ -2,84 +2,97 @@ package presentador;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import enums.AccionesJugador;
+import java.io.BufferedReader;
+import org.msgpack.core.MessagePack;
+import org.msgpack.core.MessagePacker;
+import org.msgpack.core.MessageUnpacker;
+
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
-import org.msgpack.core.MessagePack;
-import org.msgpack.core.MessagePacker;
 
-/**
- * Clase para ejecutar
- *
- * @author alex_
- */
 public class Principal {
 
-    /**
-     * @param args the command line arguments
-     */
     public static void main(String[] args) {
         // TODO code application logic here
         Juego juego = new Juego();
         juego.run();
 
         Scanner scanner = new Scanner(System.in);
-        System.out.print("Ingrese el puerto al que desea conectarse (5000/5001): ");
-        int port = scanner.nextInt();
-        scanner.nextLine();  // Limpiar el buffer
 
-        try {
-            // Iniciar el bucle infinito
-            try (Socket socket = new Socket("localhost", port); OutputStream outputStream = socket.getOutputStream()) {
+        try (Socket socket = new Socket("localhost", 5000); OutputStream outputStream = socket.getOutputStream(); InputStream inputStream = socket.getInputStream()) {
 
-                while (true) {
-                    System.out.print("Escriba 'enviar' para enviar el mensaje, o 'salir' para salir: ");
-                    String command = scanner.nextLine();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
 
-                    if ("salir".equalsIgnoreCase(command)) {
-                        System.out.println("Saliendo del cliente...");
-                        break;  // Salir del bucle si el usuario escribe "salir"
-                    }
+            while (true) {
+                System.out.println("Ingrese el tipo de accion");
+                String command = scanner.nextLine();
 
-                    if ("enviar".equalsIgnoreCase(command)) {
-
-                        // Crear un mapa de datos como si fuera un JSON
-                        Map<String, Object> data = new HashMap<>();
-                        data.put("accion", AccionesJugador.ORDENAR.name());
-                        data.put("tipo_nave","portaaviones");
-                        data.put("x1", 200);
-                        data.put("y1", 150);
-                        data.put("x2", 150);
-                        data.put("y2", 150);
-                        data.put("x3", 150);
-                        data.put("y3", 150);
-                        data.put("x4", 150);
-                        data.put("y4", 150);
-                        // Convertir el mapa a una cadena JSON usando Jackson
-                        ObjectMapper objectMapper = new ObjectMapper();
-                        String json = objectMapper.writeValueAsString(data);
-
-                        // Empaquetar la cadena JSON con MessagePack
-                        MessagePacker packer = MessagePack.newDefaultPacker(outputStream);
-                        packer.packString(json); // Empacar como una cadena JSON
-                        packer.flush();
-
-                        System.out.println("Mensaje enviado como MessagePack con datos tipo JSON.");
-
-                    }
-
+                if ("salir".equalsIgnoreCase(command)) {
+                    System.out.println("Saliendo del cliente...");
+                    break;  // Salir del bucle si el usuario escribe "salir"
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
 
+                if ("unirse".equalsIgnoreCase(command)) {
+                    // Crear un mapa de datos para enviar
+                    System.out.println("Ingrese el codigo de acceso");
+                    String codigo_acceso = scanner.nextLine();
+                    Map<String, Object> data = new HashMap<>();
+
+                    data.put("accion", AccionesJugador.UNIRSE_PARTIDA.name());
+                    data.put("codigo_acceso", codigo_acceso);
+
+                    // Convertir el mapa a una cadena JSON usando Jackson
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    String json = objectMapper.writeValueAsString(data);
+
+                    // Empaquetar la cadena JSON con MessagePack
+                    MessagePacker packer = MessagePack.newDefaultPacker(outputStream);
+                    packer.packString(json);  // Empacar como una cadena JSON
+                    packer.flush();  // Enviar los datos
+
+                    // Desempaquetar la respuesta del servidor
+                    MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(inputStream);
+                    String serverResponseJson = unpacker.unpackString();  // Leer la respuesta JSON como cadena
+
+                    // Convertir la respuesta JSON a un Map
+                    Map<String, Object> serverResponse = objectMapper.readValue(serverResponseJson, Map.class);
+                    System.out.println("Respuesta del servidor: " + serverResponse);
+                }
+
+                if ("crear".equalsIgnoreCase(command)) {
+                    // Crear un mapa de datos para enviar
+                    Map<String, Object> data = new HashMap<>();
+                    data.put("accion", AccionesJugador.CREAR_PARTIDA.name());
+                    data.put("tipo_nave", "portaaviones");
+
+                    // Convertir el mapa a una cadena JSON usando Jackson
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    String json = objectMapper.writeValueAsString(data);
+
+                    // Empaquetar la cadena JSON con MessagePack
+                    MessagePacker packer = MessagePack.newDefaultPacker(outputStream);
+                    packer.packString(json);  // Empacar como una cadena JSON
+                    packer.flush();  // Enviar los datos
+
+                    // Desempaquetar la respuesta del servidor
+                    MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(inputStream);
+                    String serverResponseJson = unpacker.unpackString();  // Leer la respuesta JSON como cadena
+
+                    // Convertir la respuesta JSON a un Map
+                    Map<String, Object> serverResponse = objectMapper.readValue(serverResponseJson, Map.class);
+                    System.out.println("Respuesta del servidor: " + serverResponse);
+                }
             }
         } catch (Exception e) {
+            System.out.println("Error al enviar o recibir datos: " + e.getMessage());
             e.printStackTrace();
         } finally {
             scanner.close();
         }
     }
-
 }

@@ -9,5 +9,5 @@ package enums;
  * @author af_da
  */
 public enum AccionesJugador {
-    ATACAR,ORDENAR
+    ATACAR,ORDENAR,CREAR_PARTIDA,UNIRSE_PARTIDA
 }

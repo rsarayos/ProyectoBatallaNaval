@@ -5,6 +5,8 @@
 package dominio;
 
 import enums.EstadoPartida;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -13,7 +15,7 @@ import enums.EstadoPartida;
 public class Partida {
 
     public static Partida instance;
-
+    private List<Jugador> jugadores = new ArrayList<>();
     private Tablero tableroJugador;
     private Tablero tableroEnemigo;
     private Jugador ganador;
@@ -24,14 +26,14 @@ public class Partida {
 
     private Partida() {
     }
-    
+
     public static Partida getInstance() {
         if (instance == null) {
             instance = new Partida();
         }
         return instance;
     }
-    
+
     private void actualizarTurno(Jugador jugador) {
         this.jugadorTurno = jugador;
     }
@@ -96,4 +98,17 @@ public class Partida {
         this.codigoAcceso = codigoAcceso;
     }
 
+    public void addJugador(Jugador jugador) {
+        this.jugadores.add(jugador);
+    }
+
+    public List<Jugador> getJugadores() {
+        return jugadores;
+    }
+
+    public void setJugadores(List<Jugador> jugadores) {
+        this.jugadores = jugadores;
+    }
+    
+    
 }

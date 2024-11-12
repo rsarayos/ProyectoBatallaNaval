@@ -6,6 +6,9 @@ package comunicacion;
 
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  *
@@ -13,29 +16,20 @@ import java.net.Socket;
  */
 public class Servidor {
 
-    private static Socket clientSocket1;
-    private static Socket clientSocket2;
+    private static AtomicInteger atomicInteger = new AtomicInteger(1);
 
-    /**
-     * @param args the command line arguments
-     */
     public static void main(String[] args) {
-        try (ServerSocket serverSocket1 = new ServerSocket(5000); ServerSocket serverSocket2 = new ServerSocket(5001)) {
+        try (ServerSocket serverSocket = new ServerSocket(5000)) {
+            System.out.println("Servidor esperando conexiones en el puerto 5000...");
 
-            System.out.println("Servidor esperando conexiones en los puertos 5000 y 5001...");
-
-            // Aceptar ambas conexiones de clientes
-            clientSocket1 = serverSocket1.accept();
-            clientSocket2 = serverSocket2.accept();
-            System.out.println(clientSocket1);
-            // Informar a ambos clientes que están conectados
-            MessageUtil.enviarMensaje(clientSocket1, "Ambos clientes están conectados.");
-            MessageUtil.enviarMensaje(clientSocket2, "Ambos clientes están conectados.");
-
-            // Iniciar hilos para manejar ambos clientes
-            new Thread(new ClientHandler(clientSocket1, clientSocket2, "Cliente 1")).start();
-            new Thread(new ClientHandler(clientSocket2, clientSocket1, "Cliente 2")).start();
-
+            while (true) {
+                Socket clientSocket = serverSocket.accept();
+                System.out.println("Cliente conectado");
+                int id = atomicInteger.getAndIncrement();
+                System.out.println("id del cliente " + id);
+                // Crear y ejecutar un hilo para manejar al cliente
+                new Thread(new ClientHandler(clientSocket, id)).start();
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }

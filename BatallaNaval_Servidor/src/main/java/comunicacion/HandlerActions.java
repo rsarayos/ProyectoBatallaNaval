@@ -6,42 +6,51 @@ import enums.AccionesJugador;
 import static enums.AccionesJugador.ATACAR;
 import static enums.AccionesJugador.ORDENAR;
 import java.io.IOException;
+import java.net.Socket;
+import java.util.HashMap;
 import java.util.Map;
+import negocio.PartidaBO;
 import org.msgpack.core.MessageUnpacker;
 
 public class HandlerActions {
 
-    public void handlerAction(Map<String, Object> data) throws IOException {
+    private PartidaBO partidaBO;
+    private static HandlerActions instance = null;
 
-        if (AccionesJugador.ORDENAR.toString().equalsIgnoreCase(String.valueOf(data.get("accion")))) {
-            PruebaDTO prueba = new PruebaDTO((Integer) data.get("x"), (Integer) data.get("y"), AccionesJugador.ORDENAR);
-            System.out.println("Este es un ejemplo del handlerAction para " + prueba);
+    private HandlerActions() {
+        this.partidaBO = new PartidaBO();
+    }
+
+    // Método estático para obtener la única instancia de HandlerActions
+    public static synchronized HandlerActions getInstance() {
+        if (instance == null) {
+            instance = new HandlerActions();
+        }
+        return instance;
+    }
+
+    public void handlerAction(Map<String, Object> request) throws IOException {
+        String accion = (String) request.get("accion");
+        String clientId = (String) request.get("clientId"); // Puedes pasarlo desde la request
+
+        Socket clientSocket = ClientManager.getClientSocket(clientId);
+        clientId = ClientManager.getClientId(clientSocket); // Y obtener el clientId del socket
+
+        if (AccionesJugador.CREAR_PARTIDA.toString().equalsIgnoreCase(accion)) {
+            Map<String, Object> response = partidaBO.crearPartida(request, clientId);
+            MessageUtil.enviarMensaje(clientSocket, response);
+
+        } else if (AccionesJugador.UNIRSE_PARTIDA.toString().equalsIgnoreCase(accion)) {
+            Map<String, Object> response = partidaBO.unirsePartida(request, clientId);
+            MessageUtil.enviarMensaje(clientSocket, response);
+
         } else {
-
+            // Otras acciones como ATACAR o ORDENAR
+            if (ATACAR.toString().equalsIgnoreCase(accion)) {
+                // Implementar lógica para "atacar"
+            } else if (ORDENAR.toString().equalsIgnoreCase(accion)) {
+                // Implementar lógica para "ordenar"
+            }
         }
     }
 }
-
-//        public void handlerAction(String action) {
-//        Accion accion = getAccion(action);  // Obtener la acción correspondiente
-//        
-//        if (accion != null) {
-//            accion.ejecutar();  // Ejecutar la acción
-//        } else {
-//            System.out.println("Acción no reconocida: " + action);
-//        }
-//    }
-//
-//    private Accion getAccion(String action) {
-//        // Aquí se mapea la acción a su clase correspondiente
-//        switch (AccionesJugador.valueOf(action.toUpperCase())) {
-//            case ORDENAR:
-//                return new AccionOrdenar();
-//            case ATACAR:
-//                return new AccionAtacar();
-//            case MOVER:
-//                return new AccionMover();
-//            default:
-//                return null;
-//        }
-//    }
