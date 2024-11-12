@@ -13,39 +13,68 @@ import presentador.Juego;
 public class VistaMenu implements EstadoJuego {
 
     private PanelJuego panelJuego;
-    private JButton botonIniciar;
+    private JButton botonCrearPartia;
+    private JButton botonUnirsePartida;
+    private JButton botonInstrucciones;
+    
 
     public VistaMenu(PanelJuego panelJuego) {
         this.panelJuego = panelJuego;
-        this.botonIniciar = new JButton("Iniciar Juego");
-        // Agregar acción al botón
-        botonIniciar.addActionListener(e -> {
-            panelJuego.quitarComponente(botonIniciar);
-            EstadosJuego.estado = EstadosJuego.ORGANIZAR; // Cambiar el estado
-        });
+        this.botonCrearPartia = UtilesVista.crearBoton("Crear partida");
+        this.botonUnirsePartida = UtilesVista.crearBoton("Unirse a partida");
+        this.botonInstrucciones = UtilesVista.crearBoton("Instrucciones");
+        accionesComponentes();
     }
     
     @Override
     public void dibujar(Graphics g) {
-        // Dibujar el fondo
-        g.setColor(Color.GRAY);
+        g.setColor(UtilesVista.COLOR_FONDO);
         g.fillRect(0, 0, Juego.GAME_ANCHO, Juego.GAME_ALTO);
 
-        // Dibujar el texto
-        g.setColor(Color.BLUE);
-        g.setFont(new Font("Arial", Font.BOLD, 20));
-        g.drawString("Menu", (Juego.GAME_ANCHO / 3), 50);
+        g.setColor(UtilesVista.COLOR_TEXTO_AZUL_OSCURO);
+        UtilesVista.dibujarTextoCentrado(g, "MENU", 60, UtilesVista.FUENTE_TITULO);
 
         // Agregar componentes al panel si no están ya agregados
-        if (!panelJuego.isAncestorOf(botonIniciar)) {
-            panelJuego.agregarComponente(botonIniciar, 80, 120, 150, 30);
+        if (!panelJuego.isAncestorOf(botonCrearPartia)) {
+            panelJuego.agregarComponente(botonCrearPartia, (Juego.GAME_ANCHO - 200) / 2, Juego.GAME_ALTO - 500, 200, 40);
+        }
+        if (!panelJuego.isAncestorOf(botonUnirsePartida)) {
+            panelJuego.agregarComponente(botonUnirsePartida, (Juego.GAME_ANCHO - 200) / 2, Juego.GAME_ALTO - 400, 200, 40);
+        }
+        if (!panelJuego.isAncestorOf(botonInstrucciones)) {
+            panelJuego.agregarComponente(botonInstrucciones, (Juego.GAME_ANCHO - 200) / 2, Juego.GAME_ALTO - 300, 200, 40);
         }
         
     }
 
     @Override
     public void actualizar() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        
+    }
+
+    @Override
+    public void accionesComponentes() {
+        // Agregar acción al botón
+        botonCrearPartia.addActionListener(e -> {
+            panelJuego.quitarComponente(botonCrearPartia);
+            panelJuego.quitarComponente(botonUnirsePartida);
+            panelJuego.quitarComponente(botonInstrucciones);
+            EstadosJuego.estado = EstadosJuego.SALA_ESPERA; // Cambiar el estado
+        });
+        // Agregar acción al botón
+        botonInstrucciones.addActionListener(e -> {
+            panelJuego.quitarComponente(botonCrearPartia);
+            panelJuego.quitarComponente(botonUnirsePartida);
+            panelJuego.quitarComponente(botonInstrucciones);
+            EstadosJuego.estado = EstadosJuego.INSTRUCCIONES; // Cambiar el estado
+        });
+        // Agregar acción al botón
+        botonUnirsePartida.addActionListener(e -> {
+            panelJuego.quitarComponente(botonCrearPartia);
+            panelJuego.quitarComponente(botonUnirsePartida);
+            panelJuego.quitarComponente(botonInstrucciones);
+            EstadosJuego.estado = EstadosJuego.BUSCAR_PARTIDA; // Cambiar el estado
+        });
     }
     
 }

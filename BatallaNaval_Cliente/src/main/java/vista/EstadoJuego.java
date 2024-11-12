@@ -11,5 +11,6 @@ public interface EstadoJuego {
   
     public void dibujar(Graphics g);
     public void actualizar();
+    public void accionesComponentes();
     
 }

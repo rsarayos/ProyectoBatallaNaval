@@ -58,6 +58,8 @@ public class PresentadorTablero {
             } else if (SwingUtilities.isLeftMouseButton(e)) {
                 // Iniciar arrastre
                 isDragging = true;
+                vista.setIsDragging(true); // Notificar a la vista
+                vista.setUnidadSeleccionada(unidadSeleccionada);
             }
         }
     }
@@ -82,6 +84,8 @@ public class PresentadorTablero {
             isDragging = false;
             unidadSeleccionada = null;
             casillaInicial = null;
+            vista.setIsDragging(false); // Notificar a la vista
+            vista.setUnidadSeleccionada(null);
             
             vista.actualizarVista();
         }
