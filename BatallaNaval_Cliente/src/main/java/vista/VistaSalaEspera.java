@@ -96,4 +96,8 @@ public class VistaSalaEspera implements EstadoJuego {
         modeloTabla.addRow(new Object[]{nombreJugador});
     }
 
+    public void limpiarListaJugadores() {
+        modeloTabla.setRowCount(0);
+    }
+
 }

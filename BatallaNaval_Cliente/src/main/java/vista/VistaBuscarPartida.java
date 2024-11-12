@@ -91,4 +91,10 @@ public class VistaBuscarPartida implements EstadoJuego {
         });
     }
 
+    public JTextField getCampoSala() {
+        return campoSala;
+    }
+    
+    
+
 }

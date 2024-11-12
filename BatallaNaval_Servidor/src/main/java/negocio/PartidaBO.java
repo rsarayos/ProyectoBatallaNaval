@@ -6,8 +6,10 @@ import dominio.Partida;
 import comunicacion.ClientManager;
 import comunicacion.MessageUtil;
 import java.net.Socket;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class PartidaBO {
 
@@ -46,24 +48,35 @@ public class PartidaBO {
         partida.addJugador(jugador); // Agregar el jugador a la partida
         ClientManager.addClient(ClientManager.getClientSocket(clientId), clientId, jugador);
         partida.getJugadores().stream().forEach(p -> System.out.println("Jugador en la partida " + p.getId()));
+        // Obtener la lista de nombres de jugadores
+        List<String> nombresJugadores = partida.getJugadores().stream()
+                .map(Jugador::getNombre)
+                .collect(Collectors.toList());
 
         // Notificar a todos los jugadores que un nuevo jugador se ha unido
         notificarNuevoJugador(jugador);
 
-        return toJSON.dataToJSON("accion", "UNIRSE_PARTIDA", "id", jugador.getId(), "codigo_acceso", codigo_acceso);
+        return toJSON.dataToJSON(
+                "accion", "UNIRSE_PARTIDA",
+                "id", jugador.getId(),
+                "codigo_acceso", codigo_acceso,
+                "nombres_jugadores", nombresJugadores
+        );
     }
 
     private void notificarNuevoJugador(Jugador nuevoJugador) {
         for (Jugador jugadorExistente : partida.getJugadores()) {
-            String clientIdExistente = jugadorExistente.getId();
-            Socket socketJugador = ClientManager.getClientSocket(clientIdExistente);
+            if (!jugadorExistente.getId().equals(nuevoJugador.getId())) {
+                String clientIdExistente = jugadorExistente.getId();
+                Socket socketJugador = ClientManager.getClientSocket(clientIdExistente);
 
-            Map<String, Object> mensajeNotificacion = toJSON.dataToJSON(
-                    "accion", "NUEVO_JUGADOR",
-                    "nombre_jugador", nuevoJugador.getNombre()
-            );
+                Map<String, Object> mensajeNotificacion = toJSON.dataToJSON(
+                        "accion", "NUEVO_JUGADOR",
+                        "nombre_jugador", nuevoJugador.getNombre()
+                );
 
-            MessageUtil.enviarMensaje(socketJugador, mensajeNotificacion);
+                MessageUtil.enviarMensaje(socketJugador, mensajeNotificacion);
+            }
         }
     }
 
