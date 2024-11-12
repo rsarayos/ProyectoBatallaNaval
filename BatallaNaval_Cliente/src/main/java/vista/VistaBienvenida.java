@@ -36,7 +36,7 @@ public class VistaBienvenida implements EstadoJuego {
         g.setColor(UtilesVista.COLOR_TEXTO_AZUL_OSCURO);
         UtilesVista.dibujarTextoCentrado(g, "Bienvenido a Batalla Naval", 60, UtilesVista.FUENTE_TITULO);
         UtilesVista.dibujarTextoCentrado(g, "Por favor, ingrese su nombre de usuario", 550, UtilesVista.FUENTE_SUBTITULO);
-        UtilesVista.dibujarTextoCentrado(g, "El nombre puede de ser de hasta 15 caracteres y estar compuesto por letras y numeros", 580, UtilesVista.FUENTE_SUBTITULO);
+        UtilesVista.dibujarTextoCentrado(g, "El nombre puede ser de hasta 15 caracteres y estar compuesto por letras y numeros", 580, UtilesVista.FUENTE_SUBTITULO);
 
         if (!panelJuego.isAncestorOf(campoNombre)) {
             panelJuego.agregarComponente(campoNombre, (Juego.GAME_ANCHO - 200) / 2, Juego.GAME_ALTO - 120, 200, 30);
