@@ -168,6 +168,12 @@ public class Juego implements Runnable {
                 case "UNIRSE_PARTIDA":
                     handleUnirsePartidaResponse(mensaje);
                     break;
+                case "ACTUALIZAR_ESTADO_LISTO":
+                    handleActualizarEstadoListo(mensaje);
+                    break;
+                case "TODOS_LISTOS":
+                    handleTodosListos();
+                    break;
                 case "ATACAR":
 //                    handleAtacarResponse(mensaje);
                     break;
@@ -231,9 +237,23 @@ public class Juego implements Runnable {
             }
 
             // Cambiar al estado de sala de espera
-            panel.quitarComponente(vBuscarPartida.getCampoSala());
-             EstadosJuego.estado = EstadosJuego.SALA_ESPERA;
+            vBuscarPartida.quitarComponentes();
+            EstadosJuego.estado = EstadosJuego.SALA_ESPERA;
         }
+    }
+
+    private void handleActualizarEstadoListo(Map<String, Object> mensaje) {
+        String nombreJugador = (String) mensaje.get("nombre_jugador");
+        boolean listo = (Boolean) mensaje.get("listo");
+
+        vSalaEspera.agregarOActualizarJugador(nombreJugador, listo);
+    }
+
+    private void handleTodosListos() {
+        // Cambiar al estado de organizar el tablero
+        EstadosJuego.estado = EstadosJuego.ORGANIZAR;
+        // Limpiar componentes de la sala de espera si es necesario
+        vSalaEspera.limpiarComponentes();
     }
 
 }

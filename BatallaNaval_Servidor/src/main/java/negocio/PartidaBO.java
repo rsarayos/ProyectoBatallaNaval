@@ -84,4 +84,43 @@ public class PartidaBO {
     public Jugador crearJugador(String id, String nombre) {
         return new Jugador(id, nombre); // Crear jugador sin necesidad de usar un contador externo
     }
+
+    public Map<String, Object> jugadorListo(Map<String, Object> request, String clientId) {
+        Jugador jugador = ClientManager.getJugadorByClientId(clientId);
+        if (jugador != null) {
+            jugador.setListo(true);
+
+            // Notificar a todos los jugadores que este jugador está listo
+            notificarEstadoListo(jugador);
+
+            // Si todos los jugadores están listos, notificar para avanzar
+            if (partida.todosLosJugadoresListos()) {
+                notificarTodosListos();
+            }
+        }
+        return null;
+    }
+
+    private void notificarEstadoListo(Jugador jugadorListo) {
+        for (Jugador jugador : partida.getJugadores()) {
+            Socket socketJugador = ClientManager.getClientSocket(jugador.getId());
+            Map<String, Object> mensaje = toJSON.dataToJSON(
+                    "accion", "ACTUALIZAR_ESTADO_LISTO",
+                    "id_jugador", jugadorListo.getId(),
+                    "nombre_jugador", jugadorListo.getNombre(),
+                    "listo", jugadorListo.isListo()
+            );
+            MessageUtil.enviarMensaje(socketJugador, mensaje);
+        }
+    }
+
+    private void notificarTodosListos() {
+        for (Jugador jugador : partida.getJugadores()) {
+            Socket socketJugador = ClientManager.getClientSocket(jugador.getId());
+            Map<String, Object> mensaje = toJSON.dataToJSON(
+                    "accion", "TODOS_LISTOS"
+            );
+            MessageUtil.enviarMensaje(socketJugador, mensaje);
+        }
+    }
 }

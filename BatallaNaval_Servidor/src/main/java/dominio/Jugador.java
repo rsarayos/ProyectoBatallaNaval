@@ -17,11 +17,13 @@ public class Jugador {
     private Estadisticas estadisticas;
     private List<Unidad> unidades;
     private String id;
+    private boolean listo;
 
     public Jugador(String nombre, Estadisticas estadisticas, List<Unidad> unidades) {
         this.nombre = nombre;
         this.estadisticas = estadisticas;
         this.unidades = unidades;
+        this.listo = false;
     }
 
     public Jugador(String nombre, Estadisticas estadisticas) {
@@ -71,6 +73,14 @@ public class Jugador {
 
     public void addUnidad(Unidad unidad) {
         this.unidades.add(unidad);
+    }
+
+    public boolean isListo() {
+        return listo;
+    }
+
+    public void setListo(boolean listo) {
+        this.listo = listo;
     }
 
 }
