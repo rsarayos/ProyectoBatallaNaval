@@ -113,5 +113,7 @@ public class VistaOrganizar implements EstadoJuego {
             barco.setBackground(nuevoColorNave);
         });
     }
+    
+    
 
 }

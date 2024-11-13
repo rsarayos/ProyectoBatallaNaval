@@ -6,12 +6,14 @@ package modelo;
  */
 public class ModeloUnidad {
     
+    private String nombre;
     private final int numNave;
     private Orientacion orientacion;
-    private final int tamaño;
+    private final int tamaño;    
 
-    public ModeloUnidad(int numNave, Orientacion orientacion, int tamaño) {
+    public ModeloUnidad(int numNave, String nombre, Orientacion orientacion, int tamaño) {
         this.numNave = numNave;
+        this.nombre = nombre;
         this.orientacion = orientacion;
         this.tamaño = tamaño;
     }

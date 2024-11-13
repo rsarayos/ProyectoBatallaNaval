@@ -16,6 +16,7 @@ import vista.VentanaJuego;
 import vista.VistaBienvenida;
 import vista.VistaBuscarPartida;
 import vista.VistaInstrucciones;
+import vista.VistaJuego;
 import vista.VistaMenu;
 import vista.VistaOrganizar;
 import vista.VistaSalaEspera;
@@ -44,6 +45,7 @@ public class Juego implements Runnable {
     private VistaInstrucciones vInstrucciones;
     private VistaSalaEspera vSalaEspera;
     private VistaBuscarPartida vBuscarPartida;
+    private VistaJuego vJugar;
     
     /**
      * Constructor de la clase Juego.
@@ -120,6 +122,8 @@ public class Juego implements Runnable {
             case BUSCAR_PARTIDA:
                 vBuscarPartida.dibujar(g);
                 break;
+            case JUGAR:
+                
             default:
                 throw new AssertionError();
         }
