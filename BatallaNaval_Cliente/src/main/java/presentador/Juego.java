@@ -3,6 +3,7 @@ package presentador;
 import comunicacion.ClientConnection;
 import java.awt.Graphics;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -15,6 +16,7 @@ import vista.VentanaJuego;
 import vista.VistaBienvenida;
 import vista.VistaBuscarPartida;
 import vista.VistaInstrucciones;
+import vista.VistaJuego;
 import vista.VistaMenu;
 import vista.VistaOrganizar;
 import vista.VistaSalaEspera;
@@ -43,6 +45,7 @@ public class Juego implements Runnable {
     private VistaInstrucciones vInstrucciones;
     private VistaSalaEspera vSalaEspera;
     private VistaBuscarPartida vBuscarPartida;
+    private VistaJuego vJugar;
     
     /**
      * Constructor de la clase Juego.
@@ -119,6 +122,8 @@ public class Juego implements Runnable {
             case BUSCAR_PARTIDA:
                 vBuscarPartida.dibujar(g);
                 break;
+            case JUGAR:
+                
             default:
                 throw new AssertionError();
         }
@@ -167,6 +172,12 @@ public class Juego implements Runnable {
                 case "UNIRSE_PARTIDA":
                     handleUnirsePartidaResponse(mensaje);
                     break;
+                case "ACTUALIZAR_ESTADO_LISTO":
+                    handleActualizarEstadoListo(mensaje);
+                    break;
+                case "TODOS_LISTOS":
+                    handleTodosListos();
+                    break;
                 case "ATACAR":
 //                    handleAtacarResponse(mensaje);
                     break;
@@ -193,7 +204,7 @@ public class Juego implements Runnable {
         // Actualizar la lista de jugadores en la sala de espera
         vSalaEspera.agregarJugador(jugador.getNombre());
 
-        // Si no has cambiado el estado previamente, podrías hacerlo aquí
+        // Si no se ha cambiado el estado
         // EstadosJuego.estado = EstadosJuego.SALA_ESPERA;
     }
     
@@ -213,6 +224,7 @@ public class Juego implements Runnable {
         } else {
             String idJugador = (String) mensaje.get("id");
             String codigoAcceso = (String) mensaje.get("codigo_acceso");
+            List<String> nombresJugadores = (List<String>) mensaje.get("nombres_jugadores");
 
             // Guardar el id del jugador en ModeloJugador
             ModeloJugador jugador = ModeloJugador.getInstance();
@@ -222,12 +234,30 @@ public class Juego implements Runnable {
             vSalaEspera.setCodigoAcceso(codigoAcceso);
             vSalaEspera.setIdJugador(idJugador);
 
-            // Agregar el propio jugador a la lista de jugadores
-            vSalaEspera.agregarJugador(jugador.getNombre());
+            // Limpiar y actualizar la lista de jugadores
+            vSalaEspera.limpiarListaJugadores();
+            for (String nombreJugador : nombresJugadores) {
+                vSalaEspera.agregarJugador(nombreJugador);
+            }
 
-            // Cambiar al estado de sala de espera si no lo has hecho antes
+            // Cambiar al estado de sala de espera
+            vBuscarPartida.quitarComponentes();
             EstadosJuego.estado = EstadosJuego.SALA_ESPERA;
         }
+    }
+
+    private void handleActualizarEstadoListo(Map<String, Object> mensaje) {
+        String nombreJugador = (String) mensaje.get("nombre_jugador");
+        boolean listo = (Boolean) mensaje.get("listo");
+
+        vSalaEspera.agregarOActualizarJugador(nombreJugador, listo);
+    }
+
+    private void handleTodosListos() {
+        // Cambiar al estado de organizar el tablero
+        EstadosJuego.estado = EstadosJuego.ORGANIZAR;
+        // Limpiar componentes de la sala de espera si es necesario
+        vSalaEspera.limpiarComponentes();
     }
 
 }

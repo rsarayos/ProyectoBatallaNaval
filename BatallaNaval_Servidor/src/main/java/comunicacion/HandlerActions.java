@@ -44,7 +44,10 @@ public class HandlerActions {
             Map<String, Object> response = partidaBO.unirsePartida(request, clientId);
             MessageUtil.enviarMensaje(clientSocket, response);
 
-        } else {
+        } else if (AccionesJugador.JUGADOR_LISTO.toString().equalsIgnoreCase(accion)) {
+            Map<String, Object> response = partidaBO.jugadorListo(request, clientId);
+            // No es necesario responder al jugador, ya que notificaremos a todos
+        }  else {
             // Otras acciones como ATACAR o ORDENAR
             if (ATACAR.toString().equalsIgnoreCase(accion)) {
                 // Implementar lógica para "atacar"

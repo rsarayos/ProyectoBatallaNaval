@@ -159,6 +159,12 @@ public class ClientConnection {
         this.messageListener = listener;
     }
 
+    public void jugadorListo() {
+        Map<String, Object> data = new HashMap<>();
+        data.put("accion", "JUGADOR_LISTO");
+        sendMessage(data);
+    }
+
     // Interface for message listener
     public interface MessageListener {
 

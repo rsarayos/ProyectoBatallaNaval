@@ -14,6 +14,7 @@ import modelo.ModeloCasilla;
 import modelo.ModeloTablero;
 import modelo.ModeloUnidad;
 import modelo.Orientacion;
+import modelo.TipoUnidad;
 import vista.VistaTablero;
 
 /**
@@ -285,21 +286,21 @@ public class PresentadorTablero {
         List<ModeloUnidad> unidades = new ArrayList<>();
 
         // Crear 2 naves de tamaño 4
-        unidades.add(new ModeloUnidad(1, Orientacion.HORIZONTAL, 4));
-        unidades.add(new ModeloUnidad(2, Orientacion.VERTICAL, 4));
+        unidades.add(new ModeloUnidad(1, TipoUnidad.PORTAAVIONES.NOMBRE, Orientacion.HORIZONTAL, TipoUnidad.PORTAAVIONES.TAMANO));
+        unidades.add(new ModeloUnidad(2, TipoUnidad.PORTAAVIONES.NOMBRE, Orientacion.VERTICAL, TipoUnidad.PORTAAVIONES.TAMANO));
 
         // Crear 2 naves de tamaño 3
-        unidades.add(new ModeloUnidad(3, Orientacion.HORIZONTAL, 3));
-        unidades.add(new ModeloUnidad(4, Orientacion.VERTICAL, 3));
+        unidades.add(new ModeloUnidad(3, TipoUnidad.CRUCERO.NOMBRE, Orientacion.HORIZONTAL, TipoUnidad.CRUCERO.TAMANO));
+        unidades.add(new ModeloUnidad(4, TipoUnidad.CRUCERO.NOMBRE, Orientacion.VERTICAL, TipoUnidad.CRUCERO.TAMANO));
 
         // Crear 2 naves de tamaño 2
-        unidades.add(new ModeloUnidad(5, Orientacion.HORIZONTAL, 2));
-        unidades.add(new ModeloUnidad(6, Orientacion.VERTICAL, 2));
+        unidades.add(new ModeloUnidad(5, TipoUnidad.SUBMARINO.NOMBRE, Orientacion.HORIZONTAL, TipoUnidad.SUBMARINO.TAMANO));
+        unidades.add(new ModeloUnidad(6, TipoUnidad.SUBMARINO.NOMBRE, Orientacion.VERTICAL, TipoUnidad.SUBMARINO.TAMANO));
 
         // Crear 3 naves de tamaño 1
-        unidades.add(new ModeloUnidad(7, Orientacion.HORIZONTAL, 1));
-        unidades.add(new ModeloUnidad(8, Orientacion.HORIZONTAL, 1));
-        unidades.add(new ModeloUnidad(9, Orientacion.HORIZONTAL, 1));
+        unidades.add(new ModeloUnidad(7, TipoUnidad.BARCO.NOMBRE, Orientacion.HORIZONTAL, TipoUnidad.BARCO.TAMANO));
+        unidades.add(new ModeloUnidad(8, TipoUnidad.BARCO.NOMBRE, Orientacion.HORIZONTAL, TipoUnidad.BARCO.TAMANO));
+        unidades.add(new ModeloUnidad(9, TipoUnidad.BARCO.NOMBRE, Orientacion.HORIZONTAL, TipoUnidad.BARCO.TAMANO));
 
         // Definir las posiciones iniciales de las naves
         Map<ModeloUnidad, ModeloCasilla> posicionesIniciales = new HashMap<>();
@@ -311,7 +312,7 @@ public class PresentadorTablero {
         posicionesIniciales.put(unidades.get(4), modeloTablero.getCasilla(8, 2)); // Nave 5
 
         // Reposicionamos la unidad 6 a una nueva posición
-        posicionesIniciales.put(unidades.get(5), modeloTablero.getCasilla(3, 0)); // Nave 6 (Nueva posición)
+        posicionesIniciales.put(unidades.get(5), modeloTablero.getCasilla(3, 0)); // Nave 6
 
         // Posiciones para las naves de tamaño 1
         posicionesIniciales.put(unidades.get(6), modeloTablero.getCasilla(9, 9)); // Nave 7

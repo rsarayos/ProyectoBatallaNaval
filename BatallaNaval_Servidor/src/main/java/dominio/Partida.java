@@ -110,5 +110,13 @@ public class Partida {
         this.jugadores = jugadores;
     }
     
-    
+    public boolean todosLosJugadoresListos() {
+        for (Jugador jugador : jugadores) {
+            if (!jugador.isListo()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
 }

@@ -1,5 +1,6 @@
 package vista;
 
+import comunicacion.ClientConnection;
 import java.awt.Graphics;
 import javax.swing.JButton;
 import javax.swing.JTable;
@@ -19,6 +20,7 @@ public class VistaSalaEspera implements EstadoJuego {
     private DefaultTableModel modeloTabla;
     private String codigoAcceso;
     private String idJugador;
+    private boolean estoyListo = false;
     
     public VistaSalaEspera(PanelJuego panelJuego) {
         this.panelJuego = panelJuego;
@@ -26,10 +28,10 @@ public class VistaSalaEspera implements EstadoJuego {
         this.botonSalir = UtilesVista.crearBoton("Regresar");
 
         // Inicializar modelo de tabla
-        String[] columnas = {"Nombre de Jugador"};
+        String[] columnas = {"Nombre de Jugador", "Listo"};
         modeloTabla = new DefaultTableModel(columnas, 0);
         this.listaJugadores = new JTable(modeloTabla);
-
+        
         accionesComponentes();
     }
 
@@ -68,10 +70,12 @@ public class VistaSalaEspera implements EstadoJuego {
     public void accionesComponentes() {
         // Agregar acción al botón
         botonContinuar.addActionListener(e -> {
-            panelJuego.quitarComponente(botonContinuar);
-            panelJuego.quitarComponente(botonSalir);
-            panelJuego.quitarComponente(listaJugadores);
-            EstadosJuego.estado = EstadosJuego.ORGANIZAR; // Cambiar el estado
+            if (!estoyListo) {
+                estoyListo = true;
+                botonContinuar.setEnabled(false); // Deshabilitar el botón para evitar múltiples clics
+                // Enviar al servidor que este jugador está listo
+                ClientConnection.getInstance().jugadorListo();
+            }
         });
         // Agregar acción al botón
         botonSalir.addActionListener(e -> {
@@ -94,6 +98,32 @@ public class VistaSalaEspera implements EstadoJuego {
 
     public void agregarJugador(String nombreJugador) {
         modeloTabla.addRow(new Object[]{nombreJugador});
+    }
+
+    public void limpiarListaJugadores() {
+        modeloTabla.setRowCount(0);
+    }
+    
+    public void agregarOActualizarJugador(String nombreJugador, boolean listo) {
+        boolean encontrado = false;
+        for (int i = 0; i < modeloTabla.getRowCount(); i++) {
+            if (modeloTabla.getValueAt(i, 0).equals(nombreJugador)) {
+                // Actualizar el estado "Listo"
+                modeloTabla.setValueAt(listo ? "Sí" : "No", i, 1);
+                encontrado = true;
+                break;
+            }
+        }
+        if (!encontrado) {
+            // Agregar el jugador a la tabla
+            modeloTabla.addRow(new Object[]{nombreJugador, listo ? "Sí" : "No"});
+        }
+    }
+
+    public void limpiarComponentes() {
+        panelJuego.quitarComponente(botonContinuar);
+        panelJuego.quitarComponente(botonSalir);
+        panelJuego.quitarComponente(listaJugadores);
     }
 
 }

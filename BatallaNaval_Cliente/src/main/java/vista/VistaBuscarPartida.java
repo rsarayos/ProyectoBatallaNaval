@@ -72,11 +72,6 @@ public class VistaBuscarPartida implements EstadoJuego {
                 String nombreJugador = jugador.getNombre();
                 // Enviar solicitud al servidor para unirse a la partida
                 clientConnection.unirsePartida(codigoAcceso, nombreJugador);
-
-                // Cambiar al estado de sala de espera
-                panelJuego.quitarComponente(botonContinuar);
-                panelJuego.quitarComponente(botonSalir);
-                panelJuego.quitarComponente(campoSala);
 //                EstadosJuego.estado = EstadosJuego.SALA_ESPERA; // Cambiar el estado
             } else {
                 JOptionPane.showMessageDialog(panelJuego, "Por favor, ingresa el código de la sala.", "Código vacío", JOptionPane.WARNING_MESSAGE);
@@ -89,6 +84,12 @@ public class VistaBuscarPartida implements EstadoJuego {
             panelJuego.quitarComponente(campoSala);
             EstadosJuego.estado = EstadosJuego.MENU; // Cambiar el estado
         });
+    }
+    
+    public void quitarComponentes(){
+        panelJuego.quitarComponente(botonContinuar);
+        panelJuego.quitarComponente(botonSalir);
+        panelJuego.quitarComponente(campoSala);
     }
 
 }
