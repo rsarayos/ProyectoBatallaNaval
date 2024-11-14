@@ -18,12 +18,12 @@ public class Unidad {
     private Orientacion orientacion;
     private EstadoUnidad estado;
 
-    public Unidad(String nombre, int vida, int tamano, Orientacion orientacion, EstadoUnidad estado) {
+    public Unidad(String nombre, int vida, int tamano, Orientacion orientacion) {
         this.nombre = nombre;
         this.vida = vida;
         this.tamano = tamano;
         this.orientacion = orientacion;
-        this.estado = estado;
+        this.estado = EstadoUnidad.SIN_DANO;
     }
 
     public String getNombre() {

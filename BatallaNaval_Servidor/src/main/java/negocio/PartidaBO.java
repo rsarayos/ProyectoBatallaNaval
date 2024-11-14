@@ -5,6 +5,8 @@ import dominio.Jugador;
 import dominio.Partida;
 import comunicacion.ClientManager;
 import comunicacion.MessageUtil;
+import dominio.Tablero;
+import enums.AccionesJugador;
 import java.net.Socket;
 import java.util.List;
 import java.util.Map;
@@ -14,9 +16,11 @@ import java.util.stream.Collectors;
 public class PartidaBO {
 
     private Partida partida;
+    private UnidadBO unidadBO;
 
     public PartidaBO() {
         this.partida = Partida.getInstance();
+        this.unidadBO = new UnidadBO();
     }
 
     // Método para crear una partida
@@ -27,12 +31,11 @@ public class PartidaBO {
         }
 
         String codigoAcceso = UUID.randomUUID().toString().replace("-", "").substring(0, 5);
-        partida.setCodigoAcceso(codigoAcceso); // Asignar código de acceso a la partida
+        partida.setCodigoAcceso(codigoAcceso);
         System.out.println("El codigo de acceso es: " + codigoAcceso);
         Jugador host = crearJugador(clientId, (String) data.get("nombre"));
-        partida.addJugador(host); // Agregar el jugador a la partida
-
-        // Asocia al cliente y su socket
+        partida.addJugador(host);
+        partida.addTablero(clientId, new Tablero());
         ClientManager.addClient(ClientManager.getClientSocket(clientId), clientId, host);
         return toJSON.dataToJSON("accion", "CREAR_PARTIDA", "id", host.getId(), "codigo_acceso", codigoAcceso);
     }
@@ -45,10 +48,10 @@ public class PartidaBO {
             return toJSON.dataToJSON("accion", "UNIRSE_PARTIDA", "error", "El código de acceso no coincide");
         }
         Jugador jugador = crearJugador(clientId, (String) data.get("nombre"));
-        partida.addJugador(jugador); // Agregar el jugador a la partida
+        partida.addJugador(jugador);
+        partida.addTablero(clientId, new Tablero());
         ClientManager.addClient(ClientManager.getClientSocket(clientId), clientId, jugador);
         partida.getJugadores().stream().forEach(p -> System.out.println("Jugador en la partida " + p.getId()));
-        // Obtener la lista de nombres de jugadores
         List<String> nombresJugadores = partida.getJugadores().stream()
                 .map(Jugador::getNombre)
                 .collect(Collectors.toList());
@@ -81,7 +84,7 @@ public class PartidaBO {
     }
 
     public Jugador crearJugador(String id, String nombre) {
-        return new Jugador(id, nombre); 
+        return new Jugador(id, nombre);
     }
 
     public Map<String, Object> jugadorListo(Map<String, Object> request, String clientId) {
@@ -122,4 +125,11 @@ public class PartidaBO {
             MessageUtil.enviarMensaje(socketJugador, mensaje);
         }
     }
+
+    public Map<String, Object> colocarUnidadTablero(Map<String, Object> request, String clientId) {
+        Tablero tableroUsuario = this.partida.getTableros().get(clientId);
+        tableroUsuario.addUnidades(unidadBO.crearUbicacionUnidad(request));
+        return toJSON.dataToJSON("accion", AccionesJugador.ORDENAR.name(), "id", clientId);
+    }
+
 }

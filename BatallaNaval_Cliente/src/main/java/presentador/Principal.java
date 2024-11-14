@@ -88,6 +88,37 @@ public class Principal {
 //                    Map<String, Object> serverResponse = objectMapper.readValue(serverResponseJson, Map.class);
 //                    System.out.println("Respuesta del servidor: " + serverResponse);
 //                }
+//                
+//                    if ("crear".equalsIgnoreCase(command)) {
+//                    // Crear un mapa de datos para enviar
+//                    Map<String, Object> data = new HashMap<>();
+//                    data.put("accion", AccionesJugador.ORDENAR.name());
+//                    data.put("tipo_nave", "portaaviones");
+//                    data.put("orientacion", "horizontal");
+//                    data.put("x1", 100);
+//                    data.put("y1", 200);
+//                    data.put("x2", 300);
+//                    data.put("y2", 400);
+//                    data.put("x3", 500);
+//                    data.put("y3", 600);
+//                    // Convertir el mapa a una cadena JSON usando Jackson
+//                    ObjectMapper objectMapper = new ObjectMapper();
+//                    String json = objectMapper.writeValueAsString(data);
+//
+//                    // Empaquetar la cadena JSON con MessagePack
+//                    MessagePacker packer = MessagePack.newDefaultPacker(outputStream);
+//                    packer.packString(json);  // Empacar como una cadena JSON
+//                    packer.flush();  // Enviar los datos
+//
+//                    // Desempaquetar la respuesta del servidor
+//                    MessageUnpacker unpacker = MessagePack.newDefaultUnpacker(inputStream);
+//                    String serverResponseJson = unpacker.unpackString();  // Leer la respuesta JSON como cadena
+//
+//                    // Convertir la respuesta JSON a un Map
+//                    Map<String, Object> serverResponse = objectMapper.readValue(serverResponseJson, Map.class);
+//                    System.out.println("Respuesta del servidor: " + serverResponse);
+//                }
+//                
 //            }
 //        } catch (Exception e) {
 //            System.out.println("Error al enviar o recibir datos: " + e.getMessage());

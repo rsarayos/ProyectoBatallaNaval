@@ -6,7 +6,9 @@ package dominio;
 
 import enums.EstadoPartida;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  *
@@ -16,8 +18,9 @@ public class Partida {
 
     public static Partida instance;
     private List<Jugador> jugadores = new ArrayList<>();
-    private Tablero tableroJugador1;
-    private Tablero tableroJugador2;
+//    private Tablero tableroJugador1;
+//    private Tablero tableroJugador2;
+    private Map<String, Tablero> tableros = new HashMap();
     private Jugador ganador;
     private Long duracion;
     private EstadoPartida estado;
@@ -42,22 +45,33 @@ public class Partida {
         Partida.instance = instance;
     }
 
-    public Tablero getTableroJugador1() {
-        return tableroJugador1;
+    public Map<String, Tablero> getTableros() {
+        return tableros;
     }
 
-    public void setTableroJugador1(Tablero tableroJugador) {
-        this.tableroJugador1 = tableroJugador;
+    public void setTableros(Map<String, Tablero> tableros) {
+        this.tableros = tableros;
     }
 
-    public Tablero getTableroJugador2() {
-        return tableroJugador2;
+    public void addTablero(String id, Tablero tablero) {
+        this.tableros.put(id, tablero);
     }
 
-    public void setTableroJugador2(Tablero tableroJugador2) {
-        this.tableroJugador2 = tableroJugador2;
-    }
-
+//    public Tablero getTableroJugador1() {
+//        return tableroJugador1;
+//    }
+//
+//    public void setTableroJugador1(Tablero tableroJugador) {
+//        this.tableroJugador1 = tableroJugador;
+//    }
+//
+//    public Tablero getTableroJugador2() {
+//        return tableroJugador2;
+//    }
+//
+//    public void setTableroJugador2(Tablero tableroJugador2) {
+//        this.tableroJugador2 = tableroJugador2;
+//    }
     public Jugador getGanador() {
         return ganador;
     }
@@ -109,7 +123,7 @@ public class Partida {
     public void setJugadores(List<Jugador> jugadores) {
         this.jugadores = jugadores;
     }
-    
+
     public boolean todosLosJugadoresListos() {
         for (Jugador jugador : jugadores) {
             if (!jugador.isListo()) {

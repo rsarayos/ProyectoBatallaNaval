@@ -11,16 +11,20 @@ import java.util.List;
  * @author af_da
  */
 public class Tablero {
+
     private final int FILAS = 10;
     private final int COLUMNAS = 10;
     private List<List<Casilla>> casillas;
     private List<UbicacionUnidad> unidades;
-    private List<Disparo>disaparosRealizados;
+    private List<Disparo> disaparosRealizados;
 
     public Tablero(List<List<Casilla>> casillas, List<UbicacionUnidad> unidades, List<Disparo> disaparosRealizados) {
         this.casillas = casillas;
         this.unidades = unidades;
         this.disaparosRealizados = disaparosRealizados;
+    }
+
+    public Tablero() {
     }
 
     public List<List<Casilla>> getCasillas() {
@@ -39,6 +43,10 @@ public class Tablero {
         this.unidades = unidades;
     }
 
+    public void addUnidades(UbicacionUnidad unidad) {
+        this.unidades.add(unidad);
+    }
+
     public List<Disparo> getDisaparosRealizados() {
         return disaparosRealizados;
     }
@@ -46,6 +54,5 @@ public class Tablero {
     public void setDisaparosRealizados(List<Disparo> disaparosRealizados) {
         this.disaparosRealizados = disaparosRealizados;
     }
-    
-    
+
 }
