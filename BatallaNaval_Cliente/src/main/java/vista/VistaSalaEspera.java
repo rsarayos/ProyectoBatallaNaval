@@ -109,14 +109,14 @@ public class VistaSalaEspera implements EstadoJuego {
         for (int i = 0; i < modeloTabla.getRowCount(); i++) {
             if (modeloTabla.getValueAt(i, 0).equals(nombreJugador)) {
                 // Actualizar el estado "Listo"
-                modeloTabla.setValueAt(listo ? "Sí" : "No", i, 1);
+                modeloTabla.setValueAt(listo ? "Listo" : "No listo", i, 1);
                 encontrado = true;
                 break;
             }
         }
         if (!encontrado) {
             // Agregar el jugador a la tabla
-            modeloTabla.addRow(new Object[]{nombreJugador, listo ? "Sí" : "No"});
+            modeloTabla.addRow(new Object[]{nombreJugador, listo ? "Listo" : "No listo"});
         }
     }
 

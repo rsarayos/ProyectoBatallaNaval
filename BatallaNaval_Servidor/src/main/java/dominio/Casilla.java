@@ -22,5 +22,10 @@ public class Casilla {
     public void setCoordenada(Coordenada coordenada) {
         this.coordenada = coordenada;
     }
+
+    @Override
+    public String toString() {
+        return "Casilla{" + "coordenada=" + coordenada + '}';
+    }
     
 }

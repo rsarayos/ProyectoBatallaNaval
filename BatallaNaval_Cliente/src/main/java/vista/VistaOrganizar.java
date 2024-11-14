@@ -1,14 +1,21 @@
 package vista;
 
+import comunicacion.ClientConnection;
 import java.awt.Color;
 import java.awt.Cursor;
-import java.awt.Font;
 import java.awt.Graphics;
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
+import modelo.MUbicacionUnidad;
+import modelo.ModeloCasilla;
+import modelo.ModeloTablero;
+import modelo.ModeloUnidad;
 import presentador.Juego;
 
 /**
@@ -89,13 +96,38 @@ public class VistaOrganizar implements EstadoJuego {
     public void accionesComponentes() {
         // Agregar acción al botón
         botonJugar.addActionListener(e -> {
-            panelJuego.quitarComponente(botonJugar);
-            panelJuego.quitarComponente(colorSelector);
-            panelJuego.quitarComponente(portaaviones);
-            panelJuego.quitarComponente(crucero);
-            panelJuego.quitarComponente(submarino);
-            panelJuego.quitarComponente(barco);
-            EstadosJuego.estado = EstadosJuego.MENU; // Cambiar el estado
+            // Obtener el modelo del tablero
+            ModeloTablero modeloTablero = tablero.getPresentador().getModeloTablero();
+
+            // Obtener las unidades
+            Set<MUbicacionUnidad> unidades = modeloTablero.getUnidades();
+
+            // Serializar las unidades
+            List<Map<String, Object>> unidadesData = new ArrayList<>();
+
+            for (MUbicacionUnidad ubicacionUnidad : unidades) {
+                Map<String, Object> unidadData = new HashMap<>();
+                ModeloUnidad unidad = ubicacionUnidad.getUnidad();
+
+                unidadData.put("numNave", unidad.getNumNave());
+
+                // Obtener las coordenadas
+                List<Map<String, Integer>> coordenadas = new ArrayList<>();
+                for (ModeloCasilla casilla : ubicacionUnidad.getCasillasOcupadas()) {
+                    Map<String, Integer> coordenada = new HashMap<>();
+                    coordenada.put("x", casilla.getCoordenada().getX());
+                    coordenada.put("y", casilla.getCoordenada().getY());
+                    coordenadas.add(coordenada);
+                }
+                unidadData.put("coordenadas", coordenadas);
+
+                unidadesData.add(unidadData);
+            }
+
+            // Enviar las unidades al servidor
+            ClientConnection.getInstance().enviarUnidades(unidadesData);
+            
+            // Se espera en el handler la respuesta para saber si se continua
         });
         // Agregar acción al selector
         colorSelector.addActionListener(e -> {
@@ -113,7 +145,15 @@ public class VistaOrganizar implements EstadoJuego {
             barco.setBackground(nuevoColorNave);
         });
     }
-    
-    
 
+    public void limpiarComponentes() {
+        this.panelJuego.quitarComponente(botonJugar);
+        this.panelJuego.quitarComponente(colorSelector);
+        this.panelJuego.quitarComponente(barco);
+        this.panelJuego.quitarComponente(submarino);
+        this.panelJuego.quitarComponente(crucero);
+        this.panelJuego.quitarComponente(portaaviones);
+        this.panelJuego.quitarComponente(tablero);
+    }
+    
 }

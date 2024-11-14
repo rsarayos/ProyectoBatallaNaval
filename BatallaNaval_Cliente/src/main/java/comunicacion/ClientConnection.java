@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import javax.swing.SwingUtilities;
 import org.msgpack.core.MessagePack;
@@ -162,6 +163,13 @@ public class ClientConnection {
     public void jugadorListo() {
         Map<String, Object> data = new HashMap<>();
         data.put("accion", "JUGADOR_LISTO");
+        sendMessage(data);
+    }
+
+    public void enviarUnidades(List<Map<String, Object>> unidadesData) {
+        Map<String, Object> data = new HashMap<>();
+        data.put("accion", "ORDENAR");
+        data.put("unidades", unidadesData);
         sendMessage(data);
     }
 

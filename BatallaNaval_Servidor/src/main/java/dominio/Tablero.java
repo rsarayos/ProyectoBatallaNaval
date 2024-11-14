@@ -4,6 +4,7 @@
  */
 package dominio;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -14,45 +15,39 @@ public class Tablero {
 
     private final int FILAS = 10;
     private final int COLUMNAS = 10;
-    private List<List<Casilla>> casillas;
+    private Casilla[][] casillas;
     private List<UbicacionUnidad> unidades;
-    private List<Disparo> disaparosRealizados;
+    private List<Disparo> disparosRecibidos;
 
-    public Tablero(List<List<Casilla>> casillas, List<UbicacionUnidad> unidades, List<Disparo> disaparosRealizados) {
-        this.casillas = casillas;
-        this.unidades = unidades;
-        this.disaparosRealizados = disaparosRealizados;
-    }
-
+    // En el constructor inicial se crea la lista de casillas
     public Tablero() {
+        
+        casillas = new Casilla[FILAS][COLUMNAS];
+        
+        // se crean las casillas
+        for (int i = 0; i < 10; i++) {
+            for (int j = 0; j < 10; j++) {
+                Casilla celda = new Casilla(new Coordenada(i, j));
+                casillas[i][j] = celda;
+            }
+        }
+        
+        // se inician la lista de ubicaciones y de los disparos realizados
+        this.unidades = new ArrayList<>();
+        this.disparosRecibidos = new ArrayList<>();
+        
     }
 
-    public List<List<Casilla>> getCasillas() {
-        return casillas;
+    public void agregarUbicacion(UbicacionUnidad ubicacion) {
+        this.unidades.add(ubicacion);
     }
-
-    public void setCasillas(List<List<Casilla>> casillas) {
-        this.casillas = casillas;
+    
+    public void disparoRecibido(Disparo disparo) {
+        this.disparosRecibidos.add(disparo);
     }
 
     public List<UbicacionUnidad> getUnidades() {
         return unidades;
-    }
-
-    public void setUnidades(List<UbicacionUnidad> unidades) {
-        this.unidades = unidades;
-    }
-
-    public void addUnidades(UbicacionUnidad unidad) {
-        this.unidades.add(unidad);
-    }
-
-    public List<Disparo> getDisaparosRealizados() {
-        return disaparosRealizados;
-    }
-
-    public void setDisaparosRealizados(List<Disparo> disaparosRealizados) {
-        this.disaparosRealizados = disaparosRealizados;
     }
 
 }

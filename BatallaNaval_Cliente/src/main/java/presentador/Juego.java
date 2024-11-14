@@ -123,7 +123,7 @@ public class Juego implements Runnable {
                 vBuscarPartida.dibujar(g);
                 break;
             case JUGAR:
-                
+                break;
             default:
                 throw new AssertionError();
         }
@@ -177,6 +177,12 @@ public class Juego implements Runnable {
                     break;
                 case "TODOS_LISTOS":
                     handleTodosListos();
+                    break;
+                case "INICIAR_ORGANIZAR":
+                    handleIniciarOrganizar();
+                    break;
+                case "INICIAR_JUEGO":
+                    handleIniciarJuego();
                     break;
                 case "ATACAR":
 //                    handleAtacarResponse(mensaje);
@@ -258,6 +264,36 @@ public class Juego implements Runnable {
         EstadosJuego.estado = EstadosJuego.ORGANIZAR;
         // Limpiar componentes de la sala de espera si es necesario
         vSalaEspera.limpiarComponentes();
+    }
+
+    private void handleIniciarOrganizar() {
+        // Cambiar al estado de organizar el tablero
+        EstadosJuego.estado = EstadosJuego.ORGANIZAR;
+
+        // Limpiar componentes de la sala de espera si es necesario
+        if (vSalaEspera != null) {
+            vSalaEspera.limpiarComponentes();
+        }
+
+        // Inicializar la vista de organizar si no lo has hecho
+        if (vOrganizar == null) {
+            vOrganizar = new VistaOrganizar(panel);
+        }
+    }
+
+    private void handleIniciarJuego() {
+        // Cambiar al estado de juego
+        EstadosJuego.estado = EstadosJuego.JUGAR;
+
+        // Limpiar componentes de la vista de organizar si es necesario
+        if (vOrganizar != null) {
+            vOrganizar.limpiarComponentes();
+        }
+
+        // Inicializar la vista de juego si no lo has hecho
+        if (vJugar == null) {
+            vJugar = new VistaJuego(panel);
+        }
     }
 
 }

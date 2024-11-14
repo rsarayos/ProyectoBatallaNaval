@@ -38,6 +38,11 @@ public class UbicacionUnidad {
     public void setCasillas(Map<Casilla, Boolean> casillas) {
         this.casillas = casillas;
     }
+
+    @Override
+    public String toString() {
+        return "UbicacionUnidad{" + "unidad=" + unidad + ", casillas=" + casillas + '}';
+    }
     
     
 }

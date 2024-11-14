@@ -12,18 +12,28 @@ import enums.Orientacion;
  * @author af_da
  */
 public class Unidad {
+    
+    private int numNave;
     private final String nombre;
     private int vida;
     private final int tamano;
     private Orientacion orientacion;
     private EstadoUnidad estado;
 
-    public Unidad(String nombre, int vida, int tamano, Orientacion orientacion) {
+    // solamente recibimos el nombre y tamaño para construir, la orientacion,  se recibe despues
+    public Unidad(String nombre, int tamano) {
         this.nombre = nombre;
-        this.vida = vida;
+        this.vida = tamano;
         this.tamano = tamano;
-        this.orientacion = orientacion;
         this.estado = EstadoUnidad.SIN_DANO;
+    }
+
+    public int getNumNave() {
+        return numNave;
+    }
+
+    public void setNumNave(int numNave) {
+        this.numNave = numNave;
     }
 
     public String getNombre() {
@@ -56,6 +66,11 @@ public class Unidad {
 
     public void setEstado(EstadoUnidad estado) {
         this.estado = estado;
+    }
+
+    @Override
+    public String toString() {
+        return "Unidad{" + "numNave=" + numNave + ", nombre=" + nombre + '}';
     }
     
     

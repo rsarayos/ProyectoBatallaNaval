@@ -5,9 +5,14 @@ import dominio.Jugador;
 import dominio.Partida;
 import comunicacion.ClientManager;
 import comunicacion.MessageUtil;
+import dominio.Casilla;
 import dominio.Tablero;
+import dominio.TipoUnidad;
+import dominio.UbicacionUnidad;
+import dominio.Unidad;
 import enums.AccionesJugador;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -35,7 +40,8 @@ public class PartidaBO {
         System.out.println("El codigo de acceso es: " + codigoAcceso);
         Jugador host = crearJugador(clientId, (String) data.get("nombre"));
         partida.addJugador(host);
-        partida.addTablero(clientId, new Tablero());
+        // se habla al metodo para iniciar su tablero y unidades
+        iniciarTableroyUnidades(clientId);
         ClientManager.addClient(ClientManager.getClientSocket(clientId), clientId, host);
         return toJSON.dataToJSON("accion", "CREAR_PARTIDA", "id", host.getId(), "codigo_acceso", codigoAcceso);
     }
@@ -49,7 +55,8 @@ public class PartidaBO {
         }
         Jugador jugador = crearJugador(clientId, (String) data.get("nombre"));
         partida.addJugador(jugador);
-        partida.addTablero(clientId, new Tablero());
+        // se habla al metodo para iniciar su tablero y unidades
+        iniciarTableroyUnidades(clientId);
         ClientManager.addClient(ClientManager.getClientSocket(clientId), clientId, jugador);
         partida.getJugadores().stream().forEach(p -> System.out.println("Jugador en la partida " + p.getId()));
         List<String> nombresJugadores = partida.getJugadores().stream()
@@ -97,7 +104,11 @@ public class PartidaBO {
 
             // Si todos los jugadores están listos, notificar para avanzar
             if (partida.todosLosJugadoresListos()) {
-                notificarTodosListos();
+                // Reiniciar el estado listo de los jugadores para la siguiente fase
+                reiniciarEstadoListo();
+
+                // Notificar a los jugadores para iniciar la organización
+                notificarIniciarOrganizar();
             }
         }
         return null;
@@ -123,13 +134,123 @@ public class PartidaBO {
                     "accion", "TODOS_LISTOS"
             );
             MessageUtil.enviarMensaje(socketJugador, mensaje);
+            
+        }
+    }
+    
+    private void notificarIniciarOrganizar() {
+        for (Jugador jugador : partida.getJugadores()) {
+            Socket socketJugador = ClientManager.getClientSocket(jugador.getId());
+            Map<String, Object> mensaje = toJSON.dataToJSON(
+                    "accion", "INICIAR_ORGANIZAR"
+            );
+            MessageUtil.enviarMensaje(socketJugador, mensaje);
         }
     }
 
-    public Map<String, Object> colocarUnidadTablero(Map<String, Object> request, String clientId) {
-        Tablero tableroUsuario = this.partida.getTableros().get(clientId);
-        tableroUsuario.addUnidades(unidadBO.crearUbicacionUnidad(request));
-        return toJSON.dataToJSON("accion", AccionesJugador.ORDENAR.name(), "id", clientId);
+    private void notificarIniciarJuego() {
+        for (Jugador jugador : partida.getJugadores()) {
+            Socket socketJugador = ClientManager.getClientSocket(jugador.getId());
+            Map<String, Object> mensaje = toJSON.dataToJSON(
+                    "accion", "INICIAR_JUEGO"
+            );
+            MessageUtil.enviarMensaje(socketJugador, mensaje);
+        }
     }
+
+    public void colocarUnidadTablero(Map<String, Object> request, String clientId) {
+        Tablero tableroUsuario = this.partida.getTableros().get(clientId);
+        Jugador jugador = ClientManager.getJugadorByClientId(clientId);
+
+        if (jugador == null) {
+            // Manejar error si el jugador no existe
+//            return toJSON.dataToJSON("accion", "ERROR", "mensaje", "Jugador no encontrado");
+        }
+
+        List<Map<String, Object>> unidadesData = (List<Map<String, Object>>) request.get("unidades");
+
+        for (Map<String, Object> unidadData : unidadesData) {
+            int numNave = (Integer) unidadData.get("numNave");
+            Unidad unidad = unidadBO.obtenerUnidadPorNumNave(jugador, numNave);
+
+            if (unidad == null) {
+                System.out.println("No se encontro la unidad");
+                break;
+            }
+
+            Map<Casilla, Boolean> casillas = unidadBO.obtenerCoordenadas(unidadData);
+
+            UbicacionUnidad ubicacionUnidad = new UbicacionUnidad(unidad, casillas);
+
+            tableroUsuario.agregarUbicacion(ubicacionUnidad);
+        }
+
+        // Marcar al jugador como listo
+        jugador.setListo(true);
+        notificarEstadoListo(jugador);
+
+        System.out.println("Jugador: " + clientId);
+        System.out.println(tableroUsuario.getUnidades());
+        
+        // Si todos los jugadores están listos, notificar para iniciar el juego
+        if (partida.todosLosJugadoresListos()) {
+            // Notificar para iniciar el juego
+            notificarIniciarJuego();
+        }
+
+//        return toJSON.dataToJSON("accion", AccionesJugador.ORDENAR.name(), "id", clientId);
+    }
+    
+    private void iniciarTableroyUnidades(String clientId) {
+        // se agrega el tablero del jugador
+        partida.addTablero(clientId, new Tablero());
+        
+        // se crea la lista de unidades del jugador
+        List<Unidad> unidades = new ArrayList<>();
+        // 2 portaaviones
+        int numNave = 1;
+        // se crean los portaaviones
+        while (numNave <= 2) {            
+            Unidad nave = UnidadFactory.crearUnidad(TipoUnidad.PORTAAVIONES.NOMBRE);
+            nave.setNumNave(numNave);
+            unidades.add(nave);
+            numNave++;
+        }
+        // se crean los cruceros
+        while (numNave <= 4) {            
+            Unidad nave = UnidadFactory.crearUnidad(TipoUnidad.CRUCERO.NOMBRE);
+            nave.setNumNave(numNave);
+            unidades.add(nave);
+            numNave++;
+        }
+        // se crean los submarinos
+        while (numNave <= 6) {            
+            Unidad nave = UnidadFactory.crearUnidad(TipoUnidad.SUBMARINO.NOMBRE);
+            nave.setNumNave(numNave);
+            unidades.add(nave);
+            numNave++;
+        }
+        // se crean los barcos
+        while (numNave <= 9) {            
+            Unidad nave = UnidadFactory.crearUnidad(TipoUnidad.BARCO.NOMBRE);
+            nave.setNumNave(numNave);
+            unidades.add(nave);
+            numNave++;
+        }
+        
+        // se guardan las unidades del jugador
+        for (Jugador jugador : partida.getJugadores()) {
+            if (jugador.getId() == clientId) {
+                jugador.setUnidades(unidades);
+            }
+        }
+    }
+
+    
+    public void reiniciarEstadoListo() {
+        for (Jugador jugador : partida.getJugadores()) {
+            jugador.setListo(false);
+        }
+}
 
 }
