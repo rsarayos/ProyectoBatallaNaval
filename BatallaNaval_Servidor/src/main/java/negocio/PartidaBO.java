@@ -67,8 +67,7 @@ public class PartidaBO {
         }
     }
 
-    // Método para crear un nuevo jugador a partir de los datos proporcionados
     public Jugador crearJugador(String id, String nombre) {
-        return new Jugador(id, nombre); // Crear jugador sin necesidad de usar un contador externo
+        return new Jugador(id, nombre); 
     }
 }
