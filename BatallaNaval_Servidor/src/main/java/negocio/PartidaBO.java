@@ -15,6 +15,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -149,10 +150,14 @@ public class PartidaBO {
     }
 
     private void notificarIniciarJuego() {
+        Jugador jugadorInicial = partida.getJugadorTurno();
         for (Jugador jugador : partida.getJugadores()) {
             Socket socketJugador = ClientManager.getClientSocket(jugador.getId());
+            boolean esSuTurno = jugador.getId().equals(jugadorInicial.getId());
             Map<String, Object> mensaje = toJSON.dataToJSON(
-                    "accion", "INICIAR_JUEGO"
+                    "accion", "INICIAR_JUEGO",
+                    "jugador_inicial_id", jugadorInicial.getId(),
+                    "tu_turno", esSuTurno
             );
             MessageUtil.enviarMensaje(socketJugador, mensaje);
         }
@@ -195,7 +200,10 @@ public class PartidaBO {
         // Si todos los jugadores están listos, notificar para iniciar el juego
         if (partida.todosLosJugadoresListos()) {
             // Notificar para iniciar el juego
+            determinarJugadorInicial();
             notificarIniciarJuego();
+        } else {
+            notificarJugadorEsperando(jugador);
         }
 
 //        return toJSON.dataToJSON("accion", AccionesJugador.ORDENAR.name(), "id", clientId);
@@ -252,5 +260,26 @@ public class PartidaBO {
             jugador.setListo(false);
         }
 }
+
+    private void determinarJugadorInicial() {
+        List<Jugador> jugadores = partida.getJugadores();
+        Random random = new Random();
+        int indice = random.nextInt(jugadores.size());
+        Jugador jugadorInicial = jugadores.get(indice);
+        partida.setJugadorTurno(jugadorInicial);
+    }
+
+    private void notificarJugadorEsperando(Jugador jugadorListo) {
+        for (Jugador jugador : partida.getJugadores()) {
+            if (!jugador.getId().equals(jugadorListo.getId())) {
+                Socket socketJugador = ClientManager.getClientSocket(jugador.getId());
+                Map<String, Object> mensaje = toJSON.dataToJSON(
+                        "accion", "JUGADOR_ESPERANDO",
+                        "nombre_jugador", jugadorListo.getNombre()
+                );
+                MessageUtil.enviarMensaje(socketJugador, mensaje);
+            }
+        }
+    }
 
 }

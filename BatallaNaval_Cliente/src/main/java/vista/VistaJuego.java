@@ -12,6 +12,7 @@ import presentador.Juego;
 public class VistaJuego implements EstadoJuego {
     
     private PanelJuego panelJuego;
+    private boolean esMiTurno;
     private VistaTablero tableroJugador;
     private VistaTablero tableroEnemigo;
     private JPanel unidadesJugador[];
@@ -28,6 +29,7 @@ public class VistaJuego implements EstadoJuego {
         g.fillRect(0, 0, Juego.GAME_ANCHO, Juego.GAME_ALTO);
 
         g.setColor(UtilesVista.COLOR_TEXTO_AZUL_OSCURO);
+        g.setFont(UtilesVista.FUENTE_SUBTITULO);
         g.drawString("Tablero de", 60, 100);
         // nombre del jugador de esta partida
         g.drawString("Jugador 1", 60, 90);
@@ -51,6 +53,14 @@ public class VistaJuego implements EstadoJuego {
     
     private void iniciarUnidades() {
     
+    }
+
+    public boolean isEsMiTurno() {
+        return esMiTurno;
+    }
+
+    public void setEsMiTurno(boolean esMiTurno) {
+        this.esMiTurno = esMiTurno;
     }
     
 }

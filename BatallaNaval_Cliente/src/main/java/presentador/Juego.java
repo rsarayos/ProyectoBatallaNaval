@@ -70,6 +70,7 @@ public class Juego implements Runnable {
         vInstrucciones = new VistaInstrucciones(panel);
         vSalaEspera = new VistaSalaEspera(panel);
         vBuscarPartida = new VistaBuscarPartida(panel);
+        vJugar = new VistaJuego(panel);
         
         // Establece el estado inicial
         EstadosJuego.estado = EstadosJuego.BIENVENIDA;
@@ -123,6 +124,7 @@ public class Juego implements Runnable {
                 vBuscarPartida.dibujar(g);
                 break;
             case JUGAR:
+                vJugar.dibujar(g);
                 break;
             default:
                 throw new AssertionError();
@@ -182,8 +184,11 @@ public class Juego implements Runnable {
                     handleIniciarOrganizar();
                     break;
                 case "INICIAR_JUEGO":
-                    handleIniciarJuego();
+                    handleIniciarJuego(mensaje);
                     break;
+                case "JUGADOR_ESPERANDO":
+                    handleJugadorEsperando(mensaje);
+                break;
                 case "ATACAR":
 //                    handleAtacarResponse(mensaje);
                     break;
@@ -281,18 +286,32 @@ public class Juego implements Runnable {
         }
     }
 
-    private void handleIniciarJuego() {
+    private void handleIniciarJuego(Map<String, Object> mensaje) {
+        String jugadorInicialId = (String) mensaje.get("jugador_inicial_id");
+        boolean tuTurno = (Boolean) mensaje.get("tu_turno");
+
         // Cambiar al estado de juego
         EstadosJuego.estado = EstadosJuego.JUGAR;
+
+        // Inicializar la vista de juego
+        if (vJugar == null) {
+            vJugar = new VistaJuego(panel);
+        }
+
+        // Pasar información a VistaJuego
+        vJugar.setEsMiTurno(tuTurno);
 
         // Limpiar componentes de la vista de organizar si es necesario
         if (vOrganizar != null) {
             vOrganizar.limpiarComponentes();
         }
+    }
 
-        // Inicializar la vista de juego si no lo has hecho
-        if (vJugar == null) {
-            vJugar = new VistaJuego(panel);
+    private void handleJugadorEsperando(Map<String, Object> mensaje) {
+        String nombreJugador = (String) mensaje.get("nombre_jugador");
+        // Mostrar mensaje al usuario
+        if (vOrganizar != null) {
+            vOrganizar.mostrarMensajeJugadorEsperando(nombreJugador);
         }
     }
 

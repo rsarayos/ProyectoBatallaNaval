@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import modelo.MUbicacionUnidad;
 import modelo.ModeloCasilla;
@@ -31,7 +32,8 @@ public class VistaOrganizar implements EstadoJuego {
     private JPanel portaaviones;
     private JPanel crucero;
     private JPanel submarino;
-    private JPanel barco;    
+    private JPanel barco;
+    private JLabel labelEsperando;    
 
     public VistaOrganizar(PanelJuego panelJuego) {
         this.panelJuego = panelJuego;
@@ -154,6 +156,21 @@ public class VistaOrganizar implements EstadoJuego {
         this.panelJuego.quitarComponente(crucero);
         this.panelJuego.quitarComponente(portaaviones);
         this.panelJuego.quitarComponente(tablero);
+        if (labelEsperando != null) {
+            this.panelJuego.quitarComponente(labelEsperando);
+        }
+    }
+
+    public void mostrarMensajeJugadorEsperando(String nombreJugador) {
+        // Puedes usar un JLabel para mostrar el mensaje en la interfaz
+        labelEsperando = new JLabel(nombreJugador + " está esperando...");
+        labelEsperando.setForeground(UtilesVista.COLOR_TEXTO_AZUL_OSCURO);
+        labelEsperando.setFont(UtilesVista.FUENTE_SUBTITULO);
+
+        // Agregar el JLabel al panel si no está ya
+        if (!panelJuego.isAncestorOf(labelEsperando)) {
+            panelJuego.agregarComponente(labelEsperando, (Juego.GAME_ANCHO - 300) / 2, Juego.GAME_ALTO - 40, 300, 30);
+        }
     }
     
 }
