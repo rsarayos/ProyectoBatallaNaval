@@ -6,6 +6,7 @@ import dto.PruebaDTO;
 import enums.AccionesJugador;
 import static enums.AccionesJugador.ATACAR;
 import static enums.AccionesJugador.ORDENAR;
+import enums.ControlPartida;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.HashMap;
@@ -55,20 +56,19 @@ public class HandlerActions {
         } else if (AccionesJugador.ATACAR.toString().equalsIgnoreCase(accion)) {
             System.out.println("Se recibio ataque");
             Jugador otherClient = ClientManager.getOtherPlayer(clientId);
-
             Map<String, Object> response = partidaBO.ubicarAtaque(request, clientId);
+            String resultado = (String) response.get("resultado");
+            //Aqui saco el resultado para ver si es de partida finalizada sino se envia el mensaje normal
+            if (resultado != null && resultado.equalsIgnoreCase(ControlPartida.PARTIDA_FINALIZADA.name())) {
+                MessageUtil.enviarMensaje(clientSocket, response);
+                MessageUtil.enviarMensaje(ClientManager.getClientSocket(otherClient.getId()), response);
+            }
             Map<String, Object> clienteAtacanteResponse = (Map<String, Object>) response.get(clientId);
             Map<String, Object> clienteAtacadoResponse = (Map<String, Object>) response.get(otherClient.getId());
 
             MessageUtil.enviarMensaje(clientSocket, clienteAtacanteResponse);
             MessageUtil.enviarMensaje(ClientManager.getClientSocket(otherClient.getId()), clienteAtacadoResponse);
         } else {
-            // Otras acciones como ATACAR o ORDENAR
-            if (ATACAR.toString().equalsIgnoreCase(accion)) {
-                // Implementar lógica para "atacar"
-            } else if (ORDENAR.toString().equalsIgnoreCase(accion)) {
-                // Implementar lógica para "ordenar"
-            }
         }
     }
 }

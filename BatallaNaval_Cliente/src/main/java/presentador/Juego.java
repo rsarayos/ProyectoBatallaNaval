@@ -1,12 +1,12 @@
 package presentador;
 
 import comunicacion.ClientConnection;
+import enums.ControlPartida;
+import enums.ResultadosAtaques;
 import java.awt.Graphics;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.Optional;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import modelo.ModeloJugador;
@@ -40,7 +40,7 @@ public class Juego implements Runnable {
     protected static final int UPS_SET = 150;
     public final static int GAME_ANCHO = 900;
     public final static int GAME_ALTO = 720;
-    
+
     private VistaBienvenida vBienvenida;
     private VistaMenu vMenu;
     private VistaOrganizar vOrganizar;
@@ -48,7 +48,7 @@ public class Juego implements Runnable {
     private VistaSalaEspera vSalaEspera;
     private VistaBuscarPartida vBuscarPartida;
     private VistaJuego vJugar;
-    
+
     /**
      * Constructor de la clase Juego.
      *
@@ -61,7 +61,7 @@ public class Juego implements Runnable {
         venta = new VentanaJuego(panel);
         panel.setFocusable(true);
         panel.requestFocus();
-        
+
         // Inicia la conexión con el servidor
         iniciarConexion();
 
@@ -73,7 +73,7 @@ public class Juego implements Runnable {
         vSalaEspera = new VistaSalaEspera(panel);
         vBuscarPartida = new VistaBuscarPartida(panel);
         vJugar = new VistaJuego(panel);
-        
+
         // Establece el estado inicial
         EstadosJuego.estado = EstadosJuego.BIENVENIDA;
 
@@ -94,8 +94,7 @@ public class Juego implements Runnable {
      * Método para actualizar el estado del juego.
      */
     public void update() {
-        
-        
+
     }
 
     /**
@@ -104,11 +103,12 @@ public class Juego implements Runnable {
      * @param g Objeto Graphics para dibujar.
      */
     public void renderizar(Graphics g) {
-        
+
         switch (EstadosJuego.estado) {
             case BIENVENIDA:
-                if(vBienvenida != null)
-                vBienvenida.dibujar(g);
+                if (vBienvenida != null) {
+                    vBienvenida.dibujar(g);
+                }
                 break;
             case MENU:
                 vMenu.dibujar(g);
@@ -149,7 +149,7 @@ public class Juego implements Runnable {
         renderThread.start();
 
     }
-    
+
     private void iniciarConexion() {
         ClientConnection clientConnection = ClientConnection.getInstance();
         boolean conectado = clientConnection.connect("localhost", 5000);
@@ -162,7 +162,7 @@ public class Juego implements Runnable {
             // Manejar el error de conexión, por ejemplo, mostrar un mensaje al usuario
         }
     }
-    
+
     private void onMensajeRecibido(Map<String, Object> mensaje) {
         SwingUtilities.invokeLater(() -> {
             String accion = (String) mensaje.get("accion");
@@ -190,9 +190,9 @@ public class Juego implements Runnable {
                     break;
                 case "JUGADOR_ESPERANDO":
                     handleJugadorEsperando(mensaje);
-                break;
+                    break;
                 case "ATACAR":
-//                    handleAtacarResponse(mensaje);
+                    handleAtacarResponse(mensaje);
                     break;
                 // Manejar otras acciones
                 default:
@@ -220,12 +220,12 @@ public class Juego implements Runnable {
         // Si no se ha cambiado el estado
         // EstadosJuego.estado = EstadosJuego.SALA_ESPERA;
     }
-    
+
     private void handleNuevoJugador(Map<String, Object> mensaje) {
         String nombreJugador = (String) mensaje.get("nombre_jugador");
         vSalaEspera.agregarJugador(nombreJugador);
     }
-    
+
     private void handleUnirsePartidaResponse(Map<String, Object> mensaje) {
         if (mensaje.containsKey("error")) {
             // Mostrar mensaje de error al usuario
@@ -296,7 +296,7 @@ public class Juego implements Runnable {
         VistaTablero tableroJugador = vOrganizar.getTablero();
         tableroJugador.setModo(ModoTablero.JUGADOR);
         vJugar.setTableroJugador(tableroJugador);
-        
+
         // Cambiar al estado de juego
         EstadosJuego.estado = EstadosJuego.JUGAR;
 
@@ -320,6 +320,34 @@ public class Juego implements Runnable {
         if (vOrganizar != null) {
             vOrganizar.mostrarMensajeJugadorEsperando(nombreJugador);
         }
+    }
+
+    private void handleAtacarResponse(Map<String, Object> mensaje) {
+        // Extraer la información de la respuesta
+        String resultado = (String) mensaje.get("resultado");
+        Optional<String> textoMensaje = Optional.ofNullable((String) mensaje.get("mensaje"));
+        Optional<Integer> vidaNave = Optional.ofNullable((Integer) mensaje.get("vida_nave"));
+        Optional<Integer> numeroNave = Optional.ofNullable((Integer) mensaje.get("numero_nave"));
+        Optional<Integer> x = Optional.ofNullable((Integer) mensaje.get("x"));
+        Optional<Integer> y = Optional.ofNullable((Integer) mensaje.get("y"));
+        Optional<String> turnoJugador = Optional.ofNullable((String) mensaje.get(ControlPartida.DETERMINAR_TURNO.name()));
+        Optional<String> ganador = Optional.ofNullable((String) mensaje.get("ganador"));
+
+        StringBuilder mensajeUsuario = new StringBuilder();
+        mensajeUsuario.append("Resultado del ataque: ").append(resultado).append("\n");
+
+        textoMensaje.ifPresent(m -> mensajeUsuario.append("Mensaje: ").append(m).append("\n"));
+        vidaNave.ifPresent(v -> mensajeUsuario.append("Vida restante de la nave: ").append(v).append("\n"));
+        numeroNave.ifPresent(n -> mensajeUsuario.append("Número de nave afectada: ").append(n).append("\n"));
+        if (x.isPresent() && y.isPresent()) {
+            mensajeUsuario.append("Coordenadas del ataque: (").append(x.get()).append(", ").append(y.get()).append(")\n");
+        }
+        turnoJugador.ifPresent(t -> mensajeUsuario.append("Turno del jugador: ").append(t).append("\n"));
+        ganador.ifPresent(g -> mensajeUsuario.append("¡Ganador de la partida!: ").append(g).append("\n"));
+
+        JOptionPane.showMessageDialog(panel, mensajeUsuario.toString(), "Resultado del Ataque", JOptionPane.INFORMATION_MESSAGE);
+
+
     }
 
 }

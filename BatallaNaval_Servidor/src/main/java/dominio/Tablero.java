@@ -18,12 +18,13 @@ public class Tablero {
     private Casilla[][] casillas;
     private List<UbicacionUnidad> unidades;
     private List<Disparo> disparosRecibidos;
+    private int numNavesDestruidas;
 
     // En el constructor inicial se crea la lista de casillas
     public Tablero() {
-        
+
         casillas = new Casilla[FILAS][COLUMNAS];
-        
+
         // se crean las casillas
         for (int i = 0; i < 10; i++) {
             for (int j = 0; j < 10; j++) {
@@ -31,17 +32,17 @@ public class Tablero {
                 casillas[i][j] = celda;
             }
         }
-        
+
         // se inician la lista de ubicaciones y de los disparos realizados
         this.unidades = new ArrayList<>();
         this.disparosRecibidos = new ArrayList<>();
-        
+        this.numNavesDestruidas = 0;
     }
 
     public void agregarUbicacion(UbicacionUnidad ubicacion) {
         this.unidades.add(ubicacion);
     }
-    
+
     public void addDisparoRecibido(Disparo disparo) {
         this.disparosRecibidos.add(disparo);
     }
@@ -49,5 +50,20 @@ public class Tablero {
     public List<UbicacionUnidad> getUnidades() {
         return unidades;
     }
-    
+
+    public Tablero(int numNavesDestruidas) {
+        this.numNavesDestruidas = numNavesDestruidas;
+    }
+
+    public int getNumNavesDestruidas() {
+        return numNavesDestruidas;
+    }
+
+    public void setNumNavesDestruidas(int numNavesDestruidas) {
+        this.numNavesDestruidas = numNavesDestruidas;
+    }
+
+    public void addNaveDestruida() {
+        this.numNavesDestruidas += 1;
+    }
 }
