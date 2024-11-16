@@ -238,14 +238,14 @@ public class PartidaBO {
             numNave++;
         }
         // se crean los submarinos
-        while (numNave <= 6) {
+        while (numNave <= 8) {
             Unidad nave = UnidadFactory.crearUnidad(TipoUnidad.SUBMARINO.NOMBRE);
             nave.setNumNave(numNave);
             unidades.add(nave);
             numNave++;
         }
         // se crean los barcos
-        while (numNave <= 9) {
+        while (numNave <= 11) {
             Unidad nave = UnidadFactory.crearUnidad(TipoUnidad.BARCO.NOMBRE);
             nave.setNumNave(numNave);
             unidades.add(nave);
@@ -388,6 +388,6 @@ public class PartidaBO {
 
     public boolean verificarEstadoPartida(Tablero tablero) {
         //Aqui abria que tener en alguna parte el numero definido de naves para no hardcodearlo
-        return tablero.getNumNavesDestruidas() == 9;
+        return tablero.getNumNavesDestruidas() == 11;
     }
 }
