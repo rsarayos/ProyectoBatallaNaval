@@ -84,6 +84,10 @@ public class Partida {
         this.duracion = duracion;
     }
 
+    public Tablero getTableroJugador(String id) {
+        return this.tableros.getOrDefault(id, null);
+    }
+
     public EstadoPartida getEstado() {
         return estado;
     }

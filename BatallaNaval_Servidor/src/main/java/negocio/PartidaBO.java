@@ -6,15 +6,19 @@ import dominio.Partida;
 import comunicacion.ClientManager;
 import comunicacion.MessageUtil;
 import dominio.Casilla;
+import dominio.Disparo;
 import dominio.Tablero;
 import dominio.TipoUnidad;
 import dominio.UbicacionUnidad;
 import dominio.Unidad;
-import enums.AccionesJugador;
+import enums.EstadoCasilla;
+import enums.ResultadosAtaques;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -135,10 +139,10 @@ public class PartidaBO {
                     "accion", "TODOS_LISTOS"
             );
             MessageUtil.enviarMensaje(socketJugador, mensaje);
-            
+
         }
     }
-    
+
     private void notificarIniciarOrganizar() {
         for (Jugador jugador : partida.getJugadores()) {
             Socket socketJugador = ClientManager.getClientSocket(jugador.getId());
@@ -196,7 +200,7 @@ public class PartidaBO {
 
         System.out.println("Jugador: " + clientId);
         System.out.println(tableroUsuario.getUnidades());
-        
+
         // Si todos los jugadores están listos, notificar para iniciar el juego
         if (partida.todosLosJugadoresListos()) {
             // Notificar para iniciar el juego
@@ -208,44 +212,44 @@ public class PartidaBO {
 
 //        return toJSON.dataToJSON("accion", AccionesJugador.ORDENAR.name(), "id", clientId);
     }
-    
+
     private void iniciarTableroyUnidades(String clientId) {
         // se agrega el tablero del jugador
         partida.addTablero(clientId, new Tablero());
-        
+
         // se crea la lista de unidades del jugador
         List<Unidad> unidades = new ArrayList<>();
         // 2 portaaviones
         int numNave = 1;
         // se crean los portaaviones
-        while (numNave <= 2) {            
+        while (numNave <= 2) {
             Unidad nave = UnidadFactory.crearUnidad(TipoUnidad.PORTAAVIONES.NOMBRE);
             nave.setNumNave(numNave);
             unidades.add(nave);
             numNave++;
         }
         // se crean los cruceros
-        while (numNave <= 4) {            
+        while (numNave <= 4) {
             Unidad nave = UnidadFactory.crearUnidad(TipoUnidad.CRUCERO.NOMBRE);
             nave.setNumNave(numNave);
             unidades.add(nave);
             numNave++;
         }
         // se crean los submarinos
-        while (numNave <= 6) {            
+        while (numNave <= 6) {
             Unidad nave = UnidadFactory.crearUnidad(TipoUnidad.SUBMARINO.NOMBRE);
             nave.setNumNave(numNave);
             unidades.add(nave);
             numNave++;
         }
         // se crean los barcos
-        while (numNave <= 9) {            
+        while (numNave <= 9) {
             Unidad nave = UnidadFactory.crearUnidad(TipoUnidad.BARCO.NOMBRE);
             nave.setNumNave(numNave);
             unidades.add(nave);
             numNave++;
         }
-        
+
         // se guardan las unidades del jugador
         for (Jugador jugador : partida.getJugadores()) {
             if (jugador.getId() == clientId) {
@@ -254,12 +258,11 @@ public class PartidaBO {
         }
     }
 
-    
     public void reiniciarEstadoListo() {
         for (Jugador jugador : partida.getJugadores()) {
             jugador.setListo(false);
         }
-}
+    }
 
     private void determinarJugadorInicial() {
         List<Jugador> jugadores = partida.getJugadores();
@@ -280,6 +283,68 @@ public class PartidaBO {
                 MessageUtil.enviarMensaje(socketJugador, mensaje);
             }
         }
+    }
+
+    public Map<String, Object> ubicarAtaque(Map<String, Object> data, String clientId) {
+        Jugador jugadorAtacado = ClientManager.getOtherPlayer(clientId);
+        Tablero tableroAtacar = this.partida.getTableroJugador(jugadorAtacado.getId());
+        List<UbicacionUnidad> ubicacionUnidades = tableroAtacar.getUnidades();
+
+        int x = (int) data.get("x");
+        int y = (int) data.get("y");
+
+        Optional<UbicacionUnidad> ubicacionUnidadImpactada = ubicacionUnidades.stream()
+                .filter(ubicacionUnidad -> ubicacionUnidad.getCasillas().entrySet().stream()
+                .filter(entry -> entry.getValue())
+                .anyMatch(entry -> entry.getKey().getCoordenada().getX() == x && entry.getKey().getCoordenada().getY() == y))
+                .findFirst();
+
+        boolean impacto = ubicacionUnidadImpactada.isPresent();
+        String mensaje = impacto ? "Haz impactado en una nave enemiga" : "Haz fallado el ataque";
+        int numeroNave = impacto ? ubicacionUnidadImpactada.get().getUnidad().getNumNave() : 0;
+        int vidaNave = impacto ? ubicacionUnidadImpactada.get().getUnidad().getNumNave() : 0;
+
+        if (impacto) {
+            UbicacionUnidad ubicacionUnidad = ubicacionUnidadImpactada.get();
+
+            ubicacionUnidad.getCasillas().entrySet().stream()
+                    .filter(entry -> entry.getValue()) // Casillas activas
+                    .filter(entry -> entry.getKey().getCoordenada().getX() == x && entry.getKey().getCoordenada().getY() == y)
+                    .findFirst()
+                    .ifPresent(entry -> {
+                        entry.setValue(false);
+                        EstadoCasilla nuevoEstado = EstadoCasilla.IMPACTADA;
+
+                        Disparo disparo = new Disparo(entry.getKey(), nuevoEstado);
+                        tableroAtacar.addDisparoRecibido(disparo);
+                    });
+        }
+
+        Map<String, Object> respuesta = generarRespuestaAtaque(impacto, mensaje, vidaNave, numeroNave, x, y, clientId, jugadorAtacado);
+
+        return respuesta;
+    }
+
+    private Map<String, Object> generarRespuestaAtaque(boolean impacto, String mensaje, int vidaNave, int numeroNave, int x, int y, String clientId, Jugador jugadorAtacado) {
+        Map<String, Object> jugador1Response = new HashMap<>();
+        jugador1Response.put("resultado", impacto ? ResultadosAtaques.RESULTADO_ATAQUE_REALIZADO_IMPACTO.name() : ResultadosAtaques.RESULTADO_ATAQUE_REALIZADO_FALLO.name());
+        jugador1Response.put("mensaje", mensaje);
+        jugador1Response.put("vida_nave", vidaNave);
+        jugador1Response.put("numero_nave", numeroNave);
+
+        Map<String, Object> jugador2Response = new HashMap<>();
+        jugador2Response.put("resultado", impacto ? ResultadosAtaques.RESULTADO_ATAQUE_RECIBIDO_IMPACTO.name() : ResultadosAtaques.RESULTADO_ATAQUE_RECIBIDO_FALLO.name());
+        jugador2Response.put("mensaje", impacto ? "Tu nave fue impactada" : "El impacto falló");
+        jugador2Response.put("vida_nave", vidaNave);
+        jugador2Response.put("numero_nave", numeroNave);
+        jugador2Response.put("x", x);
+        jugador2Response.put("y", y);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put(clientId, jugador1Response);
+        response.put(jugadorAtacado.getId(), jugador2Response);
+
+        return response;
     }
 
 }

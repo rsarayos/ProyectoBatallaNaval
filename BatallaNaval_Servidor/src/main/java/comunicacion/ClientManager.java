@@ -71,4 +71,21 @@ public class ClientManager {
             System.out.println("No se encontró el cliente asociado al socket.");
         }
     }
+
+    public static synchronized Jugador getOtherPlayer(String excludeClientId) {
+        if (excludeClientId == null) {
+            System.out.println("Error: El excludeClientId no puede ser nulo.");
+            return null;
+        }
+
+        for (Map.Entry<String, Jugador> entry : clientIdToJugadorMap.entrySet()) {
+            if (!entry.getKey().equals(excludeClientId)) {
+                return entry.getValue();
+            }
+        }
+
+        System.out.println("No se encontró un jugador que no coincida con el clientId: " + excludeClientId);
+        return null; // Si no se encuentra ningún jugador
+    }
+
 }

@@ -42,12 +42,12 @@ public class Tablero {
         this.unidades.add(ubicacion);
     }
     
-    public void disparoRecibido(Disparo disparo) {
+    public void addDisparoRecibido(Disparo disparo) {
         this.disparosRecibidos.add(disparo);
     }
 
     public List<UbicacionUnidad> getUnidades() {
         return unidades;
     }
-
+    
 }

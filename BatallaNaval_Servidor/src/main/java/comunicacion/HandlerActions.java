@@ -1,6 +1,7 @@
 package comunicacion;
 
 import Convertidores.PruebaDeserializer;
+import dominio.Jugador;
 import dto.PruebaDTO;
 import enums.AccionesJugador;
 import static enums.AccionesJugador.ATACAR;
@@ -50,6 +51,16 @@ public class HandlerActions {
         } else if (AccionesJugador.ORDENAR.toString().equalsIgnoreCase(accion)) {
             partidaBO.colocarUnidadTablero(request, clientId);
             // No es necesario responder al jugador, ya que notificaremos a todos
+
+        } else if (AccionesJugador.ATACAR.toString().equalsIgnoreCase(accion)) {
+            Jugador otherClient = ClientManager.getOtherPlayer(clientId);
+
+            Map<String, Object> response = partidaBO.ubicarAtaque(request, clientId);
+            Map<String, Object> clienteAtacanteResponse = (Map<String, Object>) response.get(clientId);
+            Map<String, Object> clienteAtacadoResponse = (Map<String, Object>) response.get(otherClient.getId());
+
+            MessageUtil.enviarMensaje(clientSocket, clienteAtacanteResponse);
+            MessageUtil.enviarMensaje(ClientManager.getClientSocket(otherClient.getId()), clienteAtacadoResponse);
         } else {
             // Otras acciones como ATACAR o ORDENAR
             if (ATACAR.toString().equalsIgnoreCase(accion)) {
