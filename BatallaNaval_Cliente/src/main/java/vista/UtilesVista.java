@@ -37,6 +37,11 @@ public class UtilesVista {
     public static final Color COLOR_CAMPO_TEXTO = new Color(218, 218, 211);
     public static final Color COLOR_CAMPO_TEXTO_FONDO = new Color(24, 25, 37);
     
+    // Colores estados naves
+    public static final Color COLOR_UNIDAD_SIN_DANO = new Color(19, 222, 33);
+    public static final Color COLOR_UNIDAD_DANADA = new Color(237, 227, 21);
+    public static final Color COLOR_UNIDAD_DESTRUIDA = new Color(252, 24, 24);
+    
     // Colores Tablero
     public static final Color COLOR_CELDAS_INVALIDAS = new Color(255, 125, 125, 128);
     public static final Color COLOR_VISTA_PREVIEW = new Color(255, 255, 0, 128);
