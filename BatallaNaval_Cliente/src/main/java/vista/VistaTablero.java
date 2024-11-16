@@ -7,7 +7,9 @@ import java.awt.GridLayout;
 import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
+import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -25,6 +27,17 @@ import presentador.PresentadorTablero;
 public class VistaTablero extends JPanel {
 
     private PresentadorTablero presentador;
+    
+    // MODO DEL TABLERO
+    private ModoTablero modo;
+    
+    // Listeners para el modo organizar
+    private MouseListener mouseListenerOrganizar;
+    private MouseMotionListener mouseMotionListenerOrganizar;
+
+    // Listeners para el modo enemigo
+    private MouseListener mouseListenerEnemigo;
+    
     private Dimension tamañoCelda;
     private BufferedImage fondo;
     private boolean isDragging;
@@ -38,25 +51,6 @@ public class VistaTablero extends JPanel {
         
         cargarImagenes();
 
-        // Añadir listeners de mouse
-        addMouseListener(new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) {
-                presentador.onMousePressed(e);
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                presentador.onMouseReleased(e);
-            }
-        });
-
-        addMouseMotionListener(new MouseMotionAdapter() {
-            @Override
-            public void mouseDragged(MouseEvent e) {
-                presentador.onMouseDragged(e);
-            }
-        });
     }
 
     @Override
@@ -78,35 +72,49 @@ public class VistaTablero extends JPanel {
                 int x = j * tamañoCelda;
                 int y = i * tamañoCelda;
 
-                // Dibujar fondo transparente para celdas no ocupadas
-                if (casilla.getUnidadOcupante() == null) {
-                    // No dibujamos nada 
-                } else {
-                    // Dibujar la nave
-                    g.setColor(colorNave); // Usar el color seleccionado
-                    g.fillRect(x, y, tamañoCelda, tamañoCelda);
-                }
-
-                // Dibujar celdas adyacentes solo durante el arrastre
-                if (isDragging) {
-                    // Si la celda es adyacente a otra nave (no a la unidad seleccionada)
-                    if (casilla.esAdyacentePorOtraNave(unidadSeleccionada)) {
-                        g.setColor(UtilesVista.COLOR_CELDAS_INVALIDAS);
+                // **Mostrar las naves propias en los modos ORGANIZAR y JUGADOR**
+                if (modo == ModoTablero.ORGANIZAR || modo == ModoTablero.JUGADOR) {
+                    if (casilla.getUnidadOcupante() != null) {
+                        // Dibujar la nave
+                        g.setColor(colorNave); // Usar el color seleccionado
                         g.fillRect(x, y, tamañoCelda, tamañoCelda);
                     }
                 }
 
-                // Dibujar resaltado amarillo para las celdas resaltadas
-                if (casilla.isHighlighted()) {
-                    g.setColor(UtilesVista.COLOR_VISTA_PREVIEW);
-                    g.fillRect(x, y, tamañoCelda, tamañoCelda);
+                // **En el modo ENEMIGO, no mostramos las naves**
+                // **Mostrar celdas adyacentes y resaltadas solo en el modo ORGANIZAR**
+                if (modo == ModoTablero.ORGANIZAR) {
+                    // Dibujar celdas adyacentes solo durante el arrastre
+                    if (isDragging) {
+                        // Si la celda es adyacente a otra nave (no a la unidad seleccionada)
+                        if (casilla.esAdyacentePorOtraNave(unidadSeleccionada)) {
+                            g.setColor(UtilesVista.COLOR_CELDAS_INVALIDAS);
+                            g.fillRect(x, y, tamañoCelda, tamañoCelda);
+                        }
+                    }
+
+                    // Dibujar resaltado amarillo para las celdas resaltadas
+                    if (casilla.isHighlighted()) {
+                        g.setColor(UtilesVista.COLOR_VISTA_PREVIEW);
+                        g.fillRect(x, y, tamañoCelda, tamañoCelda);
+                    }
                 }
 
-                // Dibujar bordes solo si la celda no está ocupada
-                if (casilla.getUnidadOcupante() == null) {
-                    g.setColor(Color.BLACK);
-                    g.drawRect(x, y, tamañoCelda, tamañoCelda);
+                // **Mostrar ataques e impactos en todos los modos**
+                if (casilla.isAtacado()) {
+                    if (casilla.isImpacto()) {
+                        // Dibujar un círculo rojo para impacto
+                        g.setColor(Color.RED);
+                    } else {
+                        // Dibujar un círculo blanco para ataque fallido
+                        g.setColor(Color.WHITE);
+                    }
+                    g.fillOval(x + tamañoCelda / 4, y + tamañoCelda / 4, tamañoCelda / 2, tamañoCelda / 2);
                 }
+
+                // **Dibujar bordes de las celdas**
+                g.setColor(Color.BLACK);
+                g.drawRect(x, y, tamañoCelda, tamañoCelda);
             }
         }
     }
@@ -146,6 +154,103 @@ public class VistaTablero extends JPanel {
     public void setColorNave(Color colorNave) {
         this.colorNave = colorNave;
         repaint(); // Redibujar el tablero con el nuevo color
+    }
+
+    public void setModo(ModoTablero modo) {
+        this.modo = modo;
+        
+        // Quita los listeners activos
+        removeMouseListeners();
+
+        if (null != modo) switch (modo) {
+            case ORGANIZAR:
+                inicializarModoOrganizar();
+                break;
+            case ENEMIGO:
+                inicializarModoEnemigo();
+                break;
+            case JUGADOR:
+                this.setEnabled(false);
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void inicializarModoOrganizar() {
+        // Eliminar los listeners existentes por modos previos
+        removeMouseListeners();
+
+        // Crear y guardar los listener
+        mouseListenerOrganizar = new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                presentador.onMousePressed(e);
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                presentador.onMouseReleased(e);
+            }
+        };
+
+        mouseMotionListenerOrganizar = new MouseMotionAdapter() {
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                presentador.onMouseDragged(e);
+            }
+        };
+
+        // añadirlos
+        addMouseListener(mouseListenerOrganizar);
+        addMouseMotionListener(mouseMotionListenerOrganizar);
+    }
+
+    private void inicializarModoEnemigo() {
+        // Eliminar los listeners existentes por modos previos
+        removeMouseListeners();
+
+        // Crear y guardar los listener
+        mouseListenerEnemigo = new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                manejarClickEnemigo(e);
+            }
+        };
+
+        // añadirlos
+        addMouseListener(mouseListenerEnemigo);
+    }
+
+    private void manejarClickEnemigo(MouseEvent e) {
+        int fila = e.getY() / tamañoCelda.height;
+        int columna = e.getX() / tamañoCelda.width;
+
+        ModeloCasilla casilla = presentador.getModeloTablero().getCasilla(fila, columna);
+
+        if (casilla != null && !casilla.isAtacado()) {
+            // Marcar la casilla como atacada
+            casilla.setAtacado(true);
+            // Enviar el ataque al servidor
+            presentador.enviarAtaque(fila, columna);
+            // Actualizar la vista
+            repaint();
+        }
+    }
+
+    private void removeMouseListeners() {
+        if (mouseListenerOrganizar != null) {
+            removeMouseListener(mouseListenerOrganizar);
+            mouseListenerOrganizar = null;
+        }
+        if (mouseMotionListenerOrganizar != null) {
+            removeMouseMotionListener(mouseMotionListenerOrganizar);
+            mouseMotionListenerOrganizar = null;
+        }
+        if (mouseListenerEnemigo != null) {
+            removeMouseListener(mouseListenerEnemigo);
+            mouseListenerEnemigo = null;
+        }
     }
 
 }

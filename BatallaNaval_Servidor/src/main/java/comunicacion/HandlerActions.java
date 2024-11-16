@@ -53,6 +53,7 @@ public class HandlerActions {
             // No es necesario responder al jugador, ya que notificaremos a todos
 
         } else if (AccionesJugador.ATACAR.toString().equalsIgnoreCase(accion)) {
+            System.out.println("Se recibio ataque");
             Jugador otherClient = ClientManager.getOtherPlayer(clientId);
 
             Map<String, Object> response = partidaBO.ubicarAtaque(request, clientId);

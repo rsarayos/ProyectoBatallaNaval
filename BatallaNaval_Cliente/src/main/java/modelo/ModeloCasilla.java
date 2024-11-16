@@ -13,6 +13,8 @@ public class ModeloCasilla {
     private Set<MUbicacionUnidad> navesAdyacentes;
     private MUbicacionUnidad unidadOcupante;
     private boolean isHighlighted;
+    private boolean atacado;
+    private boolean impacto;
 
     public ModeloCasilla(MCoordenada coordenada) {
         this.coordenada = coordenada;
@@ -62,6 +64,22 @@ public class ModeloCasilla {
 
     public void setHighlighted(boolean highlighted) {
         this.isHighlighted = highlighted;
+    }
+
+    public boolean isAtacado() {
+        return atacado;
+    }
+
+    public void setAtacado(boolean atacado) {
+        this.atacado = atacado;
+    }
+
+    public boolean isImpacto() {
+        return impacto;
+    }
+
+    public void setImpacto(boolean impacto) {
+        this.impacto = impacto;
     }
 
 }
