@@ -1,6 +1,7 @@
 package vista;
 
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.GridLayout;
@@ -37,6 +38,8 @@ public class VistaTablero extends JPanel {
 
     // Listeners para el modo enemigo
     private MouseListener mouseListenerEnemigo;
+    // interaccion para tablero enemigo
+    private boolean interaccionHabilitada = true; 
     
     private Dimension tamañoCelda;
     private BufferedImage fondo;
@@ -223,6 +226,9 @@ public class VistaTablero extends JPanel {
     }
 
     private void manejarClickEnemigo(MouseEvent e) {
+        if (!interaccionHabilitada) {
+            return; // Si no esta en su turno
+        }
         int fila = e.getY() / tamañoCelda.height;
         int columna = e.getX() / tamañoCelda.width;
 
@@ -250,6 +256,24 @@ public class VistaTablero extends JPanel {
         if (mouseListenerEnemigo != null) {
             removeMouseListener(mouseListenerEnemigo);
             mouseListenerEnemigo = null;
+        }
+    }
+
+    void habilitarInteraccion(boolean habilitar) {
+        this.interaccionHabilitada = habilitar;
+        if (habilitar) {
+            setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
+        } else {
+            setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+        }
+    }
+
+    void actualizarCasilla(int fila, int columna, boolean impacto) {
+        ModeloCasilla casilla = presentador.getModeloTablero().getCasilla(fila, columna);
+        if (casilla != null) {
+            casilla.setAtacado(true);
+            casilla.setImpacto(impacto);
+            repaint();
         }
     }
 

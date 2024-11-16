@@ -5,7 +5,9 @@ import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 import modelo.ModeloJugador;
 import modelo.TipoUnidad;
 import presentador.Juego;
@@ -19,9 +21,12 @@ public class VistaJuego implements EstadoJuego {
     private PanelJuego panelJuego;
     private boolean esMiTurno;
     private VistaTablero tableroJugador;
+    private String nombreOponente;
     private VistaTablero tableroEnemigo;
     private List<VistaNave> unidadesJugador;
     private List<VistaNave> unidadesEnemigo;
+    private JLabel lblTurno;
+    private String ultimoMensaje;
     private JButton botonRendirse;
 
     public VistaJuego(PanelJuego panelJuego) {
@@ -31,6 +36,12 @@ public class VistaJuego implements EstadoJuego {
         this.unidadesJugador = new ArrayList<>();
         this.unidadesEnemigo = new ArrayList<>();
         this.iniciarUnidades();
+        
+        // turno
+        lblTurno = new JLabel("", SwingConstants.CENTER);
+        lblTurno.setFont(UtilesVista.FUENTE_SUBTITULO);
+        lblTurno.setBounds(0, 600, Juego.GAME_ANCHO, 30);
+        panelJuego.agregarComponente(lblTurno, 0, 600, Juego.GAME_ANCHO, 30);
     }
 
     @Override
@@ -56,7 +67,7 @@ public class VistaJuego implements EstadoJuego {
         // INFORMACION DEL OPONENTE
         g.drawString("Tablero de", 500, 40);
         // nombre del jugador enemigo conectado
-        g.drawString("Jugador 2", 500, 60);
+        g.drawString(nombreOponente != null ? nombreOponente : "Oponente", 500, 60);
         if (!panelJuego.isAncestorOf(tableroEnemigo)) {
             tableroEnemigo.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
             panelJuego.agregarComponente(tableroEnemigo, 500, 90, 300, 300);
@@ -70,13 +81,10 @@ public class VistaJuego implements EstadoJuego {
         // colocar representacion de las 
         colocarEstadoFlota();
         
-        // Mostrar jugador en turno
-        UtilesVista.dibujarTextoCentrado(g, "Turno del jugador", 430, UtilesVista.FUENTE_SUBTITULO);
-        UtilesVista.dibujarTextoCentrado(g, "JUGADOR", 450, UtilesVista.FUENTE_SUBTITULO);
-        
-        // Mostrar el resultado del ataque
-        UtilesVista.dibujarTextoCentrado(g, "Resultado ultimo disparo", 480, UtilesVista.FUENTE_SUBTITULO);
-        UtilesVista.dibujarTextoCentrado(g, "El impacto falló", 480, UtilesVista.FUENTE_SUBTITULO); // ejemplo
+        g.setFont(UtilesVista.FUENTE_SUBTITULO);
+        g.setColor(UtilesVista.COLOR_TEXTO_AZUL_OSCURO);
+        UtilesVista.dibujarTextoCentrado(g, "Resultado del último disparo", 480, UtilesVista.FUENTE_SUBTITULO);
+        UtilesVista.dibujarTextoCentrado(g, ultimoMensaje != null ? ultimoMensaje : "", 500, UtilesVista.FUENTE_SUBTITULO);
         
     }
 
@@ -191,6 +199,7 @@ public class VistaJuego implements EstadoJuego {
 
     public void setEsMiTurno(boolean esMiTurno) {
         this.esMiTurno = esMiTurno;
+        actualizarInterfazTurno();
     }
 
     public void setTableroJugador(VistaTablero tableroJugador) {
@@ -204,5 +213,54 @@ public class VistaJuego implements EstadoJuego {
     public List<VistaNave> getUnidadesEnemigo() {
         return unidadesEnemigo;
     }  
+
+    private void actualizarInterfazTurno() {
+        if (esMiTurno) {
+            tableroEnemigo.habilitarInteraccion(true);
+            lblTurno.setText("Es tu turno");
+        } else {
+            tableroEnemigo.habilitarInteraccion(false);
+            lblTurno.setText("Es el turno del oponente ");
+        }
+    }
+
+    public void actualizarTableroEnemigo(int x, int y, boolean impacto) {
+        tableroEnemigo.actualizarCasilla(x, y, impacto);
+    }
+
+    public void actualizarEstadoFlotaEnemigo(Integer numeroNave, Integer vidaNave) {
+        VistaNave nave = unidadesEnemigo.stream()
+                .filter(n -> n.getNumNave() == numeroNave)
+                .findFirst()
+                .orElse(null);
+        if (nave != null) {
+            nave.setVida(vidaNave);
+            nave.repaint();
+        }
+    }
+
+    public void actualizarTableroJugador(int x, int y, boolean impacto) {
+        tableroJugador.actualizarCasilla(x, y, impacto);
+    }
+
+    public void actualizarEstadoFlotaJugador(Integer numeroNave, Integer vidaNave) {
+        VistaNave nave = unidadesJugador.stream()
+                .filter(n -> n.getNumNave() == numeroNave)
+                .findFirst()
+                .orElse(null);
+        if (nave != null) {
+            nave.setVida(vidaNave);
+            nave.repaint();
+        }
+    }
+
+    public void setNombreOponente(String nombreOponente) {
+        this.nombreOponente = nombreOponente;
+    }
+
+    public void setUltimoMensaje(String mensaje) {
+        this.ultimoMensaje = mensaje;
+        panelJuego.repaint();
+    }
     
 }

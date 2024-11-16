@@ -157,13 +157,24 @@ public class PartidaBO {
 
     private void notificarIniciarJuego() {
         Jugador jugadorInicial = partida.getJugadorTurno();
-        for (Jugador jugador : partida.getJugadores()) {
+        List<Jugador> jugadores = partida.getJugadores();
+
+        for (Jugador jugador : jugadores) {
             Socket socketJugador = ClientManager.getClientSocket(jugador.getId());
             boolean esSuTurno = jugador.getId().equals(jugadorInicial.getId());
+
+            // Get opponent's name
+            Jugador oponente = jugadores.stream()
+                    .filter(j -> !j.getId().equals(jugador.getId()))
+                    .findFirst()
+                    .orElse(null);
+            String nombreOponente = oponente != null ? oponente.getNombre() : "Oponente";
+
             Map<String, Object> mensaje = toJSON.dataToJSON(
                     "accion", "INICIAR_JUEGO",
                     "jugador_inicial_id", jugadorInicial.getId(),
-                    "tu_turno", esSuTurno
+                    "tu_turno", esSuTurno,
+                    "nombre_oponente", nombreOponente
             );
             MessageUtil.enviarMensaje(socketJugador, mensaje);
         }
@@ -348,23 +359,26 @@ public class PartidaBO {
     private Map<String, Object> generarRespuestaAtaque(boolean impacto, String mensaje, int vidaNave, int numeroNave, int x, int y, String clientId, Jugador jugadorAtacado) {
         Jugador jugadorTurno = impacto ? ClientManager.getJugadorByClientId(clientId) : ClientManager.getJugadorByClientId(jugadorAtacado.getId());
         this.partida.setJugadorTurno(jugadorTurno);
+
         Map<String, Object> jugador1Response = new HashMap<>();
         jugador1Response.put("accion", AccionesJugador.ATACAR.name());
         jugador1Response.put("resultado", impacto ? ResultadosAtaques.RESULTADO_ATAQUE_REALIZADO_IMPACTO.name() : ResultadosAtaques.RESULTADO_ATAQUE_REALIZADO_FALLO.name());
         jugador1Response.put("mensaje", mensaje);
         jugador1Response.put("vida_nave", vidaNave);
         jugador1Response.put("numero_nave", numeroNave);
+        jugador1Response.put("x", x);
+        jugador1Response.put("y", y);
         jugador1Response.put(ControlPartida.DETERMINAR_TURNO.name(), jugadorTurno.getNombre());
 
         Map<String, Object> jugador2Response = new HashMap<>();
         jugador2Response.put("accion", AccionesJugador.ATACAR.name());
         jugador2Response.put("resultado", impacto ? ResultadosAtaques.RESULTADO_ATAQUE_RECIBIDO_IMPACTO.name() : ResultadosAtaques.RESULTADO_ATAQUE_RECIBIDO_FALLO.name());
-        jugador2Response.put(ControlPartida.DETERMINAR_TURNO.name(), jugadorTurno.getNombre());
         jugador2Response.put("mensaje", impacto ? "Tu nave fue impactada" : "El impacto falló");
         jugador2Response.put("vida_nave", vidaNave);
         jugador2Response.put("numero_nave", numeroNave);
         jugador2Response.put("x", x);
         jugador2Response.put("y", y);
+        jugador2Response.put(ControlPartida.DETERMINAR_TURNO.name(), jugadorTurno.getNombre());
 
         Map<String, Object> response = new HashMap<>();
         response.put(clientId, jugador1Response);
@@ -380,6 +394,7 @@ public class PartidaBO {
         mensajeVictoria.put("mensaje", "¡Felicidades! " + jugadorGanador.getNombre() + " ha ganado la partida.");
         mensajeVictoria.put("accion", AccionesJugador.ATACAR.name());
         mensajeVictoria.put("ganador", jugadorGanador.getNombre());
+        mensajeVictoria.put(ControlPartida.DETERMINAR_TURNO.name(), null);
 //        mensajeVictoria.put("turnos_jugados", turnosJugados);
 //        mensajeVictoria.put("naves_restantes", navesRestantes);
 

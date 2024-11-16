@@ -38,14 +38,12 @@ public class VistaNave extends JLabel{
 
         if (this.vida == vidaMaxima) {
             g.setColor(UtilesVista.COLOR_UNIDAD_SIN_DANO);
-            g.fillRect(0, 0, 30, 30);
         } else if (this.vida < vidaMaxima && this.vida > 0) {
             g.setColor(UtilesVista.COLOR_UNIDAD_DANADA);
-            g.fillRect(0, 0, 30, 30);
         } else if (this.vida == 0) {
-            g.setColor(UtilesVista.COLOR_UNIDAD_DANADA);
-            g.fillRect(0, 0, 30, 30);
+            g.setColor(UtilesVista.COLOR_UNIDAD_DESTRUIDA);
         }
+        g.fillRect(0, 0, getWidth(), getHeight());
 
     }
 
