@@ -38,6 +38,7 @@ public class VistaOrganizar implements EstadoJuego {
     public VistaOrganizar(PanelJuego panelJuego) {
         this.panelJuego = panelJuego;
         this.tablero = new VistaTablero();
+        this.tablero.setModo(ModoTablero.ORGANIZAR);
         this.colorSelector = UtilesVista.crearComboBox(UtilesVista.LISTA_COLORES_BARCO, 200, 30);
         this.colorSelector.setSelectedItem("Negro");
         this.botonJugar = UtilesVista.crearBoton("Jugar");
@@ -171,6 +172,10 @@ public class VistaOrganizar implements EstadoJuego {
         if (!panelJuego.isAncestorOf(labelEsperando)) {
             panelJuego.agregarComponente(labelEsperando, (Juego.GAME_ANCHO - 300) / 2, Juego.GAME_ALTO - 40, 300, 30);
         }
+    }
+
+    public VistaTablero getTablero() {
+        return tablero;
     }
     
 }

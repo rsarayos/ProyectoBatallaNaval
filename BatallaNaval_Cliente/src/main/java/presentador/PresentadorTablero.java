@@ -1,5 +1,6 @@
 package presentador;
 
+import comunicacion.ClientConnection;
 import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
@@ -346,6 +347,11 @@ public class PresentadorTablero {
 
     public ModeloTablero getModeloTablero() {
         return modeloTablero;
+    }
+
+    public void enviarAtaque(int fila, int columna) {
+        // envia el ataque al servidor
+        ClientConnection.getInstance().atacar(fila, columna);
     }
     
     

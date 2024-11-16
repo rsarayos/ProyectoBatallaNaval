@@ -21,6 +21,8 @@ public class VistaJuego implements EstadoJuego {
 
     public VistaJuego(PanelJuego panelJuego) {
         this.panelJuego = panelJuego;
+        this.tableroEnemigo = new VistaTablero();
+        this.tableroEnemigo.setModo(ModoTablero.ENEMIGO);
     }
 
     @Override
@@ -30,14 +32,18 @@ public class VistaJuego implements EstadoJuego {
 
         g.setColor(UtilesVista.COLOR_TEXTO_AZUL_OSCURO);
         g.setFont(UtilesVista.FUENTE_SUBTITULO);
-        g.drawString("Tablero de", 60, 100);
+        g.drawString("Tablero de", 100, 40);
         // nombre del jugador de esta partida
-        g.drawString("Jugador 1", 60, 90);
-        g.drawString("Tablero de", 60, 400);
+        g.drawString("Jugador 1", 100, 60);
+        if (!panelJuego.isAncestorOf(tableroJugador)) {
+            panelJuego.agregarComponente(tableroJugador, 100, 90, 300, 300);
+        }
+        g.drawString("Tablero de", 500, 40);
         // nombre del jugador enemigo conectado
-        g.drawString("Jugador 2", 60, 400);
-        UtilesVista.dibujarTextoCentrado(g, "", 60, UtilesVista.FUENTE_SUBTITULO);
-        
+        g.drawString("Jugador 2", 500, 60);
+        if (!panelJuego.isAncestorOf(tableroEnemigo)) {
+            panelJuego.agregarComponente(tableroEnemigo, 500, 90, 300, 300);
+        }
         
     }
 
@@ -61,6 +67,10 @@ public class VistaJuego implements EstadoJuego {
 
     public void setEsMiTurno(boolean esMiTurno) {
         this.esMiTurno = esMiTurno;
+    }
+
+    public void setTableroJugador(VistaTablero tableroJugador) {
+        this.tableroJugador = tableroJugador;
     }
     
 }

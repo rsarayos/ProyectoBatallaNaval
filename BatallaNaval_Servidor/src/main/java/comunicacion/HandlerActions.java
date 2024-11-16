@@ -50,6 +50,9 @@ public class HandlerActions {
         } else if (AccionesJugador.ORDENAR.toString().equalsIgnoreCase(accion)) {
             partidaBO.colocarUnidadTablero(request, clientId);
             // No es necesario responder al jugador, ya que notificaremos a todos
+        } else if (AccionesJugador.ATACAR.toString().equalsIgnoreCase(accion)) {
+            // Aqui manejar el ataque
+            System.out.println("Se recibio ataque");
         } else {
             // Otras acciones como ATACAR o ORDENAR
             if (ATACAR.toString().equalsIgnoreCase(accion)) {

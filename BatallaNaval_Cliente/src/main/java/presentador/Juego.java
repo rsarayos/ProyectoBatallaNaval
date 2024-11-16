@@ -11,6 +11,7 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import modelo.ModeloJugador;
 import vista.EstadosJuego;
+import vista.ModoTablero;
 import vista.PanelJuego;
 import vista.VentanaJuego;
 import vista.VistaBienvenida;
@@ -20,6 +21,7 @@ import vista.VistaJuego;
 import vista.VistaMenu;
 import vista.VistaOrganizar;
 import vista.VistaSalaEspera;
+import vista.VistaTablero;
 
 /**
  * Clase principal que representa el juego. Implementa la interfaz Runnable para
@@ -290,6 +292,11 @@ public class Juego implements Runnable {
         String jugadorInicialId = (String) mensaje.get("jugador_inicial_id");
         boolean tuTurno = (Boolean) mensaje.get("tu_turno");
 
+        // pasar el tablero del jugador
+        VistaTablero tableroJugador = vOrganizar.getTablero();
+        tableroJugador.setModo(ModoTablero.JUGADOR);
+        vJugar.setTableroJugador(tableroJugador);
+        
         // Cambiar al estado de juego
         EstadosJuego.estado = EstadosJuego.JUGAR;
 
