@@ -1,21 +1,25 @@
 package vista;
 
+import ivistas.IVistaInstrucciones;
 import java.awt.Graphics;
 import javax.swing.JButton;
 import presentador.Juego;
+import presentador.PresentadorInstrucciones;
 
 /**
  *
  * @author alex_
  */
-public class VistaInstrucciones implements EstadoJuego {
+public class VistaInstrucciones implements EstadoJuego, IVistaInstrucciones {
     
     private PanelJuego panelJuego;
     private JButton botonRegresar;
+    private PresentadorInstrucciones presentador;
     
     public VistaInstrucciones(PanelJuego panelJuego) {
         this.panelJuego = panelJuego;
-        this.botonRegresar = UtilesVista.crearBoton("Regresar");
+        this.presentador = new PresentadorInstrucciones(this);
+        crearComponentes();
         accionesComponentes();
     }
 
@@ -60,17 +64,27 @@ public class VistaInstrucciones implements EstadoJuego {
     }
 
     @Override
-    public void actualizar() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    @Override
     public void accionesComponentes() {
         // Agregar acción al botón
         botonRegresar.addActionListener(e -> {
-            panelJuego.quitarComponente(botonRegresar);
-            EstadosJuego.estado = EstadosJuego.MENU; // Cambiar el estado
+            presentador.regresarAlMenu();
         });
+    }
+
+    @Override
+    public void crearComponentes() {
+        this.botonRegresar = UtilesVista.crearBoton("Regresar");
+    }
+
+    @Override
+    public void quitarComponentes() {
+        panelJuego.quitarComponente(botonRegresar);
+    }
+
+    @Override
+    public void navegarAlMenu() {
+        quitarComponentes();
+        presentador.regresarAMenu();
     }
 
 }

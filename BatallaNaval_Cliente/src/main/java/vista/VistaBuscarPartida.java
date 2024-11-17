@@ -59,11 +59,6 @@ public class VistaBuscarPartida implements EstadoJuego {
     }
 
     @Override
-    public void actualizar() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-
-    @Override
     public void accionesComponentes() {
         // Agregar acción al botón
         botonContinuar.addActionListener(e -> {
@@ -86,10 +81,16 @@ public class VistaBuscarPartida implements EstadoJuego {
         });
     }
     
+    @Override
     public void quitarComponentes(){
         panelJuego.quitarComponente(botonContinuar);
         panelJuego.quitarComponente(botonSalir);
         panelJuego.quitarComponente(campoSala);
+    }
+
+    @Override
+    public void crearComponentes() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
 }

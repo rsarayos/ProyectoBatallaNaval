@@ -1,28 +1,30 @@
 package vista;
 
+import ivistas.IVistaBienvenida;
 import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
-import modelo.ModeloJugador;
 import presentador.Juego;
+import presentador.PresentadorBienvenida;
 
 /**
  *
  * @author alex_
  */
-public class VistaBienvenida implements EstadoJuego {
+public class VistaBienvenida implements EstadoJuego, IVistaBienvenida {
 
     private PanelJuego panelJuego;
     private JTextField campoNombre;
     private JButton botonIniciar;
     private BufferedImage portada;
+    private PresentadorBienvenida presentador;
 
     public VistaBienvenida(PanelJuego panelJuego) {
         this.panelJuego = panelJuego;
-        campoNombre = UtilesVista.crearCampoTexto(20);
-        botonIniciar = UtilesVista.crearBoton("Iniciar Juego");
+        presentador = new PresentadorBienvenida(this);
+        crearComponentes();
         accionesComponentes();
         cargarImagenes();
 
@@ -32,7 +34,7 @@ public class VistaBienvenida implements EstadoJuego {
     public void dibujar(Graphics g) {
         g.setColor(UtilesVista.COLOR_FONDO);
         g.fillRect(0, 0, Juego.GAME_ANCHO, Juego.GAME_ALTO);
-        
+
         g.drawImage(portada, 250, 100, null);
 
         g.setColor(UtilesVista.COLOR_TEXTO_AZUL_OSCURO);
@@ -47,38 +49,46 @@ public class VistaBienvenida implements EstadoJuego {
             panelJuego.agregarComponente(botonIniciar, (Juego.GAME_ANCHO - 200) / 2, Juego.GAME_ALTO - 80, 200, 40);
         }
 
-    }
+    }    
 
     @Override
-    public void actualizar() {
-
+    public void crearComponentes() {
+        campoNombre = UtilesVista.crearCampoTexto(20);
+        botonIniciar = UtilesVista.crearBoton("Iniciar Juego");
     }
-
+    
+    @Override
     public void accionesComponentes() {
         // Agregar acción al botón
         botonIniciar.addActionListener(e -> {
-            if (!campoNombre.getText().isBlank()) {
-                if (validarNombre(campoNombre.getText())) {
-                    ModeloJugador jugador = ModeloJugador.getInstance();
-                    jugador.setNombre(campoNombre.getText());
-                    panelJuego.quitarComponente(campoNombre);
-                    panelJuego.quitarComponente(botonIniciar);
-                    EstadosJuego.estado = EstadosJuego.MENU;
-                } else {
-                    JOptionPane.showMessageDialog(panelJuego, "El nombre no tiene el formato adecuado", "Nombre invalido", JOptionPane.INFORMATION_MESSAGE);
-                }
-            } else {
-                JOptionPane.showMessageDialog(panelJuego, "El nombre no puede estar vacio", "Nombre vacio", JOptionPane.INFORMATION_MESSAGE);
-            }
+            presentador.iniciarJuego();
         });
     }
     
+    @Override
+    public void quitarComponentes() {
+        panelJuego.quitarComponente(campoNombre);
+        panelJuego.quitarComponente(botonIniciar);
+    }
+
     public void cargarImagenes() {
         this.portada = UtilesVista.cargarImagen(UtilesVista.PORTADA);
     }
-    
-    private boolean validarNombre(String nombre) {
-        return nombre.matches("^[a-zA-Z0-9]{1,15}$");
+
+    @Override
+    public void mostrarMensajeError(String mensaje) {
+        JOptionPane.showMessageDialog(panelJuego, mensaje, "Error", JOptionPane.ERROR_MESSAGE);
+    }
+
+    @Override
+    public String obtenerNombreJugador() {
+        return campoNombre.getText();
+    }
+
+    @Override
+    public void navegarAlMenu() {
+        quitarComponentes();
+        presentador.avanzarAMenu();
     }
 
 }

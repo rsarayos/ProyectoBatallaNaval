@@ -10,7 +10,8 @@ import java.awt.Graphics;
 public interface EstadoJuego {
   
     public void dibujar(Graphics g);
-    public void actualizar();
     public void accionesComponentes();
+    public void crearComponentes();
+    public void quitarComponentes();
     
 }

@@ -89,11 +89,6 @@ public class VistaJuego implements EstadoJuego {
     }
 
     @Override
-    public void actualizar() {
-        
-    }
-
-    @Override
     public void accionesComponentes() {
         
     }
@@ -261,6 +256,16 @@ public class VistaJuego implements EstadoJuego {
     public void setUltimoMensaje(String mensaje) {
         this.ultimoMensaje = mensaje;
         panelJuego.repaint();
+    }
+
+    @Override
+    public void crearComponentes() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public void quitarComponentes() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
     
 }

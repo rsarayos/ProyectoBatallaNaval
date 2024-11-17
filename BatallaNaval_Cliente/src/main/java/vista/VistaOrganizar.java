@@ -91,11 +91,6 @@ public class VistaOrganizar implements EstadoJuego {
     }
 
     @Override
-    public void actualizar() {
-
-    }
-
-    @Override
     public void accionesComponentes() {
         // Agregar acción al botón
         botonJugar.addActionListener(e -> {
@@ -176,6 +171,16 @@ public class VistaOrganizar implements EstadoJuego {
 
     public VistaTablero getTablero() {
         return tablero;
+    }
+
+    @Override
+    public void crearComponentes() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    @Override
+    public void quitarComponentes() {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
     
 }
