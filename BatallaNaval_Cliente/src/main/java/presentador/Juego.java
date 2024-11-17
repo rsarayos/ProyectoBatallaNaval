@@ -2,14 +2,12 @@ package presentador;
 
 import comunicacion.ClientConnection;
 import enums.ControlPartida;
-import enums.ResultadosAtaques;
 import ivistas.IVistaBuscarPartida;
+import ivistas.IVistaOrganizar;
 import ivistas.IVistaSalaEspera;
 import java.awt.Graphics;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import modelo.ModeloJugador;
 import vista.EstadosJuego;
@@ -306,40 +304,26 @@ public class Juego implements Runnable {
     }
 
     private void handleIniciarJuego(Map<String, Object> mensaje) {
-        String jugadorInicialId = (String) mensaje.get("jugador_inicial_id");
-        boolean tuTurno = (Boolean) mensaje.get("tu_turno");
-        String nombreOponente = (String) mensaje.get("nombre_oponente");
+        if (vOrganizar != null && vOrganizar instanceof IVistaOrganizar) {
+            boolean tuTurno = (Boolean) mensaje.get("tu_turno");
+            String nombreOponente = (String) mensaje.get("nombre_oponente");
+            // pasar el tablero del jugador a la vista de juego
+            VistaTablero tableroJugador = vOrganizar.getTablero();
+            tableroJugador.setModo(ModoTablero.JUGADOR);
+            vJugar.setTableroJugador(tableroJugador);
+            vJugar.setEsMiTurno(tuTurno);
+            vJugar.setNombreOponente(nombreOponente);
 
-        // Inicia vJugar si no esta
-        if (vJugar == null) {
-            vJugar = new VistaJuego(panel);
+            PresentadorOrganizar presentador = vOrganizar.getPresentador();
+            presentador.manejarIniciarJuego();
         }
-
-        // Pasar el tablero del jugador
-        VistaTablero tableroJugador = vOrganizar.getTablero();
-        tableroJugador.setModo(ModoTablero.JUGADOR);
-        vJugar.setTableroJugador(tableroJugador);
-
-        // Pasar informacion del turno
-        vJugar.setEsMiTurno(tuTurno);
-
-        // Pasar el nombre del oponente
-        vJugar.setNombreOponente(nombreOponente);
-
-        // limpiar los componentes anteriores
-        if (vOrganizar != null) {
-            vOrganizar.limpiarComponentes();
-        }
-
-        // Cambiar el estado del juego
-        EstadosJuego.estado = EstadosJuego.JUGAR;
     }
 
     private void handleJugadorEsperando(Map<String, Object> mensaje) {
         String nombreJugador = (String) mensaje.get("nombre_jugador");
-        // Mostrar mensaje al usuario
-        if (vOrganizar != null) {
-            vOrganizar.mostrarMensajeJugadorEsperando(nombreJugador);
+        if (vOrganizar != null && vOrganizar instanceof IVistaOrganizar) {
+            PresentadorOrganizar presentador = vOrganizar.getPresentador();
+            presentador.manejarJugadorEsperando(nombreJugador);
         }
     }
 

@@ -1,6 +1,7 @@
 package vista;
 
 import comunicacion.ClientConnection;
+import ivistas.IVistaOrganizar;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Graphics;
@@ -12,18 +13,20 @@ import java.util.Set;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import modelo.MUbicacionUnidad;
 import modelo.ModeloCasilla;
 import modelo.ModeloTablero;
 import modelo.ModeloUnidad;
 import presentador.Juego;
+import presentador.PresentadorOrganizar;
 
 /**
  *
  * @author alex_
  */
-public class VistaOrganizar implements EstadoJuego {
+public class VistaOrganizar implements EstadoJuego, IVistaOrganizar {
 
     private PanelJuego panelJuego;
     private VistaTablero tablero;
@@ -33,19 +36,13 @@ public class VistaOrganizar implements EstadoJuego {
     private JPanel crucero;
     private JPanel submarino;
     private JPanel barco;
-    private JLabel labelEsperando;    
+    private JLabel labelEsperando;
+    private PresentadorOrganizar presentador;    
 
     public VistaOrganizar(PanelJuego panelJuego) {
         this.panelJuego = panelJuego;
-        this.tablero = new VistaTablero();
-        this.tablero.setModo(ModoTablero.ORGANIZAR);
-        this.colorSelector = UtilesVista.crearComboBox(UtilesVista.LISTA_COLORES_BARCO, 200, 30);
-        this.colorSelector.setSelectedItem("Negro");
-        this.botonJugar = UtilesVista.crearBoton("Jugar");
-        this.portaaviones = UtilesVista.crearBarcoVista((30 * 4), 30, UtilesVista.BARCO_NEGRO);
-        this.crucero = UtilesVista.crearBarcoVista((30 * 3), 30, UtilesVista.BARCO_NEGRO);
-        this.submarino = UtilesVista.crearBarcoVista((30 * 2), 30, UtilesVista.BARCO_NEGRO);
-        this.barco = UtilesVista.crearBarcoVista((30 * 1), 30, UtilesVista.BARCO_NEGRO);
+        this.presentador = new PresentadorOrganizar(this);
+        crearComponentes();
         accionesComponentes();
     }
 
@@ -89,62 +86,36 @@ public class VistaOrganizar implements EstadoJuego {
             panelJuego.agregarComponente(barco, 600, 540, (30 * 1), 30);
         }
     }
+    
+    @Override
+    public void crearComponentes() {
+        this.tablero = new VistaTablero();
+        this.tablero.setModo(ModoTablero.ORGANIZAR);
+        this.colorSelector = UtilesVista.crearComboBox(UtilesVista.LISTA_COLORES_BARCO, 200, 30);
+        this.colorSelector.setSelectedItem("Negro");
+        this.botonJugar = UtilesVista.crearBoton("Jugar");
+        this.portaaviones = UtilesVista.crearBarcoVista((30 * 4), 30, UtilesVista.BARCO_NEGRO);
+        this.crucero = UtilesVista.crearBarcoVista((30 * 3), 30, UtilesVista.BARCO_NEGRO);
+        this.submarino = UtilesVista.crearBarcoVista((30 * 2), 30, UtilesVista.BARCO_NEGRO);
+        this.barco = UtilesVista.crearBarcoVista((30 * 1), 30, UtilesVista.BARCO_NEGRO);
+    }
 
     @Override
     public void accionesComponentes() {
         // Agregar acción al botón
         botonJugar.addActionListener(e -> {
-            // Obtener el modelo del tablero
-            ModeloTablero modeloTablero = tablero.getPresentador().getModeloTablero();
-
-            // Obtener las unidades
-            Set<MUbicacionUnidad> unidades = modeloTablero.getUnidades();
-
-            // Serializar las unidades
-            List<Map<String, Object>> unidadesData = new ArrayList<>();
-
-            for (MUbicacionUnidad ubicacionUnidad : unidades) {
-                Map<String, Object> unidadData = new HashMap<>();
-                ModeloUnidad unidad = ubicacionUnidad.getUnidad();
-
-                unidadData.put("numNave", unidad.getNumNave());
-
-                // Obtener las coordenadas
-                List<Map<String, Integer>> coordenadas = new ArrayList<>();
-                for (ModeloCasilla casilla : ubicacionUnidad.getCasillasOcupadas()) {
-                    Map<String, Integer> coordenada = new HashMap<>();
-                    coordenada.put("x", casilla.getCoordenada().getX());
-                    coordenada.put("y", casilla.getCoordenada().getY());
-                    coordenadas.add(coordenada);
-                }
-                unidadData.put("coordenadas", coordenadas);
-
-                unidadesData.add(unidadData);
-            }
-
-            // Enviar las unidades al servidor
-            ClientConnection.getInstance().enviarUnidades(unidadesData);
-            
-            // Se espera en el handler la respuesta para saber si se continua
+            tablero.setModo(ModoTablero.JUGADOR);
+            presentador.enviarUnidadesAlServidor();
         });
         // Agregar acción al selector
         colorSelector.addActionListener(e -> {
-            
             String nombreColorSeleccionado = (String) colorSelector.getSelectedItem();
-            Color nuevoColorNave = UtilesVista.obtenerColorBarco(nombreColorSeleccionado);
-
-            // Actualizar el color de las naves en el tablero
-            tablero.setColorNave(nuevoColorNave);
-
-            // Actualizar el color de los paneles laterales
-            portaaviones.setBackground(nuevoColorNave);
-            crucero.setBackground(nuevoColorNave);
-            submarino.setBackground(nuevoColorNave);
-            barco.setBackground(nuevoColorNave);
+            presentador.cambiarColorNaves(nombreColorSeleccionado);
         });
     }
-
-    public void limpiarComponentes() {
+    
+    @Override
+    public void quitarComponentes() {
         this.panelJuego.quitarComponente(botonJugar);
         this.panelJuego.quitarComponente(colorSelector);
         this.panelJuego.quitarComponente(barco);
@@ -157,30 +128,52 @@ public class VistaOrganizar implements EstadoJuego {
         }
     }
 
+    @Override
     public void mostrarMensajeJugadorEsperando(String nombreJugador) {
-        // Puedes usar un JLabel para mostrar el mensaje en la interfaz
-        labelEsperando = new JLabel(nombreJugador + " está esperando...");
-        labelEsperando.setForeground(UtilesVista.COLOR_TEXTO_AZUL_OSCURO);
-        labelEsperando.setFont(UtilesVista.FUENTE_SUBTITULO);
-
-        // Agregar el JLabel al panel si no está ya
-        if (!panelJuego.isAncestorOf(labelEsperando)) {
+        if (labelEsperando == null) {
+            labelEsperando = new JLabel(nombreJugador + " está esperando...");
+            labelEsperando.setForeground(UtilesVista.COLOR_TEXTO_AZUL_OSCURO);
+            labelEsperando.setFont(UtilesVista.FUENTE_SUBTITULO);
             panelJuego.agregarComponente(labelEsperando, (Juego.GAME_ANCHO - 300) / 2, Juego.GAME_ALTO - 40, 300, 30);
+        } else {
+            labelEsperando.setText(nombreJugador + " está esperando...");
         }
     }
 
+    @Override
     public VistaTablero getTablero() {
         return tablero;
     }
 
     @Override
-    public void crearComponentes() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public void mostrarMensaje(String mensaje) {
+        JOptionPane.showMessageDialog(panelJuego, mensaje);
     }
 
     @Override
-    public void quitarComponentes() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public void bloquearInterfaz() {
+        // Deshabilitar botones y componentes para evitar interacción
+        botonJugar.setEnabled(false);
+        colorSelector.setEnabled(false);
+        tablero.setEnabled(false);
     }
-    
+
+    @Override
+    public void navegarAJugar() {
+        quitarComponentes();
+        EstadosJuego.estado = EstadosJuego.JUGAR;
+    }
+
+    @Override
+    public void actualizarColorPanelesLaterales(Color nuevoColor) {
+        portaaviones.setBackground(nuevoColor);
+        crucero.setBackground(nuevoColor);
+        submarino.setBackground(nuevoColor);
+        barco.setBackground(nuevoColor);
+    }
+
+    public PresentadorOrganizar getPresentador() {
+        return presentador;
+    }
+
 }
