@@ -3,6 +3,7 @@ package presentador;
 import comunicacion.ClientConnection;
 import enums.ControlPartida;
 import ivistas.IVistaBuscarPartida;
+import ivistas.IVistaJuego;
 import ivistas.IVistaOrganizar;
 import ivistas.IVistaSalaEspera;
 import java.awt.Graphics;
@@ -311,8 +312,9 @@ public class Juego implements Runnable {
             VistaTablero tableroJugador = vOrganizar.getTablero();
             tableroJugador.setModo(ModoTablero.JUGADOR);
             vJugar.setTableroJugador(tableroJugador);
-            vJugar.setEsMiTurno(tuTurno);
-            vJugar.setNombreOponente(nombreOponente);
+            
+            PresentadorJuego presentadorJuego = vJugar.getPresentador();
+            presentadorJuego.inicializarJuego(nombreOponente, tuTurno);
 
             PresentadorOrganizar presentador = vOrganizar.getPresentador();
             presentador.manejarIniciarJuego();
@@ -328,79 +330,9 @@ public class Juego implements Runnable {
     }
 
     private void handleAtacarResponse(Map<String, Object> mensaje) {
-        if (mensaje == null) {
-            System.err.println("handleAtacarResponse received null mensaje");
-            return;
-        }
-
-        String resultado = (String) mensaje.get("resultado");
-        String mensajeTexto = (String) mensaje.get("mensaje");
-        Integer vidaNave = (Integer) mensaje.get("vida_nave");
-        Integer numeroNave = (Integer) mensaje.get("numero_nave");
-        Integer x = (Integer) mensaje.get("x");
-        Integer y = (Integer) mensaje.get("y");
-        String turnoJugador = (String) mensaje.get(ControlPartida.DETERMINAR_TURNO.name());
-        String ganador = (String) mensaje.get("ganador");
-
-        StringBuilder mensajeUsuario = new StringBuilder();
-        mensajeUsuario.append("Resultado del ataque: ").append(resultado).append("\n");
-
-        if (mensajeTexto != null) {
-            mensajeUsuario.append("Mensaje: ").append(mensajeTexto).append("\n");
-        }
-        if (vidaNave != null) {
-            mensajeUsuario.append("Vida restante de la nave: ").append(vidaNave).append("\n");
-        }
-        if (numeroNave != null) {
-            mensajeUsuario.append("Número de nave afectada: ").append(numeroNave).append("\n");
-        }
-        if (x != null && y != null) {
-            mensajeUsuario.append("Coordenadas del ataque: (").append(x).append(", ").append(y).append(")\n");
-        }
-        if (turnoJugador != null) {
-            mensajeUsuario.append("Turno del jugador: ").append(turnoJugador).append("\n");
-        }
-        if (ganador != null) {
-            mensajeUsuario.append("¡Ganador de la partida!: ").append(ganador).append("\n");
-        }
-
-        ModeloJugador jugador = ModeloJugador.getInstance();
-        boolean esMiTurno = false;
-        if (turnoJugador != null) {
-            esMiTurno = turnoJugador.equals(jugador.getNombre());
-        }
-        vJugar.setEsMiTurno(esMiTurno);
-
-        // Actualizar la flota y estados
-        if (x != null && y != null) {
-            if (resultado != null && resultado.startsWith("RESULTADO_ATAQUE_REALIZADO")) {
-                // Jugador ataca
-                boolean impacto = resultado.contains("IMPACTO");
-                vJugar.actualizarTableroEnemigo(x, y, impacto);
-                if (impacto && numeroNave != null && vidaNave != null) {
-                    vJugar.actualizarEstadoFlotaEnemigo(numeroNave, vidaNave);
-                }
-            } else if (resultado != null && resultado.startsWith("RESULTADO_ATAQUE_RECIBIDO")) {
-                // Jugador defiende
-                boolean impacto = resultado.contains("IMPACTO");
-                vJugar.actualizarTableroJugador(x, y, impacto);
-                if (impacto && numeroNave != null && vidaNave != null) {
-                    vJugar.actualizarEstadoFlotaJugador(numeroNave, vidaNave);
-                }
-            }
-        }
-
-        // Partida terminada
-        if ("PARTIDA_FINALIZADA".equals(resultado)) {
-            // Mostrar mensaje
-            vJugar.setUltimoMensaje("¡El juego ha terminado! El ganador es: " + ganador);
-            // ya no se reciben interacciones
-            vJugar.setEsMiTurno(false);
-            // Aqui pondriamos el estado a estadisticas
-//        EstadosJuego.estado = EstadosJuego.ESTADISTICAS
-        } else {
-            // Ultimo mensaje
-            vJugar.setUltimoMensaje(mensajeTexto);
+        if (vJugar != null && vJugar instanceof IVistaJuego) {
+            PresentadorJuego presentador = vJugar.getPresentador();
+            presentador.manejarAtaqueResponse(mensaje);
         }
     }
 
