@@ -1,33 +1,29 @@
 package vista;
 
-import comunicacion.ClientConnection;
+import ivistas.IVistaBuscarPartida;
 import java.awt.Graphics;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
-import modelo.ModeloJugador;
 import presentador.Juego;
+import presentador.PresentadorBuscarPartida;
 
 /**
  *
  * @author alex_
  */
-public class VistaBuscarPartida implements EstadoJuego {
+public class VistaBuscarPartida implements EstadoJuego, IVistaBuscarPartida {
 
     private PanelJuego panelJuego;
     private JButton botonContinuar;
     private JButton botonSalir;
     private JTextField campoSala;
-    private ClientConnection clientConnection;
-    private ModeloJugador jugador;
+    private PresentadorBuscarPartida presentador;
 
     public VistaBuscarPartida(PanelJuego panelJuego) {
         this.panelJuego = panelJuego;
-        this.clientConnection = ClientConnection.getInstance();
-        this.jugador = ModeloJugador.getInstance();
-        this.botonContinuar = UtilesVista.crearBoton("Continuar");
-        this.botonSalir = UtilesVista.crearBoton("Regresar");
-        this.campoSala = UtilesVista.crearCampoTexto(20);
+        this.presentador = new PresentadorBuscarPartida(this);
+        crearComponentes();
         accionesComponentes();
     }
 
@@ -41,9 +37,7 @@ public class VistaBuscarPartida implements EstadoJuego {
         UtilesVista.dibujarTextoCentrado(g, "Introduce el codigo de la partida que deseas unirte", 150, UtilesVista.FUENTE_SUBTITULO);
         UtilesVista.dibujarTextoCentrado(g, "para que se pueda unir a la sala", 180, UtilesVista.FUENTE_SUBTITULO);
         UtilesVista.dibujarTextoCentrado(g, "Codigo de la sala:", 250, UtilesVista.FUENTE_SUBTITULO);
-        
-        
-        
+
         // Agregar componentes al panel si no están ya agregados
         if (!panelJuego.isAncestorOf(botonContinuar)) {
             panelJuego.agregarComponente(botonContinuar, (Juego.GAME_ANCHO - 500) / 2, Juego.GAME_ALTO - 150, 200, 40);
@@ -55,42 +49,59 @@ public class VistaBuscarPartida implements EstadoJuego {
             panelJuego.agregarComponente(campoSala, (Juego.GAME_ANCHO - 200) / 2, 300, 200, 30);
         }
 
+    }
 
+    @Override
+    public void crearComponentes() {
+        botonContinuar = UtilesVista.crearBoton("Continuar");
+        botonSalir = UtilesVista.crearBoton("Regresar");
+        campoSala = UtilesVista.crearCampoTexto(20);
     }
 
     @Override
     public void accionesComponentes() {
         // Agregar acción al botón
         botonContinuar.addActionListener(e -> {
-            String codigoAcceso = campoSala.getText().trim();
-            if (!codigoAcceso.isEmpty()) {
-                String nombreJugador = jugador.getNombre();
-                // Enviar solicitud al servidor para unirse a la partida
-                clientConnection.unirsePartida(codigoAcceso, nombreJugador);
-//                EstadosJuego.estado = EstadosJuego.SALA_ESPERA; // Cambiar el estado
-            } else {
-                JOptionPane.showMessageDialog(panelJuego, "Por favor, ingresa el código de la sala.", "Código vacío", JOptionPane.WARNING_MESSAGE);
-            }
+            presentador.unirseAPartida();
         });
         // Agregar acción al botón
         botonSalir.addActionListener(e -> {
-            panelJuego.quitarComponente(botonContinuar);
-            panelJuego.quitarComponente(botonSalir);
-            panelJuego.quitarComponente(campoSala);
-            EstadosJuego.estado = EstadosJuego.MENU; // Cambiar el estado
+            presentador.regresarAlMenu();
         });
     }
-    
+
     @Override
-    public void quitarComponentes(){
+    public void quitarComponentes() {
         panelJuego.quitarComponente(botonContinuar);
         panelJuego.quitarComponente(botonSalir);
         panelJuego.quitarComponente(campoSala);
     }
 
     @Override
-    public void crearComponentes() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public void mostrarMensaje(String mensaje) {
+        JOptionPane.showMessageDialog(panelJuego, mensaje, "Información", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    @Override
+    public String obtenerCodigoAcceso() {
+        return campoSala.getText().trim();
+    }
+
+    @Override
+    public void navegarASalaDeEspera() {
+        quitarComponentes();
+        EstadosJuego.estado = EstadosJuego.SALA_ESPERA;
+    }
+
+    @Override
+    public void navegarAMenu() {
+        quitarComponentes();
+        EstadosJuego.estado = EstadosJuego.MENU;
+    }
+
+    @Override
+    public PresentadorBuscarPartida getPresentador() {
+        return presentador;
     }
 
 }

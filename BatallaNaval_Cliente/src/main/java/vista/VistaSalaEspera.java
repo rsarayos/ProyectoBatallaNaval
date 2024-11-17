@@ -1,17 +1,20 @@
 package vista;
 
 import comunicacion.ClientConnection;
+import ivistas.IVistaSalaEspera;
 import java.awt.Graphics;
 import javax.swing.JButton;
+import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 import presentador.Juego;
+import presentador.PresentadorSalaEspera;
 
 /**
  *
  * @author alex_
  */
-public class VistaSalaEspera implements EstadoJuego {
+public class VistaSalaEspera implements EstadoJuego, IVistaSalaEspera {
     
     private PanelJuego panelJuego;
     private JButton botonContinuar;
@@ -19,20 +22,15 @@ public class VistaSalaEspera implements EstadoJuego {
     private JTable listaJugadores;
     private DefaultTableModel modeloTabla;
     private String codigoAcceso;
-    private String idJugador;
     private boolean estoyListo = false;
+    private PresentadorSalaEspera presentador;
     
     public VistaSalaEspera(PanelJuego panelJuego) {
         this.panelJuego = panelJuego;
-        this.botonContinuar = UtilesVista.crearBoton("Continuar");
-        this.botonSalir = UtilesVista.crearBoton("Regresar");
-
-        // Inicializar modelo de tabla
-        String[] columnas = {"Nombre de Jugador", "Listo"};
-        modeloTabla = new DefaultTableModel(columnas, 0);
-        this.listaJugadores = new JTable(modeloTabla);
-        
+        this.presentador = new PresentadorSalaEspera(this);
+        crearComponentes();
         accionesComponentes();
+        
     }
 
     @Override
@@ -60,45 +58,46 @@ public class VistaSalaEspera implements EstadoJuego {
         }
 
     }
+    
+    @Override
+    public void crearComponentes() {
+        botonContinuar = UtilesVista.crearBoton("Continuar");
+        botonSalir = UtilesVista.crearBoton("Regresar");
+        String[] columnas = {"Nombre de Jugador", "Listo"};
+        modeloTabla = new DefaultTableModel(columnas, 0);
+        listaJugadores = new JTable(modeloTabla);
+    }
 
     @Override
     public void accionesComponentes() {
         // Agregar acción al botón
         botonContinuar.addActionListener(e -> {
-            if (!estoyListo) {
-                estoyListo = true;
-                botonContinuar.setEnabled(false); // Deshabilitar el botón para evitar múltiples clics
-                // Enviar al servidor que este jugador está listo
-                ClientConnection.getInstance().jugadorListo();
-            }
+            presentador.jugadorListo();
         });
         // Agregar acción al botón
         botonSalir.addActionListener(e -> {
-            panelJuego.quitarComponente(botonContinuar);
-            panelJuego.quitarComponente(botonSalir);
-            panelJuego.quitarComponente(listaJugadores);
-            EstadosJuego.estado = EstadosJuego.MENU; // Cambiar el estado
+            presentador.salir();
         });
     }
     
-    public void setCodigoAcceso(String codigoAcceso) {
-        this.codigoAcceso = codigoAcceso;
-        // Actualizar la interfaz gráfica
-        panelJuego.repaint();
+    @Override
+    public void quitarComponentes() {
+        panelJuego.quitarComponente(botonContinuar);
+        panelJuego.quitarComponente(botonSalir);
+        panelJuego.quitarComponente(listaJugadores);
     }
-
-    public void setIdJugador(String idJugador) {
-        this.idJugador = idJugador;
+    
+    @Override
+    public void mostrarCodigoAcceso(String codigoAcceso) {
+        this.codigoAcceso = codigoAcceso;
+        panelJuego.repaint();
     }
 
     public void agregarJugador(String nombreJugador) {
         modeloTabla.addRow(new Object[]{nombreJugador});
     }
-
-    public void limpiarListaJugadores() {
-        modeloTabla.setRowCount(0);
-    }
     
+    @Override
     public void agregarOActualizarJugador(String nombreJugador, boolean listo) {
         boolean encontrado = false;
         for (int i = 0; i < modeloTabla.getRowCount(); i++) {
@@ -114,21 +113,51 @@ public class VistaSalaEspera implements EstadoJuego {
             modeloTabla.addRow(new Object[]{nombreJugador, listo ? "Listo" : "No listo"});
         }
     }
-
-    public void limpiarComponentes() {
-        panelJuego.quitarComponente(botonContinuar);
-        panelJuego.quitarComponente(botonSalir);
-        panelJuego.quitarComponente(listaJugadores);
+    
+    @Override
+    public void limpiarListaJugadores() {
+        modeloTabla.setRowCount(0);
     }
 
     @Override
-    public void crearComponentes() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public void bloquearBotonContinuar() {
+        botonContinuar.setEnabled(false);
     }
 
     @Override
-    public void quitarComponentes() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    public void mostrarMensaje(String mensaje) {
+        JOptionPane.showMessageDialog(panelJuego, mensaje);
+    }
+
+    @Override
+    public void navegarAMenu() {
+        quitarComponentes();
+        EstadosJuego.estado = EstadosJuego.MENU;
+    }
+
+    @Override
+    public void navegarAOrganizar() {
+        quitarComponentes();
+        EstadosJuego.estado = EstadosJuego.ORGANIZAR;
+    }
+
+    @Override
+    public boolean isEstoyListo() {
+        return estoyListo;
+    }
+
+    @Override
+    public void setEstoyListo(boolean listo) {
+        this.estoyListo = listo;
+    }
+
+    @Override
+    public PresentadorSalaEspera getPresentador() {
+        return presentador;
+    }
+
+    public void setCodigoAcceso(String codigoAcceso) {
+        this.codigoAcceso = codigoAcceso;
     }
 
 }

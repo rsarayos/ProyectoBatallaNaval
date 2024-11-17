@@ -3,6 +3,8 @@ package presentador;
 import comunicacion.ClientConnection;
 import enums.ControlPartida;
 import enums.ResultadosAtaques;
+import ivistas.IVistaBuscarPartida;
+import ivistas.IVistaSalaEspera;
 import java.awt.Graphics;
 import java.util.List;
 import java.util.Map;
@@ -221,13 +223,10 @@ public class Juego implements Runnable {
 
         // Configurar la vista de sala de espera
         vSalaEspera.setCodigoAcceso(codigoAcceso);
-        vSalaEspera.setIdJugador(idJugador);
 
         // Actualizar la lista de jugadores en la sala de espera
         vSalaEspera.agregarJugador(jugador.getNombre());
 
-        // Si no se ha cambiado el estado
-        // EstadosJuego.estado = EstadosJuego.SALA_ESPERA;
     }
 
     private void handleNuevoJugador(Map<String, Object> mensaje) {
@@ -237,12 +236,12 @@ public class Juego implements Runnable {
 
     private void handleUnirsePartidaResponse(Map<String, Object> mensaje) {
         if (mensaje.containsKey("error")) {
-            // Mostrar mensaje de error al usuario
             String error = (String) mensaje.get("error");
-            JOptionPane.showMessageDialog(panel, error, "Error", JOptionPane.ERROR_MESSAGE);
-
-            // Volver al estado anterior si es necesario
-            EstadosJuego.estado = EstadosJuego.BUSCAR_PARTIDA;
+            // Mostrar el mensaje de error en la vista actual
+            if (vBuscarPartida != null && vBuscarPartida instanceof IVistaBuscarPartida) {
+                IVistaBuscarPartida vista = (IVistaBuscarPartida) vBuscarPartida;
+                vista.mostrarMensaje(error);
+            }
         } else {
             String idJugador = (String) mensaje.get("id");
             String codigoAcceso = (String) mensaje.get("codigo_acceso");
@@ -252,19 +251,25 @@ public class Juego implements Runnable {
             ModeloJugador jugador = ModeloJugador.getInstance();
             jugador.setId(idJugador);
 
-            // Configurar la vista de sala de espera
-            vSalaEspera.setCodigoAcceso(codigoAcceso);
-            vSalaEspera.setIdJugador(idJugador);
+            // Cambiar al estado de sala de espera
+            EstadosJuego.estado = EstadosJuego.SALA_ESPERA;
 
-            // Limpiar y actualizar la lista de jugadores
-            vSalaEspera.limpiarListaJugadores();
-            for (String nombreJugador : nombresJugadores) {
-                vSalaEspera.agregarJugador(nombreJugador);
+            // Crear e inicializar la vista de sala de espera
+            if (vSalaEspera == null) {
+                vSalaEspera = new VistaSalaEspera(panel);
             }
 
-            // Cambiar al estado de sala de espera
-            vBuscarPartida.quitarComponentes();
-            EstadosJuego.estado = EstadosJuego.SALA_ESPERA;
+            // Configurar la vista de sala de espera
+            vSalaEspera.setCodigoAcceso(codigoAcceso);
+
+            // Actualizar la lista de jugadores
+            PresentadorSalaEspera presentadorSala = vSalaEspera.getPresentador();
+            presentadorSala.actualizarListaJugadores(nombresJugadores);
+
+            // Limpiar la vista anterior
+            if (vBuscarPartida != null) {
+                vBuscarPartida.quitarComponentes();
+            }
         }
     }
 
@@ -272,14 +277,17 @@ public class Juego implements Runnable {
         String nombreJugador = (String) mensaje.get("nombre_jugador");
         boolean listo = (Boolean) mensaje.get("listo");
 
-        vSalaEspera.agregarOActualizarJugador(nombreJugador, listo);
+        if (vSalaEspera != null && vSalaEspera instanceof IVistaSalaEspera) {
+            PresentadorSalaEspera presentador = ((IVistaSalaEspera) vSalaEspera).getPresentador();
+            presentador.manejarActualizarEstadoListo(nombreJugador, listo);
+        }
     }
 
     private void handleTodosListos() {
-        // Cambiar al estado de organizar el tablero
-        EstadosJuego.estado = EstadosJuego.ORGANIZAR;
-        // Limpiar componentes de la sala de espera si es necesario
-        vSalaEspera.limpiarComponentes();
+        if (vSalaEspera != null && vSalaEspera instanceof IVistaSalaEspera) {
+            PresentadorSalaEspera presentador = ((IVistaSalaEspera) vSalaEspera).getPresentador();
+            presentador.manejarTodosListos();
+        }
     }
 
     private void handleIniciarOrganizar() {
@@ -288,7 +296,7 @@ public class Juego implements Runnable {
 
         // Limpiar componentes de la sala de espera si es necesario
         if (vSalaEspera != null) {
-            vSalaEspera.limpiarComponentes();
+            vSalaEspera.quitarComponentes();
         }
 
         // Inicializar la vista de organizar si no lo has hecho
