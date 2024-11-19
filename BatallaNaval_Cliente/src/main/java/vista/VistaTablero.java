@@ -20,6 +20,10 @@ import javax.swing.JPanel;
 import modelo.MUbicacionUnidad;
 import modelo.ModeloCasilla;
 import presentador.PresentadorTablero;
+import tablero.ModoEnemigoStrategy;
+import tablero.ModoJugadorStrategy;
+import tablero.ModoOrganizarStrategy;
+import tablero.ModoTableroStrategy;
 
 /**
  *
@@ -31,6 +35,7 @@ public class VistaTablero extends JPanel {
     
     // MODO DEL TABLERO
     private ModoTablero modo;
+    private ModoTableroStrategy estrategiaActual;
     
     // Listeners para el modo organizar
     private MouseListener mouseListenerOrganizar;
@@ -46,13 +51,15 @@ public class VistaTablero extends JPanel {
     private boolean isDragging;
     private MUbicacionUnidad unidadSeleccionada;
     private Color colorNave = UtilesVista.BARCO_NEGRO;
-
+    
     public VistaTablero() {
         this.presentador = new PresentadorTablero(this);
         setPreferredSize(new Dimension(300, 300)); // Tamaño del tablero
         tamañoCelda = new Dimension(30, 30); // Tamaño de cada celda
         
         cargarImagenes();
+        
+        inicializarListeners();
 
     }
 
@@ -133,7 +140,7 @@ public class VistaTablero extends JPanel {
     public PresentadorTablero getPresentador() {
         return presentador;
     }
-    
+
     public void cargarImagenes() {
         this.fondo = UtilesVista.cargarImagen(UtilesVista.FONDO_TABLERO);
     }
@@ -153,7 +160,7 @@ public class VistaTablero extends JPanel {
     public void setUnidadSeleccionada(MUbicacionUnidad unidadSeleccionada) {
         this.unidadSeleccionada = unidadSeleccionada;
     }
-    
+
     public void setColorNave(Color colorNave) {
         this.colorNave = colorNave;
         repaint(); // Redibujar el tablero con el nuevo color
@@ -161,71 +168,52 @@ public class VistaTablero extends JPanel {
 
     public void setModo(ModoTablero modo) {
         this.modo = modo;
-        
-        // Quita los listeners activos
-        removeMouseListeners();
-
-        if (null != modo) switch (modo) {
+        switch (modo) {
             case ORGANIZAR:
-                inicializarModoOrganizar();
+                estrategiaActual = new ModoOrganizarStrategy(this, presentador);
                 break;
             case ENEMIGO:
-                inicializarModoEnemigo();
+                estrategiaActual = new ModoEnemigoStrategy(this, presentador);
                 break;
             case JUGADOR:
-                this.setEnabled(false);
+                estrategiaActual = new ModoJugadorStrategy();
                 break;
             default:
+                estrategiaActual = null;
                 break;
         }
     }
 
-    private void inicializarModoOrganizar() {
-        // Eliminar los listeners existentes por modos previos
-        removeMouseListeners();
-
-        // Crear y guardar los listener
-        mouseListenerOrganizar = new MouseAdapter() {
+    // Añadir un único listener que delegue en la estrategia actual
+    private void inicializarListeners() {
+        MouseAdapter mouseAdapter = new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
-                presentador.onMousePressed(e);
+                if (estrategiaActual != null) {
+                    estrategiaActual.mousePressed(e);
+                }
             }
 
             @Override
             public void mouseReleased(MouseEvent e) {
-                presentador.onMouseReleased(e);
+                if (estrategiaActual != null) {
+                    estrategiaActual.mouseReleased(e);
+                }
             }
-        };
 
-        mouseMotionListenerOrganizar = new MouseMotionAdapter() {
             @Override
             public void mouseDragged(MouseEvent e) {
-                presentador.onMouseDragged(e);
+                if (estrategiaActual != null) {
+                    estrategiaActual.mouseDragged(e);
+                }
             }
         };
 
-        // añadirlos
-        addMouseListener(mouseListenerOrganizar);
-        addMouseMotionListener(mouseMotionListenerOrganizar);
+        addMouseListener(mouseAdapter);
+        addMouseMotionListener(mouseAdapter);
     }
 
-    private void inicializarModoEnemigo() {
-        // Eliminar los listeners existentes por modos previos
-        removeMouseListeners();
-
-        // Crear y guardar los listener
-        mouseListenerEnemigo = new MouseAdapter() {
-            @Override
-            public void mousePressed(MouseEvent e) {
-                manejarClickEnemigo(e);
-            }
-        };
-
-        // añadirlos
-        addMouseListener(mouseListenerEnemigo);
-    }
-
-    private void manejarClickEnemigo(MouseEvent e) {
+    public void manejarClickEnemigo(MouseEvent e) {
         if (!interaccionHabilitada) {
             return; // Si no esta en su turno
         }
@@ -241,21 +229,6 @@ public class VistaTablero extends JPanel {
             presentador.enviarAtaque(fila, columna);
             // Actualizar la vista
             repaint();
-        }
-    }
-
-    private void removeMouseListeners() {
-        if (mouseListenerOrganizar != null) {
-            removeMouseListener(mouseListenerOrganizar);
-            mouseListenerOrganizar = null;
-        }
-        if (mouseMotionListenerOrganizar != null) {
-            removeMouseMotionListener(mouseMotionListenerOrganizar);
-            mouseMotionListenerOrganizar = null;
-        }
-        if (mouseListenerEnemigo != null) {
-            removeMouseListener(mouseListenerEnemigo);
-            mouseListenerEnemigo = null;
         }
     }
 
@@ -275,6 +248,10 @@ public class VistaTablero extends JPanel {
             casilla.setImpacto(impacto);
             repaint();
         }
+    }
+
+    public boolean isInteraccionHabilitada() {
+        return interaccionHabilitada;
     }
 
 }

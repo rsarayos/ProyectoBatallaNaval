@@ -98,12 +98,44 @@ public class Juego implements Runnable {
      */
     @Override
     public void run() {
+        final int FPS = 60;
+        final int UPS = 60;
 
-        HiloActualizacion updateThread = new HiloActualizacion(this);
-        HiloRenderizado renderThread = new HiloRenderizado(this);
+        final double timePerUpdate = 1000000000.0 / UPS;
+        final double timePerFrame = 1000000000.0 / FPS;
 
-        updateThread.start();
-        renderThread.start();
+        long previousTime = System.nanoTime();
+
+        double deltaU = 0;
+        double deltaF = 0;
+
+        while (true) {
+            long currentTime = System.nanoTime();
+            double elapsedTime = currentTime - previousTime;
+            previousTime = currentTime;
+
+            deltaU += elapsedTime / timePerUpdate;
+            deltaF += elapsedTime / timePerFrame;
+
+            // Actualización
+            if (deltaU >= 1) {
+//                update();
+                deltaU--;
+            }
+
+            // Renderizado
+            if (deltaF >= 1) {
+                panel.repaint();
+                deltaF--;
+            }
+
+            // Control del hilo
+            try {
+                Thread.sleep(1);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
 
     }
 
