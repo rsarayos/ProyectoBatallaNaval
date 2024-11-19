@@ -1,6 +1,10 @@
 package estados;
 
+import comunicacion.IComando;
+import comunicacion.IniciarJuegoComando;
+import comunicacion.JugadorEsperandoComando;
 import java.awt.Graphics;
+import java.util.HashMap;
 import java.util.Map;
 import presentador.Juego;
 import presentador.PresentadorOrganizar;
@@ -13,17 +17,25 @@ import vista.VistaTablero;
  * @author alex_
  */
 public class EstadoOrganizar implements IEstadoJuego {
-    
+
     private Juego juego;
     private VistaOrganizar vista;
     private PresentadorOrganizar presentador;
+    private Map<String, IComando> comandos;
 
     public EstadoOrganizar(Juego juego) {
         this.juego = juego;
         this.vista = new VistaOrganizar(juego.getPanel());
         this.presentador = vista.getPresentador();
+        inicializarComandos();
     }
-    
+
+    private void inicializarComandos() {
+        comandos = new HashMap<>();
+        comandos.put("INICIAR_JUEGO", new IniciarJuegoComando(this));
+        comandos.put("JUGADOR_ESPERANDO", new JugadorEsperandoComando(this));
+    }
+
     @Override
     public void salir() {
         vista.quitarComponentes();
@@ -42,20 +54,15 @@ public class EstadoOrganizar implements IEstadoJuego {
             return;
         }
 
-        switch (accion) {
-            case "INICIAR_JUEGO":
-                handleIniciarJuego(mensaje);
-                break;
-            case "JUGADOR_ESPERANDO":
-                handleJugadorEsperando(mensaje);
-                break;
-            default:
-                System.out.println("Acción desconocida en EstadoOrganizar: " + accion);
-                break;
+        IComando comando = comandos.get(accion);
+        if (comando != null) {
+            comando.execute(mensaje);
+        } else {
+            System.out.println("Acción desconocida en EstadoSalaEspera: " + accion);
         }
     }
 
-    private void handleIniciarJuego(Map<String, Object> mensaje) {
+    public void handleIniciarJuego(Map<String, Object> mensaje) {
         boolean tuTurno = (Boolean) mensaje.get("tu_turno");
         String nombreOponente = (String) mensaje.get("nombre_oponente");
         // pasar el tablero del jugador a la vista de juego
@@ -65,7 +72,7 @@ public class EstadoOrganizar implements IEstadoJuego {
         juego.cambiarEstado(new EstadoJugar(juego, tableroJugador, tuTurno, nombreOponente));
     }
 
-    private void handleJugadorEsperando(Map<String, Object> mensaje) {
+    public void handleJugadorEsperando(Map<String, Object> mensaje) {
         String nombreJugador = (String) mensaje.get("nombre_jugador");
         presentador.manejarJugadorEsperando(nombreJugador);
 

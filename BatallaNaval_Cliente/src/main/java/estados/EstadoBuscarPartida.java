@@ -1,6 +1,9 @@
 package estados;
 
+import comunicacion.IComando;
+import comunicacion.UnirsePartidaComando;
 import java.awt.Graphics;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import modelo.ModeloJugador;
@@ -17,11 +20,18 @@ public class EstadoBuscarPartida implements IEstadoJuego {
     private Juego juego;
     private VistaBuscarPartida vista;
     private PresentadorBuscarPartida presentador;
+    private Map<String, IComando> comandos;
 
     public EstadoBuscarPartida(Juego juego) {
         this.juego = juego;
         this.vista = new VistaBuscarPartida(juego.getPanel(), juego);
         this.presentador = vista.getPresentador();
+        inicializarComandos();
+    }
+    
+    private void inicializarComandos() {
+        comandos = new HashMap<>();
+        comandos.put("UNIRSE_PARTIDA", new UnirsePartidaComando(this));
     }
 
     @Override
@@ -42,17 +52,15 @@ public class EstadoBuscarPartida implements IEstadoJuego {
             return;
         }
 
-        switch (accion) {
-            case "UNIRSE_PARTIDA":
-                handleUnirsePartidaResponse(mensaje);
-                break;
-            default:
-                System.out.println("Acción desconocida en EstadoBuscarPartida: " + accion);
-                break;
+        IComando comando = comandos.get(accion);
+        if (comando != null) {
+            comando.execute(mensaje);
+        } else {
+            System.out.println("Acción desconocida en EstadoBuscarPartida: " + accion);
         }
     }
 
-    private void handleUnirsePartidaResponse(Map<String, Object> mensaje) {
+    public void handleUnirsePartidaResponse(Map<String, Object> mensaje) {
         if (mensaje.containsKey("error")) {
             String error = (String) mensaje.get("error");
             // Mostrar el mensaje de error en la vista actual
