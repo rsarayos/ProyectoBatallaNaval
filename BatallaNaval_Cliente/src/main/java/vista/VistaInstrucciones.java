@@ -10,15 +10,15 @@ import presentador.PresentadorInstrucciones;
  *
  * @author alex_
  */
-public class VistaInstrucciones implements EstadoJuego, IVistaInstrucciones {
+public class VistaInstrucciones implements IVistasPanel, IVistaInstrucciones {
     
     private PanelJuego panelJuego;
     private JButton botonRegresar;
     private PresentadorInstrucciones presentador;
     
-    public VistaInstrucciones(PanelJuego panelJuego) {
+    public VistaInstrucciones(PanelJuego panelJuego, Juego juego) {
         this.panelJuego = panelJuego;
-        this.presentador = new PresentadorInstrucciones(this);
+        this.presentador = new PresentadorInstrucciones(this, juego);
         crearComponentes();
         accionesComponentes();
     }
@@ -67,7 +67,7 @@ public class VistaInstrucciones implements EstadoJuego, IVistaInstrucciones {
     public void accionesComponentes() {
         // Agregar acción al botón
         botonRegresar.addActionListener(e -> {
-            presentador.regresarAlMenu();
+            presentador.regresarAMenu();
         });
     }
 
@@ -79,12 +79,6 @@ public class VistaInstrucciones implements EstadoJuego, IVistaInstrucciones {
     @Override
     public void quitarComponentes() {
         panelJuego.quitarComponente(botonRegresar);
-    }
-
-    @Override
-    public void navegarAlMenu() {
-        quitarComponentes();
-        presentador.regresarAMenu();
     }
 
 }

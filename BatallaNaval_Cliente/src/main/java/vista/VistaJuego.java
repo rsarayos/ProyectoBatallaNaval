@@ -19,7 +19,7 @@ import presentador.PresentadorJuego;
  *
  * @author alex_
  */
-public class VistaJuego implements EstadoJuego, IVistaJuego {
+public class VistaJuego implements IVistasPanel, IVistaJuego {
 
     private PanelJuego panelJuego;
     private boolean esMiTurno;

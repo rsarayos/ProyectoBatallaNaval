@@ -1,6 +1,9 @@
 package presentador;
 
 import comunicacion.ClientConnection;
+import estados.EstadoBuscarPartida;
+import estados.EstadoInstrucciones;
+import estados.EstadoSalaEspera;
 import ivistas.IVistaMenu;
 import modelo.ModeloJugador;
 import vista.EstadosJuego;
@@ -14,11 +17,13 @@ public class PresentadorMenu {
     private IVistaMenu vista;
     private ClientConnection clientConnection;
     private ModeloJugador jugador;
+    private Juego juego;
 
-    public PresentadorMenu(IVistaMenu vista) {
+    public PresentadorMenu(IVistaMenu vista, Juego juego) {
         this.vista = vista;
         this.clientConnection = ClientConnection.getInstance();
         this.jugador = ModeloJugador.getInstance();
+        this.juego = juego;
     }
 
     public void crearPartida() {
@@ -28,27 +33,19 @@ public class PresentadorMenu {
             return;
         }
         clientConnection.crearPartida(nombreJugador);
-        vista.navegarASalaDeEspera();
-    }
-
-    public void unirseAPartida() {
-        vista.navegarABuscarPartida();
-    }
-
-    public void verInstrucciones() {
-        vista.navegarAInstrucciones();
+        avanzarACrearPartida();
     }
     
     public void avanzarACrearPartida() {
-        EstadosJuego.estado = EstadosJuego.SALA_ESPERA;
+        juego.cambiarEstado(new EstadoSalaEspera(juego));
     }
     
     public void avanzarAUnirseAPartida() {
-        EstadosJuego.estado = EstadosJuego.BUSCAR_PARTIDA;
+        juego.cambiarEstado(new EstadoBuscarPartida(juego));
     }
     
     public void avanzarAInstrucciones() {
-        EstadosJuego.estado = EstadosJuego.INSTRUCCIONES;
+        juego.cambiarEstado(new EstadoInstrucciones(juego));
     }
 
 }

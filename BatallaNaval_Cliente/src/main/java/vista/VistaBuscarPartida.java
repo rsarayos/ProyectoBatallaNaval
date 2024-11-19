@@ -12,7 +12,7 @@ import presentador.PresentadorBuscarPartida;
  *
  * @author alex_
  */
-public class VistaBuscarPartida implements EstadoJuego, IVistaBuscarPartida {
+public class VistaBuscarPartida implements IVistasPanel, IVistaBuscarPartida {
 
     private PanelJuego panelJuego;
     private JButton botonContinuar;
@@ -20,9 +20,9 @@ public class VistaBuscarPartida implements EstadoJuego, IVistaBuscarPartida {
     private JTextField campoSala;
     private PresentadorBuscarPartida presentador;
 
-    public VistaBuscarPartida(PanelJuego panelJuego) {
+    public VistaBuscarPartida(PanelJuego panelJuego, Juego juego) {
         this.panelJuego = panelJuego;
-        this.presentador = new PresentadorBuscarPartida(this);
+        this.presentador = new PresentadorBuscarPartida(this, juego);
         crearComponentes();
         accionesComponentes();
     }

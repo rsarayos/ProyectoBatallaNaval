@@ -1,6 +1,7 @@
 package vista;
 
 import comunicacion.ClientConnection;
+import estados.EstadoJugar;
 import ivistas.IVistaOrganizar;
 import java.awt.Color;
 import java.awt.Cursor;
@@ -26,7 +27,7 @@ import presentador.PresentadorOrganizar;
  *
  * @author alex_
  */
-public class VistaOrganizar implements EstadoJuego, IVistaOrganizar {
+public class VistaOrganizar implements IVistasPanel, IVistaOrganizar {
 
     private PanelJuego panelJuego;
     private VistaTablero tablero;
@@ -37,7 +38,7 @@ public class VistaOrganizar implements EstadoJuego, IVistaOrganizar {
     private JPanel submarino;
     private JPanel barco;
     private JLabel labelEsperando;
-    private PresentadorOrganizar presentador;    
+    private PresentadorOrganizar presentador;
 
     public VistaOrganizar(PanelJuego panelJuego) {
         this.panelJuego = panelJuego;
@@ -161,7 +162,7 @@ public class VistaOrganizar implements EstadoJuego, IVistaOrganizar {
     @Override
     public void navegarAJugar() {
         quitarComponentes();
-        EstadosJuego.estado = EstadosJuego.JUGAR;
+        
     }
 
     @Override

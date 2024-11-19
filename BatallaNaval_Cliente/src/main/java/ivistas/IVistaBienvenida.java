@@ -10,6 +10,4 @@ public interface IVistaBienvenida {
 
     public String obtenerNombreJugador();
 
-    public void navegarAlMenu();
-
 }

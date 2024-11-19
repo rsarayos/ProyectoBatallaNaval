@@ -1,5 +1,6 @@
 package presentador;
 
+import estados.EstadoMenu;
 import ivistas.IVistaBienvenida;
 import modelo.ModeloJugador;
 import vista.EstadosJuego;
@@ -12,10 +13,12 @@ public class PresentadorBienvenida {
 
     private IVistaBienvenida vista;
     private ModeloJugador modeloJugador;
+    private Juego juego;
 
-    public PresentadorBienvenida(IVistaBienvenida vista) {
+    public PresentadorBienvenida(IVistaBienvenida vista, Juego juego) {
         this.vista = vista;
         this.modeloJugador = ModeloJugador.getInstance();
+        this.juego = juego;
     }
 
     public void iniciarJuego() {
@@ -29,12 +32,12 @@ public class PresentadorBienvenida {
             return;
         }
         modeloJugador.setNombre(nombre);
-        vista.navegarAlMenu();
+        avanzarAMenu();
         
     }
     
     public void avanzarAMenu() {
-        EstadosJuego.estado = EstadosJuego.MENU;
+        juego.cambiarEstado(new EstadoMenu(juego));
     }
 
     private boolean validarNombre(String nombre) {

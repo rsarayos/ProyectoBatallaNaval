@@ -1,6 +1,8 @@
 package vista;
 
 import comunicacion.ClientConnection;
+import estados.EstadoMenu;
+import estados.EstadoOrganizar;
 import ivistas.IVistaSalaEspera;
 import java.awt.Graphics;
 import javax.swing.JButton;
@@ -14,7 +16,7 @@ import presentador.PresentadorSalaEspera;
  *
  * @author alex_
  */
-public class VistaSalaEspera implements EstadoJuego, IVistaSalaEspera {
+public class VistaSalaEspera implements IVistasPanel, IVistaSalaEspera {
     
     private PanelJuego panelJuego;
     private JButton botonContinuar;
@@ -24,10 +26,12 @@ public class VistaSalaEspera implements EstadoJuego, IVistaSalaEspera {
     private String codigoAcceso;
     private boolean estoyListo = false;
     private PresentadorSalaEspera presentador;
+    private Juego juego;
     
-    public VistaSalaEspera(PanelJuego panelJuego) {
+    public VistaSalaEspera(PanelJuego panelJuego, Juego juego) {
         this.panelJuego = panelJuego;
         this.presentador = new PresentadorSalaEspera(this);
+        this.juego = juego;
         crearComponentes();
         accionesComponentes();
         
@@ -132,13 +136,13 @@ public class VistaSalaEspera implements EstadoJuego, IVistaSalaEspera {
     @Override
     public void navegarAMenu() {
         quitarComponentes();
-        EstadosJuego.estado = EstadosJuego.MENU;
+        juego.cambiarEstado(new EstadoMenu(juego));
     }
 
     @Override
     public void navegarAOrganizar() {
         quitarComponentes();
-        EstadosJuego.estado = EstadosJuego.ORGANIZAR;
+        juego.cambiarEstado(new EstadoOrganizar(juego));
     }
 
     @Override

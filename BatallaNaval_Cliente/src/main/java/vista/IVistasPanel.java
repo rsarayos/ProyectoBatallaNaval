@@ -7,7 +7,7 @@ import java.awt.Graphics;
  *
  * @author Raul Alejandro Sauceda Rayos
  */
-public interface EstadoJuego {
+public interface IVistasPanel {
   
     public void dibujar(Graphics g);
     public void accionesComponentes();

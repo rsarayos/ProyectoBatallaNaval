@@ -15,7 +15,7 @@ import presentador.PresentadorMenu;
  *
  * @author alex_
  */
-public class VistaMenu implements EstadoJuego, IVistaMenu {
+public class VistaMenu implements IVistasPanel, IVistaMenu {
 
     private PanelJuego panelJuego;
     private JButton botonCrearPartia;
@@ -23,9 +23,9 @@ public class VistaMenu implements EstadoJuego, IVistaMenu {
     private JButton botonInstrucciones;
     private PresentadorMenu presentador;
 
-    public VistaMenu(PanelJuego panelJuego) {
+    public VistaMenu(PanelJuego panelJuego, Juego juego) {
         this.panelJuego = panelJuego;
-        this.presentador = new PresentadorMenu(this);
+        this.presentador = new PresentadorMenu(this, juego);
         crearComponentes();
         accionesComponentes();
     }
@@ -66,11 +66,11 @@ public class VistaMenu implements EstadoJuego, IVistaMenu {
         });
         // Agregar acción al botón
         botonInstrucciones.addActionListener(e -> {
-            presentador.verInstrucciones();
+            presentador.avanzarAInstrucciones();
         });
         // Agregar acción al botón
         botonUnirsePartida.addActionListener(e -> {
-            presentador.unirseAPartida();
+            presentador.avanzarAUnirseAPartida();
         });
     }
 
@@ -79,24 +79,6 @@ public class VistaMenu implements EstadoJuego, IVistaMenu {
         panelJuego.quitarComponente(botonCrearPartia);
         panelJuego.quitarComponente(botonUnirsePartida);
         panelJuego.quitarComponente(botonInstrucciones);
-    }
-
-    @Override
-    public void navegarASalaDeEspera() {
-        quitarComponentes();
-        presentador.avanzarACrearPartida();
-    }
-
-    @Override
-    public void navegarAInstrucciones() {
-        quitarComponentes();
-        presentador.avanzarAInstrucciones();
-    }
-
-    @Override
-    public void navegarABuscarPartida() {
-        quitarComponentes();
-        presentador.avanzarAUnirseAPartida();
     }
 
     @Override

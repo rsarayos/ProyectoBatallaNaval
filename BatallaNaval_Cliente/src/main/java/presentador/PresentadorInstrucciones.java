@@ -1,5 +1,6 @@
 package presentador;
 
+import estados.EstadoMenu;
 import ivistas.IVistaInstrucciones;
 import vista.EstadosJuego;
 
@@ -10,17 +11,15 @@ import vista.EstadosJuego;
 public class PresentadorInstrucciones {
     
     private IVistaInstrucciones vista;
+    private Juego juego;
 
-    public PresentadorInstrucciones(IVistaInstrucciones vista) {
+    public PresentadorInstrucciones(IVistaInstrucciones vista, Juego juego) {
         this.vista = vista;
-    }
-
-    public void regresarAlMenu() {
-        vista.navegarAlMenu();
+        this.juego = juego;
     }
     
     public void regresarAMenu() {
-        EstadosJuego.estado = EstadosJuego.MENU;
+        juego.cambiarEstado(new EstadoMenu(juego));
     }
     
 }

@@ -6,6 +6,6 @@ package ivistas;
  */
 public interface IVistaInstrucciones {
     
-    void navegarAlMenu();
+    
     
 }

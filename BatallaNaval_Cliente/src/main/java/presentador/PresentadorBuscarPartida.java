@@ -1,6 +1,7 @@
 package presentador;
 
 import comunicacion.ClientConnection;
+import estados.EstadoMenu;
 import ivistas.IVistaBuscarPartida;
 import ivistas.IVistaSalaEspera;
 import java.util.List;
@@ -17,11 +18,13 @@ public class PresentadorBuscarPartida {
     private IVistaBuscarPartida vista;
     private ClientConnection clientConnection;
     private ModeloJugador jugador;
+    private Juego juego;
 
-    public PresentadorBuscarPartida(IVistaBuscarPartida vista) {
+    public PresentadorBuscarPartida(IVistaBuscarPartida vista, Juego juego) {
         this.vista = vista;
         this.clientConnection = ClientConnection.getInstance();
         this.jugador = ModeloJugador.getInstance();
+        this.juego = juego;
     }
 
     public void unirseAPartida() {
@@ -35,7 +38,7 @@ public class PresentadorBuscarPartida {
     }
 
     public void regresarAlMenu() {
-        vista.navegarAMenu();
+        juego.cambiarEstado(new EstadoMenu(juego));
     }
 
     public void manejarRespuestaUnirsePartida(Map<String, Object> mensaje) {

@@ -43,7 +43,7 @@ public class HiloActualizacion extends Thread {
             // Verifica si ha pasado el tiempo necesario para una actualización.
             if (elapsedTime >= targetUpdateTime) {
                 // Realiza la actualización lógica del juego.
-                juego.update();
+//                juego.update();
                 lastUpdateTime = currentTime;
             }
 

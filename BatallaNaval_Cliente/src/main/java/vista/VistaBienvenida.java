@@ -13,7 +13,7 @@ import presentador.PresentadorBienvenida;
  *
  * @author alex_
  */
-public class VistaBienvenida implements EstadoJuego, IVistaBienvenida {
+public class VistaBienvenida implements IVistasPanel, IVistaBienvenida {
 
     private PanelJuego panelJuego;
     private JTextField campoNombre;
@@ -21,9 +21,9 @@ public class VistaBienvenida implements EstadoJuego, IVistaBienvenida {
     private BufferedImage portada;
     private PresentadorBienvenida presentador;
 
-    public VistaBienvenida(PanelJuego panelJuego) {
+    public VistaBienvenida(PanelJuego panelJuego, Juego juego) {
         this.panelJuego = panelJuego;
-        presentador = new PresentadorBienvenida(this);
+        presentador = new PresentadorBienvenida(this, juego);
         crearComponentes();
         accionesComponentes();
         cargarImagenes();
@@ -83,12 +83,6 @@ public class VistaBienvenida implements EstadoJuego, IVistaBienvenida {
     @Override
     public String obtenerNombreJugador() {
         return campoNombre.getText();
-    }
-
-    @Override
-    public void navegarAlMenu() {
-        quitarComponentes();
-        presentador.avanzarAMenu();
     }
 
 }
