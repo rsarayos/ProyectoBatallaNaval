@@ -1,7 +1,10 @@
 package modelo;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import tablero.ITableroObserver;
 
 /**
  *
@@ -13,6 +16,8 @@ public class ModeloTablero {
     private final int COLUMNAS = 10;
     private ModeloCasilla[][] casillas;
     private Set<MUbicacionUnidad> unidades;
+    
+    private List<ITableroObserver> observers = new ArrayList<>();
 
     public ModeloTablero() {
 
@@ -44,6 +49,25 @@ public class ModeloTablero {
             return casillas[x][y];
         }
         return null;
+    }
+    
+    // Métodos para manejar observadores
+    public void addObserver(ITableroObserver observer) {
+        observers.add(observer);
+    }
+
+    public void removeObserver(ITableroObserver observer) {
+        observers.remove(observer);
+    }
+
+    public void actualizarTablero() {
+        notifyObservers();
+    }
+
+    private void notifyObservers() {
+        for (ITableroObserver observer : observers) {
+            observer.onTableroUpdated();
+        }
     }
 
 }

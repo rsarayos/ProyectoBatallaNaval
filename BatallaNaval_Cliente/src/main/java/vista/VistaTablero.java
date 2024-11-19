@@ -17,9 +17,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import modelo.MUbicacionUnidad;
 import modelo.ModeloCasilla;
 import presentador.PresentadorTablero;
+import tablero.ITableroObserver;
 import tablero.ModoEnemigoStrategy;
 import tablero.ModoJugadorStrategy;
 import tablero.ModoOrganizarStrategy;
@@ -29,7 +31,7 @@ import tablero.ModoTableroStrategy;
  *
  * @author alex_
  */
-public class VistaTablero extends JPanel {
+public class VistaTablero extends JPanel implements ITableroObserver  {
 
     private PresentadorTablero presentador;
     
@@ -252,6 +254,13 @@ public class VistaTablero extends JPanel {
 
     public boolean isInteraccionHabilitada() {
         return interaccionHabilitada;
+    }
+
+    @Override
+    public void onTableroUpdated() {
+        SwingUtilities.invokeLater(() -> {
+            repaint();
+        });
     }
 
 }

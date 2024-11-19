@@ -89,7 +89,8 @@ public class PresentadorTablero {
             vista.setIsDragging(false); // Notificar a la vista
             vista.setUnidadSeleccionada(null);
             
-            vista.actualizarVista();
+            // Notificar al modelo que se actualizó
+            modeloTablero.actualizarTablero();
         }
     }
 
@@ -117,8 +118,8 @@ public class PresentadorTablero {
                     }
                 }
 
-                // Actualizar la vista
-                vista.actualizarVista();
+                // Notificar al modelo que se actualizó
+                modeloTablero.actualizarTablero();
             }
         }
     }
@@ -149,6 +150,8 @@ public class PresentadorTablero {
             colocarUnidad(ubicacionUnidad);
             remarcarAdyacencias();
         }
+        // Notificar al modelo que se actualizó
+        modeloTablero.actualizarTablero();
     }
 
     private void moverUnidad(MUbicacionUnidad ubicacionUnidad, ModeloCasilla nuevaCasillaAncla) {
@@ -225,6 +228,8 @@ public class PresentadorTablero {
             casilla.setUnidadOcupante(ubicacionUnidad);
         }
         marcarAdyacentes(ubicacionUnidad.getCasillasOcupadas(), ubicacionUnidad, true);
+        // Notificar al modelo que se actualizó
+        modeloTablero.actualizarTablero();
     }
 
     private void removerUnidad(MUbicacionUnidad ubicacionUnidad) {
@@ -233,6 +238,8 @@ public class PresentadorTablero {
             casilla.setUnidadOcupante(null);
         }
         marcarAdyacentes(ubicacionUnidad.getCasillasOcupadas(), ubicacionUnidad, false);
+        // Notificar al modelo que se actualizó
+        modeloTablero.actualizarTablero();
     }
     
     private void limpiarAdyacencias() {
