@@ -1,30 +1,13 @@
 package presentador;
 
 import comunicacion.ClientConnection;
-import enums.ControlPartida;
 import estados.EstadoBienvenida;
 import estados.IEstadoJuego;
-import ivistas.IVistaBuscarPartida;
-import ivistas.IVistaJuego;
-import ivistas.IVistaOrganizar;
-import ivistas.IVistaSalaEspera;
 import java.awt.Graphics;
-import java.util.List;
 import java.util.Map;
 import javax.swing.SwingUtilities;
-import modelo.ModeloJugador;
-import vista.EstadosJuego;
-import vista.ModoTablero;
 import vista.PanelJuego;
 import vista.VentanaJuego;
-import vista.VistaBienvenida;
-import vista.VistaBuscarPartida;
-import vista.VistaInstrucciones;
-import vista.VistaJuego;
-import vista.VistaMenu;
-import vista.VistaOrganizar;
-import vista.VistaSalaEspera;
-import vista.VistaTablero;
 
 /**
  * Clase principal que representa el juego. Implementa la interfaz Runnable para

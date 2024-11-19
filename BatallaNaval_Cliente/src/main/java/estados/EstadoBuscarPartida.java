@@ -12,16 +12,37 @@ import presentador.PresentadorBuscarPartida;
 import vista.VistaBuscarPartida;
 
 /**
+ * Clase que representa el estado de búsqueda de partida del juego.
  *
  * @author alex_
  */
 public class EstadoBuscarPartida implements IEstadoJuego {
     
+    /**
+     * Referencia al juego principal.
+     */
     private Juego juego;
+    
+    /**
+     * Vista que representa la interfaz de búsqueda de partida.
+     */
     private VistaBuscarPartida vista;
+    
+    /**
+     * Presentador asociado a la vista de búsqueda de partida.
+     */
     private PresentadorBuscarPartida presentador;
+    
+    /**
+     * Mapa que contiene los comandos disponibles en el estado de búsqueda de partida.
+     */
     private Map<String, IComando> comandos;
 
+    /**
+     * Constructor que inicializa el estado de búsqueda de partida con el juego especificado.
+     *
+     * @param juego la referencia al juego principal
+     */
     public EstadoBuscarPartida(Juego juego) {
         this.juego = juego;
         this.vista = new VistaBuscarPartida(juego.getPanel(), juego);
@@ -29,21 +50,37 @@ public class EstadoBuscarPartida implements IEstadoJuego {
         inicializarComandos();
     }
     
+    /**
+     * Inicializa los comandos disponibles para manejar los mensajes en este estado.
+     */
     private void inicializarComandos() {
         comandos = new HashMap<>();
         comandos.put("UNIRSE_PARTIDA", new UnirsePartidaComando(this));
     }
 
+    /**
+     * Sale del estado de búsqueda de partida y quita los componentes de la vista.
+     */
     @Override
     public void salir() {
         vista.quitarComponentes();
     }
 
+    /**
+     * Renderiza la vista de búsqueda de partida.
+     *
+     * @param g el objeto Graphics utilizado para dibujar la vista
+     */
     @Override
     public void renderizar(Graphics g) {
         vista.dibujar(g);
     }
 
+    /**
+     * Maneja un mensaje recibido en el estado de búsqueda de partida.
+     *
+     * @param mensaje un mapa que contiene los datos del mensaje recibido
+     */
     @Override
     public void handleMessage(Map<String, Object> mensaje) {
         String accion = (String) mensaje.get("accion");
@@ -60,6 +97,11 @@ public class EstadoBuscarPartida implements IEstadoJuego {
         }
     }
 
+    /**
+     * Maneja la respuesta para unirse a una partida.
+     *
+     * @param mensaje un mapa que contiene los datos del mensaje recibido
+     */
     public void handleUnirsePartidaResponse(Map<String, Object> mensaje) {
         if (mensaje.containsKey("error")) {
             String error = (String) mensaje.get("error");
