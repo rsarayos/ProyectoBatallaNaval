@@ -3,6 +3,7 @@ package presentador;
 import comunicacion.ClientConnection;
 import enums.ControlPartida;
 import ivistas.IVistaJuego;
+import java.util.HashMap;
 import java.util.Map;
 import modelo.ModeloJugador;
 
@@ -10,7 +11,7 @@ import modelo.ModeloJugador;
  *
  * @author alex_
  */
-public class PresentadorJuego {
+public class PresentadorJuego implements AtaqueListener{
 
     private IVistaJuego vista;
     private ModeloJugador modeloJugador;
@@ -66,6 +67,27 @@ public class PresentadorJuego {
     public void atacar(int x, int y) {
         // Enviar ataque al servidor
         clientConnection.atacar(x, y);
+    }
+    
+    public void enviarAtaqueVacio() {
+        clientConnection.atacar(10, 10);
+    }
+
+    @Override
+    public void enAtaqueRealizado() {
+        vista.detenerTemporizador();
+    }
+
+    public void enviarRendicion() {
+        // Enviar mensaje de rendición al servidor
+        Map<String, Object> datos = new HashMap<>();
+        datos.put("accion", "RENDIRSE");
+        datos.put("id_jugador", modeloJugador.getId());
+        ClientConnection.getInstance().enviarRendicion(datos);
+    }
+    
+    public void finalizarJuegoPorRendicion(String ganador) {
+        vista.finalizarJuegoPorRendicion(ganador);
     }
 
 }

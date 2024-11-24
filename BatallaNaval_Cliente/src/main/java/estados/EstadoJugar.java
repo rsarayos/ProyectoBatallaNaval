@@ -2,6 +2,7 @@ package estados;
 
 import comunicacion.AtacarComando;
 import comunicacion.IComando;
+import comunicacion.RendirseComando;
 import java.awt.Graphics;
 import java.util.HashMap;
 import java.util.Map;
@@ -63,6 +64,7 @@ public class EstadoJugar implements IEstadoJuego {
     private void inicializarComandos() {
         comandos = new HashMap<>();
         comandos.put("ATACAR", new AtacarComando(this));
+        comandos.put("RENDIRSE", new RendirseComando(this));
     }
 
     /**
@@ -112,6 +114,12 @@ public class EstadoJugar implements IEstadoJuego {
     public void handleAtacarResponse(Map<String, Object> mensaje) {
         presentador.manejarAtaqueResponse(mensaje);
 
+    }
+
+    public void handleRendirseResponse(Map<String, Object> mensaje) {
+        String ganador = (String) mensaje.get("ganador");
+        // Notificar al presentador que el juego ha terminado
+        presentador.finalizarJuegoPorRendicion(ganador);
     }
 
 }

@@ -229,6 +229,10 @@ public class VistaTablero extends JPanel implements ITableroObserver  {
             casilla.setAtacado(true);
             // Enviar el ataque al servidor
             presentador.enviarAtaque(fila, columna);
+            
+            if (presentador.getAtaqueListener() != null) {
+                presentador.getAtaqueListener().enAtaqueRealizado();
+            }
             // Actualizar la vista
             repaint();
         }

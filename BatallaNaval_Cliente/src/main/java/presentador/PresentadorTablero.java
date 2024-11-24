@@ -34,6 +34,8 @@ public class PresentadorTablero {
     private Set<ModeloCasilla> casillasOriginales;
     private Orientacion orientacionOriginal;
     private Set<ModeloCasilla> celdasResaltadas = new HashSet<>();
+    
+    private AtaqueListener ataqueListener;
 
     public PresentadorTablero(VistaTablero vista) {
         this.vista = vista;
@@ -361,6 +363,14 @@ public class PresentadorTablero {
     public void enviarAtaque(int fila, int columna) {
         // envia el ataque al servidor
         ClientConnection.getInstance().atacar(fila, columna);
+    }
+    
+    public void setAtaqueListener(AtaqueListener listener) {
+        this.ataqueListener = listener;
+    }
+
+    public AtaqueListener getAtaqueListener() {
+        return ataqueListener;
     }
     
     

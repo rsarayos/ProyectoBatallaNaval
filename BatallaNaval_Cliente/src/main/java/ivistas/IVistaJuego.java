@@ -31,5 +31,9 @@ public interface IVistaJuego {
     VistaTablero getTableroEnemigo();
 
     public void setNombreOponente(String nombreOponente);
+    
+    public void detenerTemporizador();
+    
+    void finalizarJuegoPorRendicion(String ganador);
 
 }

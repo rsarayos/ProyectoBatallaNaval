@@ -251,6 +251,10 @@ public class ClientConnection {
         sendMessage(data);
     }
 
+    public void enviarRendicion(Map<String, Object> datos) {
+        sendMessage(datos);
+    }
+
     /**
      * Interfaz que representa un oyente para los mensajes entrantes del servidor.
      */

@@ -347,6 +347,7 @@ public class PartidaBO {
                         tableroAtacado.addDisparoRecibido(disparo);
                     });
         }
+        // falta guardar los disparos que fallan
         if (estadoPartida) {
             return generarMensajeVictoria(ClientManager.getJugadorByClientId(clientId));
         }
@@ -405,4 +406,28 @@ public class PartidaBO {
         //Aqui abria que tener en alguna parte el numero definido de naves para no hardcodearlo
         return tablero.getNumNavesDestruidas() == 11;
     }
+    
+    public Map<String, Object> rendirse(Map<String, Object> request, String clientId) {
+        Map<String, Object> response = new HashMap<>();
+        response.put("accion", "RENDIRSE");
+
+        Jugador jugadorQueSeRinde = ClientManager.getJugadorByClientId(clientId);
+        if (jugadorQueSeRinde == null) {
+            response.put("error", "Jugador no encontrado.");
+            return response;
+        }
+
+        Jugador jugadorGanador = ClientManager.getOtherPlayer(clientId);
+
+        if (jugadorGanador == null) {
+            response.put("error", "No se pudo determinar el ganador.");
+            return response;
+        }
+        
+        // Preparar la respuesta
+        response.put("ganador", jugadorGanador.getNombre());
+
+        return response;
+    }
+
 }

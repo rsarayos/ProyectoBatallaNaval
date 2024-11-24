@@ -1,15 +1,22 @@
 package vista;
 
 import ivistas.IVistaJuego;
+import java.awt.Color;
 import java.awt.Cursor;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
+import javax.swing.Timer;
 import modelo.ModeloJugador;
 import modelo.TipoUnidad;
 import presentador.Juego;
@@ -28,10 +35,16 @@ public class VistaJuego implements IVistasPanel, IVistaJuego {
     private List<VistaNave> unidadesJugador;
     private List<VistaNave> unidadesEnemigo;
     private JLabel lblTurno;
+    private JLabel lblTemporizador;
     private String ultimoMensaje;
     private String nombreOponente;
     private JLabel lblUltimoMensaje;
+    private Timer temporizador;
+    private int tiempoRestante = 10;
+    private JButton btnRendirse;
     private PresentadorJuego presentador;
+    private boolean juegoTerminado = false;
+    private boolean esGanador = false;
 
     public VistaJuego(PanelJuego panelJuego) {
         this.panelJuego = panelJuego;
@@ -61,8 +74,21 @@ public class VistaJuego implements IVistasPanel, IVistaJuego {
         int labelHeight = 30; // Altura fija para los labels
 
         if (!panelJuego.isAncestorOf(lblTurno)) {
-            panelJuego.agregarComponente(lblTurno, 0, 600, labelWidth, labelHeight);
+            panelJuego.agregarComponente(lblTurno, 0, 570, labelWidth, labelHeight);
         }
+
+        lblTemporizador = new JLabel("Tiempo restante: 10", SwingConstants.CENTER);
+        lblTemporizador.setFont(UtilesVista.FUENTE_SUBTITULO);
+        lblTemporizador.setForeground(UtilesVista.COLOR_TEXTO_AZUL_OSCURO);
+        
+        if (!panelJuego.isAncestorOf(lblTemporizador)) {
+            panelJuego.agregarComponente(lblTemporizador, 0, 600, labelWidth, labelHeight);
+        }
+        
+        tableroEnemigo.getPresentador().setAtaqueListener(presentador);
+
+        btnRendirse = UtilesVista.crearBoton("Rendirse");
+        
         panelJuego.revalidate();
         panelJuego.repaint();
     }
@@ -70,49 +96,95 @@ public class VistaJuego implements IVistasPanel, IVistaJuego {
     @Override
     public void accionesComponentes() {
 
+        btnRendirse.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int opcion = JOptionPane.showConfirmDialog(panelJuego, "¿Seguro que desea rendirse?", "Confirmar rendición", JOptionPane.YES_NO_OPTION);
+                if (opcion == JOptionPane.YES_OPTION) {
+                    presentador.enviarRendicion();
+                }
+            }
+        });
+
     }
 
     @Override
     public void dibujar(Graphics g) {
-        g.setColor(UtilesVista.COLOR_FONDO);
-        g.fillRect(0, 0, Juego.GAME_ANCHO, Juego.GAME_ALTO);
+        // Mostrar la superposición y el mensaje si el juego ha terminado
+        if (juegoTerminado) {
+            // quitar componentes existentes
+            quitarComponentes();
+            // Crear una superposición semitransparente
+            Graphics2D g2d = (Graphics2D) g.create();
+            g2d.setColor(new Color(0, 0, 0, 210)); // Negro con transparencia
+            g2d.fillRect(0, 0, Juego.GAME_ANCHO, Juego.GAME_ALTO);
 
-        // INFORMACION DEL JUGADOR
-        g.setColor(UtilesVista.COLOR_TEXTO_AZUL_OSCURO);
-        g.setFont(UtilesVista.FUENTE_SUBTITULO);
-        g.drawString("Tablero de", 100, 40);
-        // nombre del jugador de esta partida
-        g.drawString(ModeloJugador.getInstance().getNombre(), 100, 60);
-        if (!panelJuego.isAncestorOf(tableroJugador)) {
-            panelJuego.agregarComponente(tableroJugador, 100, 90, 300, 300);
+            // Configurar el texto
+            String mensaje = esGanador ? "¡VICTORIA!" : "DERROTA";
+            
+            g2d.setFont(UtilesVista.FUENTE_RESULTADO);
+            
+            if (esGanador) {
+                g2d.setColor(UtilesVista.COLOR_TEXTO_AZUL_OSCURO);
+            } else {
+                g2d.setColor(UtilesVista.COLOR_UNIDAD_DESTRUIDA);
+            }
+
+            // Medir el ancho del mensaje para centrarlo
+            FontMetrics fm = g2d.getFontMetrics();
+            int mensajeAncho = fm.stringWidth(mensaje);
+            int x = (Juego.GAME_ANCHO - mensajeAncho) / 2;
+            int y = Juego.GAME_ALTO / 2;
+
+            // Dibujar el mensaje
+            g2d.drawString(mensaje, x, y);
+
+            g2d.dispose();
+        } else {
+
+            g.setColor(UtilesVista.COLOR_FONDO);
+            g.fillRect(0, 0, Juego.GAME_ANCHO, Juego.GAME_ALTO);
+
+            if (!panelJuego.isAncestorOf(btnRendirse)) {
+                panelJuego.agregarComponente(btnRendirse, (Juego.GAME_ANCHO - 200) / 2, 660, 200, 30);
+            }
+            // INFORMACION DEL JUGADOR
+            g.setColor(UtilesVista.COLOR_TEXTO_AZUL_OSCURO);
+            g.setFont(UtilesVista.FUENTE_SUBTITULO);
+            g.drawString("Tablero de", 100, 40);
+            // nombre del jugador de esta partida
+            g.drawString(ModeloJugador.getInstance().getNombre(), 100, 60);
+            if (!panelJuego.isAncestorOf(tableroJugador)) {
+                panelJuego.agregarComponente(tableroJugador, 100, 90, 300, 300);
+            }
+            g.drawString("Estado de la flota", 100, 420);
+            g.drawString("Portaaviones", 100, 450);
+            g.drawString("Cruceros    ", 100, 510);
+            g.drawString("Submarinos  ", 100, 570);
+            g.drawString("Barcos      ", 100, 630);
+
+            // INFORMACION DEL OPONENTE
+            g.drawString("Tablero de", 500, 40);
+            // nombre del jugador enemigo conectado
+            g.drawString(nombreOponente != null ? nombreOponente : "Oponente", 500, 60);
+            if (!panelJuego.isAncestorOf(tableroEnemigo)) {
+                tableroEnemigo.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
+                panelJuego.agregarComponente(tableroEnemigo, 500, 90, 300, 300);
+            }
+            g.drawString("Estado de la flota", 630, 420);
+            g.drawString("Portaaviones", 670, 450);
+            g.drawString("    Cruceros", 681, 510);
+            g.drawString("  Submarinos", 672, 570);
+            g.drawString("      Barcos", 690, 630);
+
+            // colocar representacion de las 
+            colocarEstadoFlota();
+
+            g.setFont(UtilesVista.FUENTE_SUBTITULO);
+            g.setColor(UtilesVista.COLOR_TEXTO_AZUL_OSCURO);
+            UtilesVista.dibujarTextoCentrado(g, "Resultado del último disparo", 480, UtilesVista.FUENTE_SUBTITULO);
+            UtilesVista.dibujarTextoCentrado(g, ultimoMensaje != null ? ultimoMensaje : "", 500, UtilesVista.FUENTE_SUBTITULO);
         }
-        g.drawString("Estado de la flota", 100, 420);
-        g.drawString("Portaaviones", 100, 450);
-        g.drawString("Cruceros    ", 100, 510);
-        g.drawString("Submarinos  ", 100, 570);
-        g.drawString("Barcos      ", 100, 630);
-
-        // INFORMACION DEL OPONENTE
-        g.drawString("Tablero de", 500, 40);
-        // nombre del jugador enemigo conectado
-        g.drawString(nombreOponente != null ? nombreOponente : "Oponente", 500, 60);
-        if (!panelJuego.isAncestorOf(tableroEnemigo)) {
-            tableroEnemigo.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
-            panelJuego.agregarComponente(tableroEnemigo, 500, 90, 300, 300);
-        }
-        g.drawString("Estado de la flota", 630, 420);
-        g.drawString("Portaaviones", 670, 450);
-        g.drawString("    Cruceros", 681, 510);
-        g.drawString("  Submarinos", 672, 570);
-        g.drawString("      Barcos", 690, 630);
-
-        // colocar representacion de las 
-        colocarEstadoFlota();
-
-        g.setFont(UtilesVista.FUENTE_SUBTITULO);
-        g.setColor(UtilesVista.COLOR_TEXTO_AZUL_OSCURO);
-        UtilesVista.dibujarTextoCentrado(g, "Resultado del último disparo", 480, UtilesVista.FUENTE_SUBTITULO);
-        UtilesVista.dibujarTextoCentrado(g, ultimoMensaje != null ? ultimoMensaje : "", 500, UtilesVista.FUENTE_SUBTITULO);
 
     }
 
@@ -122,10 +194,43 @@ public class VistaJuego implements IVistasPanel, IVistaJuego {
         if (esMiTurno) {
             tableroEnemigo.habilitarInteraccion(true);
             lblTurno.setText("Es tu turno");
+            iniciarTemporizador(); // Iniciar el temporizador
         } else {
             tableroEnemigo.habilitarInteraccion(false);
             lblTurno.setText("Es el turno del oponente");
+            detenerTemporizador(); // Detener el temporizador
         }
+    }
+    
+    private void iniciarTemporizador() {
+        tiempoRestante = 10; // Reiniciar el tiempo
+        lblTemporizador.setText("Tiempo restante: " + tiempoRestante);
+
+        temporizador = new Timer(1000, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                tiempoRestante--;
+                lblTemporizador.setText("Tiempo restante: " + tiempoRestante);
+                if (tiempoRestante <= 0) {
+                    temporizador.stop();
+                    enviarAtaqueVacio();
+                }
+            }
+        });
+        temporizador.start();
+    }
+
+    @Override
+    public void detenerTemporizador() {
+        if (temporizador != null && temporizador.isRunning()) {
+            temporizador.stop();
+        }
+    }
+    
+    private void enviarAtaqueVacio() {
+        presentador.enviarAtaqueVacio();
+        bloquearInteraccion();
+        lblTurno.setText("Se acabó tu tiempo. Turno del oponente");
     }
 
     @Override
@@ -173,6 +278,7 @@ public class VistaJuego implements IVistasPanel, IVistaJuego {
     @Override
     public void bloquearInteraccion() {
         tableroEnemigo.habilitarInteraccion(false);
+        btnRendirse.setEnabled(false);
     }
 
     @Override
@@ -182,8 +288,10 @@ public class VistaJuego implements IVistasPanel, IVistaJuego {
 
     @Override
     public void finalizarJuego(String ganador) {
-        mostrarMensaje("¡El juego ha terminado! El ganador es: " + ganador);
         bloquearInteraccion();
+        juegoTerminado = true;
+        esGanador = ModeloJugador.getInstance().getNombre().equals(ganador);
+        panelJuego.repaint();
     }
 
     @Override
@@ -314,11 +422,31 @@ public class VistaJuego implements IVistasPanel, IVistaJuego {
 
     @Override
     public void quitarComponentes() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        panelJuego.quitarComponente(tableroJugador);
+        panelJuego.quitarComponente(tableroEnemigo);
+        for (VistaNave vistaNave : unidadesJugador) {
+            panelJuego.quitarComponente(vistaNave);
+        }
+        for (VistaNave vistaNave : unidadesEnemigo) {
+            panelJuego.quitarComponente(vistaNave);
+        }
+        panelJuego.quitarComponente(lblTurno);
+        panelJuego.quitarComponente(lblTemporizador);
+        panelJuego.quitarComponente(lblUltimoMensaje);
+        panelJuego.quitarComponente(btnRendirse);
+    
     }
 
     public PresentadorJuego getPresentador() {
         return this.presentador;
+    }
+
+    @Override
+    public void finalizarJuegoPorRendicion(String ganador) {
+        bloquearInteraccion();
+        juegoTerminado = true;
+        esGanador = ModeloJugador.getInstance().getNombre().equals(ganador);
+        panelJuego.repaint();
     }
 
 }

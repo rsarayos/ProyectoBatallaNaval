@@ -57,6 +57,7 @@ public class UtilesVista {
     public static final Font FUENTE_SUBTITULO = new Font("SansSerif", Font.BOLD, 20);
     public static final Font FUENTE_BOTON = new Font("SansSerif", Font.BOLD, 18);
     public static final Font FUENTE_CAMPO_TEXTO = new Font("SansSerif", Font.PLAIN, 16);
+    public static final Font FUENTE_RESULTADO = new Font("Stencil", Font.PLAIN, 70);
 
     /**
      * Método para dibujar texto centrado horizontalmente.
