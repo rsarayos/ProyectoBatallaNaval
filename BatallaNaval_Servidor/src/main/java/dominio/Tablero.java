@@ -66,4 +66,15 @@ public class Tablero {
     public void addNaveDestruida() {
         this.numNavesDestruidas += 1;
     }
+
+    public List<Disparo> getDisparosRecibidos() {
+        return disparosRecibidos;
+    }
+
+    public void setDisparosRecibidos(List<Disparo> disparosRecibidos) {
+        this.disparosRecibidos = disparosRecibidos;
+    }
+    
+    
+    
 }

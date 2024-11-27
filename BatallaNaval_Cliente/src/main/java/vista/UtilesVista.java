@@ -20,6 +20,7 @@ import javax.swing.table.DefaultTableModel;
 import presentador.Juego;
 
 /**
+ * Clase de utilidades para las vistas, que proporciona recursos y métodos comunes para la interfaz gráfica del juego.
  *
  * @author alex_
  */
@@ -106,6 +107,12 @@ public class UtilesVista {
         return campoTexto;
     }
     
+    /**
+     * Carga una imagen desde un directorio especificado.
+     *
+     * @param directorio La ruta del directorio donde se encuentra la imagen
+     * @return BufferedImage con la imagen cargada
+     */
     public static BufferedImage cargarImagen(String directorio) {
         BufferedImage imagen = null;
         InputStream is = UtilesVista.class.getResourceAsStream(directorio);
@@ -129,6 +136,15 @@ public class UtilesVista {
         return imagen;
     }
     
+    /**
+     * Crea una tabla personalizada con estilo consistente.
+     *
+     * @param datos Los datos de la tabla
+     * @param columnas Los nombres de las columnas de la tabla
+     * @param ancho El ancho de la tabla
+     * @param alto El alto de la tabla
+     * @return JTable con el estilo definido
+     */
     public static JTable crearTabla(Object[][] datos, String[] columnas, int ancho, int alto) {
         // Modelo de la tabla con los datos y las columnas especificadas
         DefaultTableModel modelo = new DefaultTableModel(datos, columnas);
@@ -147,6 +163,14 @@ public class UtilesVista {
         return tabla;
     }
     
+    /**
+     * Crea un combo box (lista desplegable) personalizado con estilo consistente.
+     *
+     * @param elementos Los elementos a incluir en el combo box
+     * @param ancho El ancho del combo box
+     * @param alto El alto del combo box
+     * @return JComboBox con el estilo definido
+     */
     public static JComboBox<String> crearComboBox(String[] elementos, int ancho, int alto) {
         JComboBox<String> comboBox = new JComboBox(elementos);
 
@@ -164,6 +188,14 @@ public class UtilesVista {
         return comboBox;
     }
     
+    /**
+     * Crea un panel personalizado para representar un barco con un color específico.
+     *
+     * @param ancho Ancho del panel
+     * @param alto Alto del panel
+     * @param colorFondo Color de fondo del panel
+     * @return JPanel con el estilo definido
+     */
     public static JPanel crearBarcoVista(int ancho, int alto, Color colorFondo) {
         JPanel panel = new JPanel();
         
@@ -181,6 +213,12 @@ public class UtilesVista {
         return panel;
     }
     
+    /**
+     * Obtiene el color correspondiente a un barco basado en su nombre.
+     *
+     * @param nombreColor Nombre del color
+     * @return Color correspondiente al nombre dado
+     */
     public static Color obtenerColorBarco(String nombreColor) {
         switch (nombreColor) {
             case "Rojo":

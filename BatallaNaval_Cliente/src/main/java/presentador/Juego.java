@@ -10,30 +10,54 @@ import vista.PanelJuego;
 import vista.VentanaJuego;
 
 /**
- * Clase principal que representa el juego. Implementa la interfaz Runnable para
- * ejecutarse en un hilo separado.
+ * Clase principal que representa el juego. Implementa la interfaz Runnable para ejecutarse en un hilo separado.
  *
  * @author Raul Alejandro Sauceda Rayos
  */
 public class Juego implements Runnable {
 
+    /**
+     * Ventana del juego.
+     */
     private VentanaJuego venta;
+     
+    /**
+     * Panel del juego donde se realiza el renderizado.
+     */
     protected PanelJuego panel;
+    
+    /**
+     * Hilo principal del juego.
+     */
     private Thread hiloJuego;
     
+    /**
+     * Estado actual del juego.
+     */
     private IEstadoJuego estadoActual;
-    // FPS deseados 
+    
+    /**
+     * Cuadros por segundo deseados.
+     */
     protected static final int FPS_SET = 60;
-    // UPS deseados 
+    
+    /**
+     * Actualizaciones por segundo deseadas.
+     */
     protected static final int UPS_SET = 150;
+    
+    /**
+     * Ancho de la ventana del juego.
+     */
     public final static int GAME_ANCHO = 900;
+    
+    /**
+     * Alto de la ventana del juego.
+     */
     public final static int GAME_ALTO = 720;
 
     /**
      * Constructor de la clase Juego.
-     *
-     * @param usuario Usuario actual que juega.
-     * @param usuarios Lista de usuarios en el juego.
      */
     public Juego() {
         // Crea una instancia de PanelJuego y VentanaJuego
@@ -75,9 +99,8 @@ public class Juego implements Runnable {
     }
 
     /**
-     * Bucle principal del juego. Controla la lógica de actualización y
-     * renderizado del juego a una velocidad específica, y muestra estadísticas
-     * de FPS (cuadros por segundo) y UPS (actualizaciones por segundo).
+     * Bucle principal del juego. Controla la lógica de actualización y renderizado del juego a una velocidad específica,
+     * y muestra estadísticas de FPS (cuadros por segundo) y UPS (actualizaciones por segundo).
      */
     @Override
     public void run() {
@@ -122,6 +145,9 @@ public class Juego implements Runnable {
 
     }
 
+    /**
+     * Inicia la conexión con el servidor y configura el listener de mensajes.
+     */
     private void iniciarConexion() {
         ClientConnection clientConnection = ClientConnection.getInstance();
         boolean conectado = clientConnection.connect("localhost", 5000);
@@ -135,6 +161,11 @@ public class Juego implements Runnable {
         }
     }
     
+    /**
+     * Maneja los mensajes recibidos del servidor y los pasa al estado actual del juego.
+     *
+     * @param mensaje el mensaje recibido del servidor
+     */
     private void onMensajeRecibido(Map<String, Object> mensaje) {
         SwingUtilities.invokeLater(() -> {
             if (estadoActual!= null) {
@@ -143,6 +174,11 @@ public class Juego implements Runnable {
         });
     }
     
+    /**
+     * Cambia el estado actual del juego al estado nuevo especificado.
+     *
+     * @param estadoNuevo el nuevo estado del juego
+     */
     public void cambiarEstado(IEstadoJuego estadoNuevo) {
         if (estadoActual != null) {
             estadoActual.salir();
@@ -150,6 +186,11 @@ public class Juego implements Runnable {
         estadoActual = estadoNuevo;
     }
 
+    /**
+     * Obtiene el panel del juego donde se realiza el renderizado.
+     *
+     * @return el panel del juego
+     */
     public PanelJuego getPanel() {
         return panel;
     }

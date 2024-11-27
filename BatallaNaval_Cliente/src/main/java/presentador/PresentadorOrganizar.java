@@ -17,21 +17,41 @@ import vista.UtilesVista;
 import vista.VistaTablero;
 
 /**
+ * Clase que actúa como presentador de la vista de organización del juego, manejando la lógica de organización de unidades y comunicación con el servidor.
  *
  * @author alex_
  */
 public class PresentadorOrganizar {
 
+    /**
+     * Vista de organización.
+     */
     private IVistaOrganizar vista;
+    
+    /**
+     * Modelo del jugador.
+     */
     private ModeloJugador modeloJugador;
+    
+    /**
+     * Conexión con el servidor.
+     */
     private ClientConnection clientConnection;
 
+    /**
+     * Constructor que inicializa el presentador con la vista especificada.
+     *
+     * @param vista la vista de organización
+     */
     public PresentadorOrganizar(IVistaOrganizar vista) {
         this.vista = vista;
         this.modeloJugador = ModeloJugador.getInstance();
         this.clientConnection = ClientConnection.getInstance();
     }
 
+    /**
+     * Envía las unidades del jugador al servidor.
+     */
     public void enviarUnidadesAlServidor() {
         VistaTablero tablero = vista.getTablero();
         ModeloTablero modeloTablero = tablero.getPresentador().getModeloTablero();
@@ -68,6 +88,11 @@ public class PresentadorOrganizar {
         vista.bloquearInterfaz();
     }
 
+    /**
+     * Cambia el color de las naves en la vista de organización.
+     *
+     * @param nombreColor el nombre del nuevo color de las naves
+     */
     public void cambiarColorNaves(String nombreColor) {
         Color nuevoColorNave = UtilesVista.obtenerColorBarco(nombreColor);
         vista.getTablero().setColorNave(nuevoColorNave);
@@ -75,11 +100,18 @@ public class PresentadorOrganizar {
         vista.actualizarColorPanelesLaterales(nuevoColorNave);
     }
 
-    // Métodos para manejar mensajes del servidor
+    /**
+     * Muestra un mensaje indicando que un jugador está esperando.
+     *
+     * @param nombreJugador el nombre del jugador que está esperando
+     */
     public void manejarJugadorEsperando(String nombreJugador) {
         vista.mostrarMensajeJugadorEsperando(nombreJugador);
     }
 
+    /**
+     * Inicia el juego cambiando a la vista de juego.
+     */
     public void manejarIniciarJuego() {
         vista.navegarAJugar();
     }

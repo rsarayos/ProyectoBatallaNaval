@@ -1,6 +1,7 @@
 package vista;
 
 /**
+ * Enumeración que representa los diferentes estados del juego.
  *
  * @author alex_
  */

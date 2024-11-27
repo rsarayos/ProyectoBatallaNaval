@@ -1,6 +1,7 @@
 package modelo;
 
 /**
+ * Enumeración que representa la orientación de una unidad (horizontal o vertical).
  *
  * @author alex_
  */

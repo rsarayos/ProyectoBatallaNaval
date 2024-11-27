@@ -4,18 +4,11 @@ import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.Graphics;
-import java.awt.GridLayout;
-import java.awt.Point;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.event.MouseMotionAdapter;
 import java.awt.event.MouseMotionListener;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import modelo.MUbicacionUnidad;
@@ -28,32 +21,79 @@ import tablero.ModoOrganizarStrategy;
 import tablero.ModoTableroStrategy;
 
 /**
+ * Clase que representa la vista del tablero en el juego de Batalla Naval.
+ * Esta clase extiende JPanel y funciona como un componente visual que muestra
+ * el estado del tablero, incluyendo las naves, los ataques y la interacción del jugador.
+ * Implementa ITableroObserver para responder a los cambios en el modelo del tablero.
  *
  * @author alex_
  */
 public class VistaTablero extends JPanel implements ITableroObserver  {
 
+    /**
+     * Presentador encargado de gestionar la lógica asociada a la vista del tablero.
+     */
     private PresentadorTablero presentador;
     
-    // MODO DEL TABLERO
+    /**
+     * Modo actual del tablero (ORGANIZAR, JUGADOR, ENEMIGO).
+     */
     private ModoTablero modo;
+    
+    /**
+     * Estrategia de comportamiento actual según el modo del tablero.
+     */
     private ModoTableroStrategy estrategiaActual;
     
-    // Listeners para el modo organizar
+    /**
+     * Listener del mouse para el modo ORGANIZAR.
+     */
     private MouseListener mouseListenerOrganizar;
+    
+    /**
+     * Listener del movimiento del mouse para el modo ORGANIZAR.
+     */
     private MouseMotionListener mouseMotionListenerOrganizar;
 
-    // Listeners para el modo enemigo
+    /**
+     * Listener del mouse para el modo ENEMIGO.
+     */
     private MouseListener mouseListenerEnemigo;
-    // interaccion para tablero enemigo
+    
+    /**
+     * Indica si la interacción con el tablero enemigo está habilitada.
+     */
     private boolean interaccionHabilitada = true; 
     
+    /**
+     * Dimensiones de cada celda en el tablero.
+     */
     private Dimension tamañoCelda;
+    
+    /**
+     * Imagen de fondo del tablero.
+     */
     private BufferedImage fondo;
+    
+    /**
+     * Indica si se está arrastrando una nave actualmente.
+     */
     private boolean isDragging;
+    
+    /**
+     * Unidad seleccionada que se está moviendo en el tablero.
+     */
     private MUbicacionUnidad unidadSeleccionada;
+    
+    /**
+     * Color de las naves en el tablero.
+     */
     private Color colorNave = UtilesVista.BARCO_NEGRO;
     
+    /**
+     * Constructor de la clase VistaTablero.
+     * Inicializa el presentador, establece el tamaño del tablero y carga las imágenes y listeners.
+     */
     public VistaTablero() {
         this.presentador = new PresentadorTablero(this);
         setPreferredSize(new Dimension(300, 300)); // Tamaño del tablero
@@ -65,6 +105,11 @@ public class VistaTablero extends JPanel implements ITableroObserver  {
 
     }
 
+    /**
+     * Sobrescribe el método paintComponent para dibujar el tablero y su contenido.
+     *
+     * @param g Objeto Graphics utilizado para dibujar el tablero.
+     */
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -131,43 +176,89 @@ public class VistaTablero extends JPanel implements ITableroObserver  {
         }
     }
 
+    /**
+     * Obtiene el tamaño de cada celda en el tablero.
+     *
+     * @return Dimensiones de la celda.
+     */
     public Dimension getTamañoCelda() {
         return tamañoCelda;
     }
 
+    /**
+     * Actualiza la vista del tablero.
+     */
     public void actualizarVista() {
         repaint();
     }
 
+    /**
+     * Obtiene el presentador asociado al tablero.
+     *
+     * @return PresentadorTablero.
+     */
     public PresentadorTablero getPresentador() {
         return presentador;
     }
 
+    /**
+     * Carga las imágenes utilizadas en el tablero, como el fondo.
+     */
     public void cargarImagenes() {
         this.fondo = UtilesVista.cargarImagen(UtilesVista.FONDO_TABLERO);
     }
 
+    /**
+     * Indica si actualmente se está arrastrando una unidad.
+     *
+     * @return true si se está arrastrando, false en caso contrario.
+     */
     public boolean isIsDragging() {
         return isDragging;
     }
 
+    /**
+     * Establece si se está arrastrando una unidad en el tablero.
+     *
+     * @param isDragging true si se está arrastrando, false en caso contrario.
+     */
     public void setIsDragging(boolean isDragging) {
         this.isDragging = isDragging;
     }
 
+    /**
+     * Obtiene la unidad seleccionada actualmente.
+     *
+     * @return Unidad seleccionada.
+     */
     public MUbicacionUnidad getUnidadSeleccionada() {
         return unidadSeleccionada;
     }
 
+    /**
+     * Establece la unidad seleccionada actualmente.
+     *
+     * @param unidadSeleccionada Unidad a seleccionar.
+     */
     public void setUnidadSeleccionada(MUbicacionUnidad unidadSeleccionada) {
         this.unidadSeleccionada = unidadSeleccionada;
     }
 
+    /**
+     * Establece el color de las naves en el tablero.
+     *
+     * @param colorNave Color de las naves.
+     */
     public void setColorNave(Color colorNave) {
         this.colorNave = colorNave;
         repaint(); // Redibujar el tablero con el nuevo color
     }
 
+    /**
+     * Establece el modo del tablero (ORGANIZAR, JUGADOR, ENEMIGO).
+     *
+     * @param modo Modo del tablero.
+     */
     public void setModo(ModoTablero modo) {
         this.modo = modo;
         switch (modo) {
@@ -186,7 +277,9 @@ public class VistaTablero extends JPanel implements ITableroObserver  {
         }
     }
 
-    // Añadir un único listener que delegue en la estrategia actual
+    /**
+     * Inicializa los listeners del mouse para interactuar con el tablero.
+     */
     private void inicializarListeners() {
         MouseAdapter mouseAdapter = new MouseAdapter() {
             @Override
@@ -215,6 +308,11 @@ public class VistaTablero extends JPanel implements ITableroObserver  {
         addMouseMotionListener(mouseAdapter);
     }
 
+    /**
+     * Maneja el clic en el tablero enemigo y realiza el ataque correspondiente.
+     *
+     * @param e Evento del mouse.
+     */
     public void manejarClickEnemigo(MouseEvent e) {
         if (!interaccionHabilitada) {
             return; // Si no esta en su turno
@@ -238,6 +336,11 @@ public class VistaTablero extends JPanel implements ITableroObserver  {
         }
     }
 
+    /**
+     * Habilita o deshabilita la interacción con el tablero enemigo.
+     *
+     * @param habilitar true para habilitar la interacción, false para deshabilitarla.
+     */
     void habilitarInteraccion(boolean habilitar) {
         this.interaccionHabilitada = habilitar;
         if (habilitar) {
@@ -247,6 +350,13 @@ public class VistaTablero extends JPanel implements ITableroObserver  {
         }
     }
 
+    /**
+     * Actualiza una casilla específica en el tablero después de un ataque.
+     *
+     * @param fila Fila de la casilla.
+     * @param columna Columna de la casilla.
+     * @param impacto true si el ataque fue un impacto, false en caso contrario.
+     */
     void actualizarCasilla(int fila, int columna, boolean impacto) {
         ModeloCasilla casilla = presentador.getModeloTablero().getCasilla(fila, columna);
         if (casilla != null) {
@@ -256,10 +366,18 @@ public class VistaTablero extends JPanel implements ITableroObserver  {
         }
     }
 
+    /**
+     * Indica si la interacción está habilitada para el tablero enemigo.
+     *
+     * @return true si la interacción está habilitada, false en caso contrario.
+     */
     public boolean isInteraccionHabilitada() {
         return interaccionHabilitada;
     }
 
+    /**
+     * Método llamado cuando el tablero es actualizado, para redibujar la vista.
+     */
     @Override
     public void onTableroUpdated() {
         SwingUtilities.invokeLater(() -> {

@@ -1,7 +1,6 @@
 package presentador;
 
 import comunicacion.ClientConnection;
-import java.awt.Graphics;
 import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -19,31 +18,73 @@ import modelo.TipoUnidad;
 import vista.VistaTablero;
 
 /**
+ * Clase que actúa como presentador de la vista del tablero, manejando la lógica de interacción con el tablero y las unidades.
  *
  * @author alex_
  */
 public class PresentadorTablero {
 
+    /**
+     * Modelo del tablero del juego.
+     */
     private ModeloTablero modeloTablero;
+    
+    /**
+     * Vista del tablero del juego.
+     */
     private VistaTablero vista;
 
-    // Variables de estado para interacción
+    /**
+     * Indica si se está arrastrando una unidad en el tablero.
+     */
     private boolean isDragging;
-    private ModeloCasilla casillaInicial;
-    private MUbicacionUnidad unidadSeleccionada;
-    private Set<ModeloCasilla> casillasOriginales;
-    private Orientacion orientacionOriginal;
-    private Set<ModeloCasilla> celdasResaltadas = new HashSet<>();
     
+    /**
+     * Casilla inicial donde se comenzó la interacción (arrastre o selección).
+     */
+    private ModeloCasilla casillaInicial;
+    
+    /**
+     * Unidad seleccionada para ser movida o rotada.
+     */
+    private MUbicacionUnidad unidadSeleccionada;
+    
+    /**
+     * Conjunto de casillas originales que ocupaba la unidad antes de ser movida.
+     */
+    private Set<ModeloCasilla> casillasOriginales;
+    
+    /**
+     * Orientación original de la unidad antes de cualquier operación de rotación.
+     */
+    private Orientacion orientacionOriginal;
+    
+    /**
+     * Conjunto de casillas resaltadas durante la interacción para indicar las posiciones posibles.
+     */
+    private Set<ModeloCasilla> celdasResaltadas = new HashSet<>();
+
+    /**
+     * Listener para los eventos de ataque.
+     */
     private AtaqueListener ataqueListener;
 
+    /**
+     * Constructor que inicializa el presentador con la vista especificada.
+     *
+     * @param vista la vista del tablero
+     */
     public PresentadorTablero(VistaTablero vista) {
         this.vista = vista;
         this.modeloTablero = new ModeloTablero();
         inicializarNaves();
     }
 
-    // Manejo de eventos
+    /**
+     * Maneja el evento cuando se presiona el ratón en el tablero.
+     *
+     * @param e el evento de ratón
+     */
     public void onMousePressed(MouseEvent e) {
         int fila = e.getY() / vista.getTamañoCelda().height;
         int columna = e.getX() / vista.getTamañoCelda().width;
@@ -68,6 +109,11 @@ public class PresentadorTablero {
         }
     }
 
+    /**
+     * Maneja el evento cuando se suelta el ratón en el tablero.
+     *
+     * @param e el evento de ratón
+     */
     public void onMouseReleased(MouseEvent e) {
         if (isDragging && unidadSeleccionada != null) {
             int fila = e.getY() / vista.getTamañoCelda().height;
@@ -90,12 +136,17 @@ public class PresentadorTablero {
             casillaInicial = null;
             vista.setIsDragging(false); // Notificar a la vista
             vista.setUnidadSeleccionada(null);
-            
+
             // Notificar al modelo que se actualizó
             modeloTablero.actualizarTablero();
         }
     }
 
+    /**
+     * Maneja el evento cuando se arrastra el ratón en el tablero.
+     *
+     * @param e el evento de ratón
+     */
     public void onMouseDragged(MouseEvent e) {
         if (isDragging && unidadSeleccionada != null) {
             int fila = e.getY() / vista.getTamañoCelda().height;
@@ -126,7 +177,11 @@ public class PresentadorTablero {
         }
     }
 
-    // Métodos de lógica
+    /**
+     * Rota la unidad especificada en el tablero.
+     *
+     * @param ubicacionUnidad la unidad a rotar
+     */
     private void rotarUnidad(MUbicacionUnidad ubicacionUnidad) {
         ModeloUnidad unidad = ubicacionUnidad.getUnidad();
         Orientacion nuevaOrientacion = (unidad.getOrientacion() == Orientacion.HORIZONTAL) ? Orientacion.VERTICAL : Orientacion.HORIZONTAL;
@@ -156,6 +211,12 @@ public class PresentadorTablero {
         modeloTablero.actualizarTablero();
     }
 
+    /**
+     * Mueve la unidad especificada a una nueva casilla en el tablero.
+     *
+     * @param ubicacionUnidad la unidad a mover
+     * @param nuevaCasillaAncla la nueva casilla ancla para la unidad
+     */
     private void moverUnidad(MUbicacionUnidad ubicacionUnidad, ModeloCasilla nuevaCasillaAncla) {
         ModeloUnidad unidad = ubicacionUnidad.getUnidad();
 
@@ -180,6 +241,13 @@ public class PresentadorTablero {
         }
     }
 
+    /**
+     * Calcula las casillas que ocupará una unidad en base a una casilla ancla.
+     *
+     * @param casillaAncla la casilla ancla
+     * @param unidad la unidad a colocar
+     * @return un conjunto de casillas que ocupará la unidad, o null si no es posible colocarla
+     */
     private Set<ModeloCasilla> calcularCasillasUnidad(ModeloCasilla casillaAncla, ModeloUnidad unidad) {
         Set<ModeloCasilla> casillas = new HashSet<>();
         int x = casillaAncla.getCoordenada().getX();
@@ -209,6 +277,13 @@ public class PresentadorTablero {
         return casillas;
     }
 
+    /**
+     * Verifica si una unidad se puede colocar en un conjunto de casillas especificado.
+     *
+     * @param casillas el conjunto de casillas
+     * @param unidadActual la unidad que se desea colocar
+     * @return true si la unidad se puede colocar, false en caso contrario
+     */
     private boolean puedeColocarUnidad(Set<ModeloCasilla> casillas, MUbicacionUnidad unidadActual) {
         for (ModeloCasilla casilla : casillas) {
             MUbicacionUnidad unidadEnCasilla = casilla.getUnidadOcupante();
@@ -224,6 +299,11 @@ public class PresentadorTablero {
         return true;
     }
 
+    /**
+     * Coloca una unidad en el tablero en las casillas especificadas.
+     *
+     * @param ubicacionUnidad la unidad a colocar
+     */
     private void colocarUnidad(MUbicacionUnidad ubicacionUnidad) {
         modeloTablero.getUnidades().add(ubicacionUnidad);
         for (ModeloCasilla casilla : ubicacionUnidad.getCasillasOcupadas()) {
@@ -234,6 +314,11 @@ public class PresentadorTablero {
         modeloTablero.actualizarTablero();
     }
 
+    /**
+     * Remueve una unidad del tablero.
+     *
+     * @param ubicacionUnidad la unidad a remover
+     */
     private void removerUnidad(MUbicacionUnidad ubicacionUnidad) {
         modeloTablero.getUnidades().remove(ubicacionUnidad);
         for (ModeloCasilla casilla : ubicacionUnidad.getCasillasOcupadas()) {
@@ -243,7 +328,10 @@ public class PresentadorTablero {
         // Notificar al modelo que se actualizó
         modeloTablero.actualizarTablero();
     }
-    
+
+    /**
+     * Limpia todas las adyacencias en el tablero.
+     */
     private void limpiarAdyacencias() {
         ModeloCasilla[][] casillas = modeloTablero.getCasillas();
         for (int i = 0; i < casillas.length; i++) {
@@ -253,12 +341,22 @@ public class PresentadorTablero {
         }
     }
 
+    /**
+     * Remarca las adyacencias de todas las unidades en el tablero.
+     */
     private void remarcarAdyacencias() {
         for (MUbicacionUnidad ubicacionUnidad : modeloTablero.getUnidades()) {
             marcarAdyacentes(ubicacionUnidad.getCasillasOcupadas(), ubicacionUnidad, true);
         }
     }
 
+    /**
+     * Marca o desmarca las casillas adyacentes a un conjunto de casillas especificado.
+     *
+     * @param casillas el conjunto de casillas
+     * @param unidad la unidad para la cual se marcarán las adyacencias
+     * @param marcar true para marcar, false para desmarcar
+     */
     private void marcarAdyacentes(Set<ModeloCasilla> casillas, MUbicacionUnidad unidad, boolean marcar) {
         for (ModeloCasilla casilla : casillas) {
             for (ModeloCasilla adyacente : obtenerAdyacentes(casilla)) {
@@ -273,6 +371,12 @@ public class PresentadorTablero {
         }
     }
 
+    /**
+     * Obtiene las casillas adyacentes a una casilla especificada.
+     *
+     * @param casilla la casilla para la cual se desean obtener las adyacencias
+     * @return un conjunto de casillas adyacentes
+     */
     private Set<ModeloCasilla> obtenerAdyacentes(ModeloCasilla casilla) {
         Set<ModeloCasilla> adyacentes = new HashSet<>();
         int x = casilla.getCoordenada().getX();
@@ -291,6 +395,9 @@ public class PresentadorTablero {
         return adyacentes;
     }
 
+    /**
+     * Inicializa las naves en el tablero en sus posiciones predeterminadas.
+     */
     private void inicializarNaves() {
         // Lista para almacenar las unidades creadas
         List<ModeloUnidad> unidades = new ArrayList<>();
@@ -356,23 +463,42 @@ public class PresentadorTablero {
         vista.actualizarVista();
     }
 
+    /**
+     * Obtiene el modelo del tablero del juego.
+     *
+     * @return el modelo del tablero
+     */
     public ModeloTablero getModeloTablero() {
         return modeloTablero;
     }
 
+    /**
+     * Envía un ataque al servidor en las coordenadas especificadas.
+     *
+     * @param fila la coordenada de la fila
+     * @param columna la coordenada de la columna
+     */
     public void enviarAtaque(int fila, int columna) {
         // envia el ataque al servidor
         ClientConnection.getInstance().atacar(fila, columna);
     }
-    
+
+    /**
+     * Establece el listener para los eventos de ataque.
+     *
+     * @param listener el listener de ataque
+     */
     public void setAtaqueListener(AtaqueListener listener) {
         this.ataqueListener = listener;
     }
 
+    /**
+     * Obtiene el listener para los eventos de ataque.
+     *
+     * @return el listener de ataque
+     */
     public AtaqueListener getAtaqueListener() {
         return ataqueListener;
     }
-    
-    
 
 }
