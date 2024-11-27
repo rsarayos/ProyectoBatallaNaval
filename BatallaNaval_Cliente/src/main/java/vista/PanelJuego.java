@@ -15,7 +15,9 @@ import presentador.Juego;
  */
 public class PanelJuego extends JPanel {
     
-    // Referencia al objeto Juego
+    /**
+     * Referencia al objeto Juego.
+     */
     private Juego juego;
 
     /**
@@ -52,6 +54,15 @@ public class PanelJuego extends JPanel {
         System.out.println("Size: " + Juego.GAME_ANCHO + " : " + Juego.GAME_ALTO);
     }
     
+    /**
+     * Agrega un componente al panel en la posición y tamaño especificados.
+     *
+     * @param componente el componente a agregar
+     * @param x la coordenada x de la posición del componente
+     * @param y la coordenada y de la posición del componente
+     * @param ancho el ancho del componente
+     * @param alto el alto del componente
+     */
     public void agregarComponente(JComponent componente, int x, int y, int ancho, int alto) {
         componente.setBounds(x, y, ancho, alto);
         add(componente);
@@ -59,6 +70,11 @@ public class PanelJuego extends JPanel {
         repaint();
     }
     
+    /**
+     * Quita un componente del panel.
+     *
+     * @param componente el componente a quitar
+     */
     public void quitarComponente(JComponent componente) {
         remove(componente);
         revalidate();

@@ -6,14 +6,36 @@ import java.net.Socket;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Clase ClientManager que gestiona la conexión de los clientes.
+ * Esta clase proporciona métodos para agregar, obtener y eliminar clientes, así como para asociar cada cliente con su respectivo jugador.
+ * 
+ * @author af_da
+ */
 public class ClientManager {
 
-    // Mapa para almacenar el socket y su clientId
+    /**
+     * Mapa para almacenar el socket y su clientId.
+     */
     private static Map<Socket, String> clientToIdMap = new ConcurrentHashMap<>();
+    
+    /**
+     * Mapa para almacenar el clientId y su socket asociado.
+     */
     private static Map<String, Socket> idToClientMap = new ConcurrentHashMap<>();
+    
+    /**
+     * Mapa para almacenar el clientId y el objeto Jugador asociado.
+     */
     private static Map<String, Jugador> clientIdToJugadorMap = new ConcurrentHashMap<>();
 
-    // Método para agregar un cliente y asociar su clientId con un Jugador
+    /**
+     * Método para agregar un cliente y asociar su clientId con un Jugador.
+     * 
+     * @param clientSocket Socket del cliente.
+     * @param clientId Identificador del cliente.
+     * @param jugador Objeto Jugador asociado al cliente.
+     */
     public static void addClient(Socket clientSocket, String clientId, Jugador jugador) {
         // Verificar si clientSocket y clientId son no nulos antes de agregar
         if (clientSocket == null || clientId == null || jugador == null) {
@@ -28,7 +50,12 @@ public class ClientManager {
         System.out.println("Cliente agregado: " + clientId);
     }
 
-    // Método para obtener el Jugador dado el clientId
+    /**
+     * Método para obtener el Jugador dado el clientId.
+     * 
+     * @param clientId Identificador del cliente.
+     * @return Objeto Jugador asociado al clientId.
+     */
     public static synchronized Jugador getJugadorByClientId(String clientId) {
         if (clientId == null) {
             System.out.println("Error: El clientId no puede ser nulo.");
@@ -37,7 +64,12 @@ public class ClientManager {
         return clientIdToJugadorMap.get(clientId);
     }
 
-    // Método para obtener el clientId dado el socket
+    /**
+     * Método para obtener el clientId dado el socket.
+     * 
+     * @param clientSocket Socket del cliente.
+     * @return Identificador del cliente asociado al socket.
+     */
     public static synchronized String getClientId(Socket clientSocket) {
         if (clientSocket == null) {
             System.out.println("Error: El clientSocket no puede ser nulo.");
@@ -46,7 +78,12 @@ public class ClientManager {
         return clientToIdMap.get(clientSocket);
     }
 
-    // Método para obtener el socket dado el clientId
+    /**
+     * Método para obtener el socket dado el clientId.
+     * 
+     * @param clientId Identificador del cliente.
+     * @return Socket asociado al clientId.
+     */
     public static synchronized Socket getClientSocket(String clientId) {
         if (clientId == null) {
             System.out.println("Error: El clientId no puede ser nulo.");
@@ -55,7 +92,11 @@ public class ClientManager {
         return idToClientMap.get(clientId);
     }
 
-    // Método para eliminar un cliente cuando se desconecta
+    /**
+     * Método para eliminar un cliente cuando se desconecta.
+     * 
+     * @param clientSocket Socket del cliente a eliminar.
+     */
     public static synchronized void removeClient(Socket clientSocket) {
         if (clientSocket == null) {
             System.out.println("Error: El clientSocket no puede ser nulo al intentar eliminarlo.");
@@ -72,6 +113,12 @@ public class ClientManager {
         }
     }
 
+    /**
+     * Método para obtener un jugador que no coincida con el clientId dado.
+     * 
+     * @param excludeClientId Identificador del cliente a excluir.
+     * @return Objeto Jugador que no coincide con el clientId excluido, o null si no se encuentra.
+     */
     public static synchronized Jugador getOtherPlayer(String excludeClientId) {
         if (excludeClientId == null) {
             System.out.println("Error: El excludeClientId no puede ser nulo.");

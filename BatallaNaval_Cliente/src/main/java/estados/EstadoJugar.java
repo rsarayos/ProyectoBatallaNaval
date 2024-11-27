@@ -116,6 +116,11 @@ public class EstadoJugar implements IEstadoJuego {
 
     }
 
+    /**
+     * Maneja la respuesta cuando un jugador se rinde durante el juego.
+     *
+     * @param mensaje un mapa que contiene los datos del mensaje recibido
+     */
     public void handleRendirseResponse(Map<String, Object> mensaje) {
         String ganador = (String) mensaje.get("ganador");
         // Notificar al presentador que el juego ha terminado

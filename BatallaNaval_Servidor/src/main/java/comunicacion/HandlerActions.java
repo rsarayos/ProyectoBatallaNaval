@@ -1,29 +1,46 @@
 package comunicacion;
 
-import Convertidores.PruebaDeserializer;
 import dominio.Jugador;
-import dto.PruebaDTO;
 import enums.AccionesJugador;
-import static enums.AccionesJugador.ATACAR;
-import static enums.AccionesJugador.ORDENAR;
 import enums.ControlPartida;
 import java.io.IOException;
 import java.net.Socket;
-import java.util.HashMap;
 import java.util.Map;
 import negocio.PartidaBO;
-import org.msgpack.core.MessageUnpacker;
 
+/**
+ * Clase que maneja las acciones recibidas desde los clientes en el juego de Batalla Naval.
+ * Esta clase sigue el patrón Singleton para asegurar que solo exista una única instancia de HandlerActions.
+ * Gestiona las solicitudes de los jugadores y delega la lógica a PartidaBO para ejecutar las acciones del juego.
+ *
+ * @author af_da
+ */
 public class HandlerActions {
 
+    /**
+     * Objeto que maneja la lógica de negocio para gestionar las partidas del juego.
+     */
     private PartidaBO partidaBO;
+    
+    /**
+     * Instancia única de HandlerActions (patrón Singleton).
+     */
     private static HandlerActions instance = null;
 
+    /**
+     * Constructor privado para asegurar que no se creen instancias adicionales.
+     * Inicializa el objeto PartidaBO.
+     */
     private HandlerActions() {
         this.partidaBO = new PartidaBO();
     }
 
-    // Método estático para obtener la única instancia de HandlerActions
+    /**
+     * Método estático para obtener la única instancia de HandlerActions.
+     * Si la instancia no existe, se crea una nueva.
+     *
+     * @return La instancia única de HandlerActions.
+     */
     public static synchronized HandlerActions getInstance() {
         if (instance == null) {
             instance = new HandlerActions();
@@ -31,6 +48,13 @@ public class HandlerActions {
         return instance;
     }
 
+    /**
+     * Método para manejar las acciones solicitadas por el cliente.
+     * Este método procesa la acción solicitada, llama a los métodos correspondientes de PartidaBO y envía las respuestas a los clientes.
+     *
+     * @param request Mapa que contiene los datos de la solicitud, incluyendo la acción y otros parámetros necesarios.
+     * @throws IOException En caso de error al enviar respuestas a los clientes.
+     */
     public void handlerAction(Map<String, Object> request) throws IOException {
         String accion = (String) request.get("accion");
         String clientId = (String) request.get("clientId"); // Puedes pasarlo desde la request

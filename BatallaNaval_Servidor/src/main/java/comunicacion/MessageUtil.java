@@ -9,11 +9,20 @@ import java.net.Socket;
 import java.util.Map;
 
 /**
- * Utilidad para enviar mensajes a través de un Socket
+ * Utilidad para enviar mensajes a través de un Socket.
+ * Esta clase proporciona un método para convertir un mapa de datos en formato JSON
+ * y enviarlo al cliente utilizando MessagePack para la serialización.
+ * @author af_da
  */
 public class MessageUtil {
 
-    // Método para enviar un Map como mensaje a un cliente específico
+    /**
+     * Método para enviar un mapa de datos como mensaje a un cliente específico a través de un socket.
+     * Convierte el mapa a una cadena JSON y lo envía utilizando MessagePack.
+     *
+     * @param clientSocket El socket del cliente al cual se enviará el mensaje.
+     * @param mensajeMap   El mapa que contiene los datos del mensaje a enviar.
+     */
     public static void enviarMensaje(Socket clientSocket, Map<String, Object> mensajeMap) {
         try {
             // Convertir el Map a una cadena JSON usando Jackson

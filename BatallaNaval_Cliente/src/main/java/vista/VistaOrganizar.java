@@ -1,45 +1,81 @@
 package vista;
 
-import comunicacion.ClientConnection;
-import estados.EstadoJugar;
 import ivistas.IVistaOrganizar;
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Graphics;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import modelo.MUbicacionUnidad;
-import modelo.ModeloCasilla;
-import modelo.ModeloTablero;
-import modelo.ModeloUnidad;
 import presentador.Juego;
 import presentador.PresentadorOrganizar;
 
 /**
- *
+ * Clase que representa la vista de la fase de organización del tablero en el juego.
+ * Los jugadores pueden organizar sus unidades y seleccionar el color de las naves antes de comenzar la partida.
+ * 
  * @author alex_
  */
 public class VistaOrganizar implements IVistasPanel, IVistaOrganizar {
 
+    /**
+     * Panel principal del juego donde se agregan los componentes visuales.
+     */
     private PanelJuego panelJuego;
+    
+    /**
+     * Vista del tablero donde el jugador organiza sus unidades.
+     */
     private VistaTablero tablero;
+    
+    /**
+     * Selector de color para las naves.
+     */
     private JComboBox<String> colorSelector;
+    
+    /**
+     * Botón para confirmar que el jugador está listo para comenzar el juego.
+     */
     private JButton botonJugar;
+    
+    /**
+     * Panel que representa visualmente el portaaviones.
+     */
     private JPanel portaaviones;
+    
+    /**
+     * Panel que representa visualmente el crucero.
+     */
     private JPanel crucero;
+    
+    /**
+     * Panel que representa visualmente el submarino.
+     */
     private JPanel submarino;
+    
+    /**
+     * Panel que representa visualmente el barco.
+     */
     private JPanel barco;
+    
+    /**
+     * Etiqueta que muestra un mensaje cuando el jugador está esperando.
+     */
     private JLabel labelEsperando;
+    
+    /**
+     * Presentador que maneja la lógica de organización de las naves.
+     */
     private PresentadorOrganizar presentador;
 
+    /**
+     * Constructor de la clase VistaOrganizar.
+     * Inicializa el panel de juego, crea los componentes y define sus acciones.
+     * 
+     * @param panelJuego Panel principal del juego.
+     */
     public VistaOrganizar(PanelJuego panelJuego) {
         this.panelJuego = panelJuego;
         this.presentador = new PresentadorOrganizar(this);
@@ -47,6 +83,11 @@ public class VistaOrganizar implements IVistasPanel, IVistaOrganizar {
         accionesComponentes();
     }
 
+    /**
+     * Dibuja la interfaz gráfica de la vista de organización del tablero.
+     * 
+     * @param g Objeto Graphics para dibujar la interfaz.
+     */
     @Override
     public void dibujar(Graphics g) {
         g.setColor(UtilesVista.COLOR_FONDO);
@@ -88,6 +129,9 @@ public class VistaOrganizar implements IVistasPanel, IVistaOrganizar {
         }
     }
     
+    /**
+     * Crea y configura los componentes gráficos de la vista de organización.
+     */
     @Override
     public void crearComponentes() {
         this.tablero = new VistaTablero();
@@ -101,6 +145,9 @@ public class VistaOrganizar implements IVistasPanel, IVistaOrganizar {
         this.barco = UtilesVista.crearBarcoVista((30 * 1), 30, UtilesVista.BARCO_NEGRO);
     }
 
+    /**
+     * Define las acciones asociadas a los componentes de la vista.
+     */
     @Override
     public void accionesComponentes() {
         // Agregar acción al botón
@@ -115,6 +162,9 @@ public class VistaOrganizar implements IVistasPanel, IVistaOrganizar {
         });
     }
     
+    /**
+     * Quita los componentes gráficos del panel de juego.
+     */
     @Override
     public void quitarComponentes() {
         this.panelJuego.quitarComponente(botonJugar);
@@ -129,6 +179,11 @@ public class VistaOrganizar implements IVistasPanel, IVistaOrganizar {
         }
     }
 
+    /**
+     * Muestra un mensaje indicando que un jugador está esperando.
+     * 
+     * @param nombreJugador Nombre del jugador que está esperando.
+     */
     @Override
     public void mostrarMensajeJugadorEsperando(String nombreJugador) {
         if (labelEsperando == null) {
@@ -141,16 +196,29 @@ public class VistaOrganizar implements IVistasPanel, IVistaOrganizar {
         }
     }
 
+    /**
+     * Obtiene la vista del tablero.
+     * 
+     * @return VistaTablero utilizada para organizar las unidades.
+     */
     @Override
     public VistaTablero getTablero() {
         return tablero;
     }
 
+    /**
+     * Muestra un mensaje emergente con la información proporcionada.
+     * 
+     * @param mensaje Mensaje a mostrar.
+     */
     @Override
     public void mostrarMensaje(String mensaje) {
         JOptionPane.showMessageDialog(panelJuego, mensaje);
     }
 
+    /**
+     * Bloquea la interfaz para evitar la interacción del jugador.
+     */
     @Override
     public void bloquearInterfaz() {
         // Deshabilitar botones y componentes para evitar interacción
@@ -159,12 +227,20 @@ public class VistaOrganizar implements IVistasPanel, IVistaOrganizar {
         tablero.setEnabled(false);
     }
 
+    /**
+     * Navega a la fase de juego, quitando los componentes actuales.
+     */
     @Override
     public void navegarAJugar() {
         quitarComponentes();
         
     }
 
+    /**
+     * Actualiza el color de los paneles laterales que representan las naves.
+     * 
+     * @param nuevoColor Nuevo color a aplicar a los paneles.
+     */
     @Override
     public void actualizarColorPanelesLaterales(Color nuevoColor) {
         portaaviones.setBackground(nuevoColor);
@@ -173,6 +249,11 @@ public class VistaOrganizar implements IVistasPanel, IVistaOrganizar {
         barco.setBackground(nuevoColor);
     }
 
+    /**
+     * Obtiene el presentador asociado a la vista de organización.
+     * 
+     * @return PresentadorOrganizar asociado a la vista.
+     */
     public PresentadorOrganizar getPresentador() {
         return presentador;
     }

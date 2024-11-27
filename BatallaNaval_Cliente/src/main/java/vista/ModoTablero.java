@@ -1,6 +1,7 @@
 package vista;
 
 /**
+ * Enumeración que representa los diferentes modos del tablero en el juego.
  *
  * @author alex_
  */

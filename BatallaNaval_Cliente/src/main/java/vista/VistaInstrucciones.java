@@ -7,15 +7,34 @@ import presentador.Juego;
 import presentador.PresentadorInstrucciones;
 
 /**
+ * Clase que representa la vista de instrucciones del juego. Implementa las interfaces IVistasPanel e IVistaInstrucciones.
+ * Proporciona la interfaz gráfica donde se muestran las instrucciones del juego al jugador.
  *
  * @author alex_
  */
 public class VistaInstrucciones implements IVistasPanel, IVistaInstrucciones {
     
+    /**
+     * El panel principal del juego donde se agregarán los componentes de la vista.
+     */
     private PanelJuego panelJuego;
+    
+    /**
+     * Botón para regresar al menú principal.
+     */
     private JButton botonRegresar;
+    
+    /**
+     * Presentador para gestionar la lógica de la vista de instrucciones.
+     */
     private PresentadorInstrucciones presentador;
     
+    /**
+     * Constructor de la clase VistaInstrucciones.
+     *
+     * @param panelJuego El panel principal del juego donde se agregarán los componentes de la vista.
+     * @param juego La instancia del juego actual.
+     */
     public VistaInstrucciones(PanelJuego panelJuego, Juego juego) {
         this.panelJuego = panelJuego;
         this.presentador = new PresentadorInstrucciones(this, juego);
@@ -23,6 +42,11 @@ public class VistaInstrucciones implements IVistasPanel, IVistaInstrucciones {
         accionesComponentes();
     }
 
+    /**
+     * Dibuja la vista de instrucciones en el panel de juego.
+     *
+     * @param g El objeto Graphics utilizado para dibujar los elementos gráficos.
+     */
     @Override
     public void dibujar(Graphics g) {
         g.setColor(UtilesVista.COLOR_FONDO);
@@ -63,6 +87,9 @@ public class VistaInstrucciones implements IVistasPanel, IVistaInstrucciones {
         }
     }
 
+    /**
+     * Define las acciones para los componentes de la vista, como el botón de regresar.
+     */
     @Override
     public void accionesComponentes() {
         // Agregar acción al botón
@@ -71,11 +98,17 @@ public class VistaInstrucciones implements IVistasPanel, IVistaInstrucciones {
         });
     }
 
+    /**
+     * Crea los componentes necesarios para la vista de instrucciones, como el botón de regresar.
+     */
     @Override
     public void crearComponentes() {
         this.botonRegresar = UtilesVista.crearBoton("Regresar");
     }
 
+    /**
+     * Quita los componentes de la vista de instrucciones del panel de juego.
+     */
     @Override
     public void quitarComponentes() {
         panelJuego.quitarComponente(botonRegresar);
