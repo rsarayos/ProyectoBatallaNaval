@@ -14,8 +14,8 @@ public class Partida {
 
     public static Partida instance;
     private List<Jugador> jugadores = new ArrayList<>();
-//    private Tablero tableroJugador1;
-//    private Tablero tableroJugador2;
+    // private Tablero tableroJugador1;
+    // private Tablero tableroJugador2;
     private Map<String, Tablero> tableros = new HashMap();
     private Jugador ganador;
     private Long duracion;
@@ -53,21 +53,19 @@ public class Partida {
         this.tableros.put(id, tablero);
     }
 
-//    public Tablero getTableroJugador1() {
-//        return tableroJugador1;
-//    }
-//
-//    public void setTableroJugador1(Tablero tableroJugador) {
-//        this.tableroJugador1 = tableroJugador;
-//    }
-//
-//    public Tablero getTableroJugador2() {
-//        return tableroJugador2;
-//    }
-//
-//    public void setTableroJugador2(Tablero tableroJugador2) {
-//        this.tableroJugador2 = tableroJugador2;
-//    }
+    public void ReiniciarPartida() {
+        this.ganador = null;
+        this.duracion = null;
+        this.estado = null;
+        this.jugadorTurno = null;
+    }
+
+    public void limpiarTableros() {
+        this.tableros.forEach((k, tablero) -> {
+            tablero.limpiarTablero();
+        });
+    }
+
     public Jugador getGanador() {
         return ganador;
     }

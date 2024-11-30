@@ -12,17 +12,17 @@ import java.util.Map;
  */
 public class UbicacionUnidad {
     private Unidad unidad;
-    private Map<Casilla,Boolean> casillas;
+    private Map<Casilla, Boolean> casillas;
 
     public UbicacionUnidad(Unidad unidad, Map<Casilla, Boolean> casillas) {
         this.unidad = unidad;
         this.casillas = casillas;
     }
 
-    public void addCasilla(Casilla casilla, Boolean bool){
+    public void addCasilla(Casilla casilla, Boolean bool) {
         this.casillas.put(casilla, bool);
     }
-    
+
     public Unidad getUnidad() {
         return unidad;
     }
@@ -35,6 +35,10 @@ public class UbicacionUnidad {
         return casillas;
     }
 
+    public void limipiarCasillas() {
+        this.casillas.clear();
+    }
+
     public void setCasillas(Map<Casilla, Boolean> casillas) {
         this.casillas = casillas;
     }
@@ -43,6 +47,5 @@ public class UbicacionUnidad {
     public String toString() {
         return "UbicacionUnidad{" + "unidad=" + unidad + ", casillas=" + casillas + '}';
     }
-    
-    
+
 }

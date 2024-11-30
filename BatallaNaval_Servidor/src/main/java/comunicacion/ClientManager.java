@@ -135,4 +135,8 @@ public class ClientManager {
         return null; // Si no se encuentra ningún jugador
     }
 
+    public static synchronized Map<String, Jugador> getClientIdToJugadorMap() {
+        return clientIdToJugadorMap;
+    }
+
 }

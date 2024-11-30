@@ -9,19 +9,22 @@ import java.util.Map;
 import negocio.PartidaBO;
 
 /**
- * Clase que maneja las acciones recibidas desde los clientes en el juego de Batalla Naval.
- * Esta clase sigue el patrón Singleton para asegurar que solo exista una única instancia de HandlerActions.
- * Gestiona las solicitudes de los jugadores y delega la lógica a PartidaBO para ejecutar las acciones del juego.
+ * Clase que maneja las acciones recibidas desde los clientes en el juego de
+ * Batalla Naval. Esta clase sigue el patrón Singleton para asegurar que solo
+ * exista una única instancia de HandlerActions. Gestiona las solicitudes de los
+ * jugadores y delega la lógica a PartidaBO para ejecutar las acciones del
+ * juego.
  *
  * @author af_da
  */
 public class HandlerActions {
 
     /**
-     * Objeto que maneja la lógica de negocio para gestionar las partidas del juego.
+     * Objeto que maneja la lógica de negocio para gestionar las partidas del
+     * juego.
      */
     private PartidaBO partidaBO;
-    
+
     /**
      * Instancia única de HandlerActions (patrón Singleton).
      */
@@ -36,8 +39,8 @@ public class HandlerActions {
     }
 
     /**
-     * Método estático para obtener la única instancia de HandlerActions.
-     * Si la instancia no existe, se crea una nueva.
+     * Método estático para obtener la única instancia de HandlerActions. Si la
+     * instancia no existe, se crea una nueva.
      *
      * @return La instancia única de HandlerActions.
      */
@@ -49,10 +52,12 @@ public class HandlerActions {
     }
 
     /**
-     * Método para manejar las acciones solicitadas por el cliente.
-     * Este método procesa la acción solicitada, llama a los métodos correspondientes de PartidaBO y envía las respuestas a los clientes.
+     * Método para manejar las acciones solicitadas por el cliente. Este método
+     * procesa la acción solicitada, llama a los métodos correspondientes de
+     * PartidaBO y envía las respuestas a los clientes.
      *
-     * @param request Mapa que contiene los datos de la solicitud, incluyendo la acción y otros parámetros necesarios.
+     * @param request Mapa que contiene los datos de la solicitud, incluyendo la
+     * acción y otros parámetros necesarios.
      * @throws IOException En caso de error al enviar respuestas a los clientes.
      */
     public void handlerAction(Map<String, Object> request) throws IOException {
@@ -106,7 +111,11 @@ public class HandlerActions {
                 MessageUtil.enviarMensaje(jugadorSocket, response);
                 MessageUtil.enviarMensaje(otroJugadorSocket, response);
             }
+        } else if (AccionesJugador.ESTADISTICAS.toString().equalsIgnoreCase(accion)) {
+            Map<String, Object> response = partidaBO.obtenerEstadisticasJugador(clientId);
+            MessageUtil.enviarMensaje(clientSocket, response);
         } else {
+            System.out.println("Acción no reconocida: " + accion);
         }
     }
 }

@@ -43,6 +43,14 @@ public class Tablero {
         this.unidades.add(ubicacion);
     }
 
+    public void limpiarTablero() {
+        this.unidades.forEach((ubicacion) -> {
+            ubicacion.limipiarCasillas();
+        });
+        this.disparosRecibidos.clear();
+        this.numNavesDestruidas = 0;
+    }
+
     public void addDisparoRecibido(Disparo disparo) {
         this.disparosRecibidos.add(disparo);
     }
@@ -74,7 +82,5 @@ public class Tablero {
     public void setDisparosRecibidos(List<Disparo> disparosRecibidos) {
         this.disparosRecibidos = disparosRecibidos;
     }
-    
-    
-    
+
 }

@@ -22,24 +22,25 @@ public class EstadoJugar implements IEstadoJuego {
      * Referencia al juego principal.
      */
     private Juego juego;
-    
+
     /**
      * Vista que representa la interfaz de juego.
      */
     private VistaJuego vista;
-    
+
     /**
      * Presentador asociado a la vista de juego.
      */
     private PresentadorJuego presentador;
-    
+
     /**
      * Mapa que contiene los comandos disponibles en el estado de juego.
      */
     private Map<String, IComando> comandos;
 
     /**
-     * Constructor que inicializa el estado de juego con el tablero del jugador, su turno y el nombre del oponente.
+     * Constructor que inicializa el estado de juego con el tablero del jugador,
+     * su turno y el nombre del oponente.
      *
      * @param juego la referencia al juego principal
      * @param tableroJugador la vista del tablero del jugador
@@ -59,7 +60,8 @@ public class EstadoJugar implements IEstadoJuego {
     }
 
     /**
-     * Inicializa los comandos disponibles para manejar los mensajes en este estado.
+     * Inicializa los comandos disponibles para manejar los mensajes en este
+     * estado.
      */
     private void inicializarComandos() {
         comandos = new HashMap<>();
@@ -92,7 +94,10 @@ public class EstadoJugar implements IEstadoJuego {
      */
     @Override
     public void handleMessage(Map<String, Object> mensaje) {
-        String accion = (String) mensaje.get("accion");
+        if (mensaje == null) {
+            return;
+        }
+        String accion = (String) mensaje.getOrDefault("accion", "default");
         if (accion == null) {
             System.err.println("Mensaje sin 'accion': " + mensaje);
             return;
