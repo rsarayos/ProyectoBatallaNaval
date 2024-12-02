@@ -18,12 +18,14 @@ public class Jugador {
     private List<Unidad> unidades;
     private String id;
     private boolean listo;
+    private boolean quiereRevancha;
 
     public Jugador(String nombre, Estadisticas estadisticas, List<Unidad> unidades) {
         this.nombre = nombre;
         this.estadisticas = estadisticas;
         this.unidades = unidades;
         this.listo = false;
+        this.quiereRevancha = false;
     }
 
     public Jugador(String nombre, Estadisticas estadisticas) {
@@ -81,6 +83,14 @@ public class Jugador {
 
     public void setListo(boolean listo) {
         this.listo = listo;
+    }
+    
+    public boolean isQuiereRevancha() {
+        return quiereRevancha;
+    }
+
+    public void setQuiereRevancha(boolean quiereRevancha) {
+        this.quiereRevancha = quiereRevancha;
     }
 
 }

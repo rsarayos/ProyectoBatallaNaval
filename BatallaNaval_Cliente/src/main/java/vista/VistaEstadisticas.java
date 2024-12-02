@@ -30,15 +30,17 @@ public class VistaEstadisticas implements IVistasPanel, IVistaEstadisticas {
 
     private JLabel lblGanador;
     private JLabel lblTiempoPartida;
+    private JLabel lblEstadisticas;
+    private JScrollPane scrollPane;
 
-    public VistaEstadisticas(PanelJuego panelJuego, Map<String, Object> estadisticas, String ganador, String tiempoPartida) {
+    public VistaEstadisticas(PanelJuego panelJuego, Map<String, Object> estadisticas, String ganador, String tiempoPartida, Juego juego) {
         this.panelJuego = panelJuego;
         this.estadisticas = estadisticas;
         this.ganador = ganador;
         this.tiempoPartida = tiempoPartida;
-        this.presentador = new PresentadorEstadisticas(this);
+        this.presentador = new PresentadorEstadisticas(this, juego);
         crearComponentes();
-//        accionesComponentes();
+        accionesComponentes();
     }
 
     @Override
@@ -56,8 +58,8 @@ public class VistaEstadisticas implements IVistasPanel, IVistaEstadisticas {
         crearTablaEstadisticas();
 
         // Crear los botones
-        btnVolverAJugar = new JButton("Volver a Jugar");
-        btnSalir = new JButton("Salir al Menú");
+        btnVolverAJugar = UtilesVista.crearBoton("Volver a jugar");
+        btnSalir = UtilesVista.crearBoton("Salir");
 
         // Configurar los componentes y agregarlos al panel
         configurarComponentes();
@@ -65,7 +67,8 @@ public class VistaEstadisticas implements IVistasPanel, IVistaEstadisticas {
 
     @Override
     public void accionesComponentes() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+        btnVolverAJugar.addActionListener(e -> presentador.volverAJugar());
+        btnSalir.addActionListener(e -> presentador.salirAlMenu());
     }
 
     @Override
@@ -80,12 +83,13 @@ public class VistaEstadisticas implements IVistasPanel, IVistaEstadisticas {
 
     @Override
     public void quitarComponentes() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
+        panelJuego.quitarComponente(lblGanador);
+        panelJuego.quitarComponente(lblTiempoPartida);
+        panelJuego.quitarComponente(lblEstadisticas);
+        panelJuego.quitarComponente(scrollPane);
+        panelJuego.quitarComponente(btnVolverAJugar);
+        panelJuego.quitarComponente(btnSalir);
 
-    @Override
-    public void volverAJugar() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 
     private void crearTablaEstadisticas() {
@@ -173,23 +177,22 @@ public class VistaEstadisticas implements IVistasPanel, IVistaEstadisticas {
         panelJuego.agregarComponente(lblTiempoPartida, 0, 140, Juego.GAME_ANCHO, 30);
 
         // Posicionar la etiqueta "Estadísticas"
-        JLabel lblEstadisticas = new JLabel("Estadísticas", SwingConstants.CENTER);
+        lblEstadisticas = new JLabel("Estadísticas", SwingConstants.CENTER);
         lblEstadisticas.setFont(UtilesVista.FUENTE_SUBTITULO);
         lblEstadisticas.setForeground(UtilesVista.COLOR_TEXTO_AZUL_OSCURO);
         lblEstadisticas.setBounds(0, 180, Juego.GAME_ANCHO, 30);
         panelJuego.agregarComponente(lblEstadisticas, 0, 180, Juego.GAME_ANCHO, 30);
 
         // Configurar y agregar la tabla
-        JScrollPane scrollPane = new JScrollPane(tablaEstadisticas);
+        scrollPane = new JScrollPane(tablaEstadisticas);
         scrollPane.setBounds(150, 220, 600, 115);
         panelJuego.agregarComponente(scrollPane, 150, 220, 600, 115);
 
-//        // Configurar y agregar los botones
-//        btnVolverAJugar.setBounds(250, 400, 150, 40);
-//        panelJuego.add(btnVolverAJugar);
-//
-//        btnSalir.setBounds(450, 400, 150, 40);
-//        panelJuego.add(btnSalir);
+        // Configurar y agregar los botones
+        panelJuego.agregarComponente(btnVolverAJugar, ((Juego.GAME_ANCHO / 2) - 230), 660, 200, 30);
+
+        // Configurar y agregar los botones
+        panelJuego.agregarComponente(btnSalir, ((Juego.GAME_ANCHO / 2) + 90), 660, 200, 30);
 
         panelJuego.repaint();
 

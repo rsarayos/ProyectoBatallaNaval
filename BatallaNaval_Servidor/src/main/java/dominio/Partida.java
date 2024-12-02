@@ -17,7 +17,7 @@ public class Partida {
     private Map<String, Tablero> tableros = new HashMap();
     private Jugador ganador;
     private long tiempoInicio;
-    private long tiempoFin; 
+    private long tiempoFin;
     private EstadoPartida estado;
     private Jugador jugadorTurno;
     private String codigoAcceso;
@@ -120,23 +120,40 @@ public class Partida {
         }
         return true;
     }
-    
+
     public synchronized void iniciarPartida() {
         this.tiempoInicio = System.currentTimeMillis();
         this.estado = EstadoPartida.EN_CURSO;
     }
-    
+
     public synchronized void finalizarPartida() {
         this.tiempoFin = System.currentTimeMillis();
         this.estado = EstadoPartida.FINALIZADA;
     }
-    
+
     public synchronized long getDuracion() {
         if (tiempoFin > 0 && tiempoInicio > 0) {
             return tiempoFin - tiempoInicio;
         } else {
             return 0;
         }
+    }
+
+    public void removerJugador(Jugador jugador) {
+        jugadores.remove(jugador);
+        tableros.remove(jugador.getId());
+    }
+
+    public boolean ambosQuierenRevancha() {
+        if (jugadores.size() < 2) {
+            return false;
+        }
+        for (Jugador jugador : jugadores) {
+            if (!jugador.isQuiereRevancha()) {
+                return false;
+            }
+        }
+        return true;
     }
 
 }

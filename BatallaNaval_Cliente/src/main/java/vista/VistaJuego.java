@@ -641,6 +641,7 @@ public class VistaJuego implements IVistasPanel, IVistaJuego {
         panelJuego.quitarComponente(lblTemporizador);
         panelJuego.quitarComponente(lblUltimoMensaje);
         panelJuego.quitarComponente(btnRendirse);
+        panelJuego.quitarComponente(btnEstadisticas);
     
     }
 

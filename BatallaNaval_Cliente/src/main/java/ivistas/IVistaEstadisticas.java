@@ -6,6 +6,5 @@ package ivistas;
  */
 public interface IVistaEstadisticas {
     
-    void volverAJugar();
     
 }
