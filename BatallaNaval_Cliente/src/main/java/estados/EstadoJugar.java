@@ -49,7 +49,7 @@ public class EstadoJugar implements IEstadoJuego {
      */
     public EstadoJugar(Juego juego, VistaTablero tableroJugador, boolean tuTurno, String nombreOponente) {
         this.juego = juego;
-        this.vista = new VistaJuego(juego.getPanel());
+        this.vista = new VistaJuego(juego.getPanel(), juego);
         this.presentador = vista.getPresentador();
 
         // variables del juego
@@ -107,7 +107,7 @@ public class EstadoJugar implements IEstadoJuego {
         if (comando != null) {
             comando.execute(mensaje);
         } else {
-            System.out.println("Acción desconocida en EstadoSalaEspera: " + accion);
+            System.out.println("Acción desconocida en EstadoJuego: " + accion);
         }
     }
 
@@ -118,6 +118,15 @@ public class EstadoJugar implements IEstadoJuego {
      */
     public void handleAtacarResponse(Map<String, Object> mensaje) {
         presentador.manejarAtaqueResponse(mensaje);
+
+        // Verificar si el juego ha finalizado
+        String resultado = (String) mensaje.get("resultado");
+        if (resultado != null && resultado.equalsIgnoreCase("PARTIDA_FINALIZADA")) {
+            // Obtener las estadísticas enviadas por el servidor
+            Map<String, Object> estadisticas = (Map<String, Object>) mensaje.get("estadisticas");
+            System.out.println("Se obtuvieron las estadisticas");
+            this.presentador.setEstadisticas(estadisticas);
+        }
 
     }
 

@@ -212,6 +212,9 @@ public class PartidaBO {
 
         // Si todos los jugadores están listos, notificar para iniciar el juego
         if (partida.todosLosJugadoresListos()) {
+            // iniciar el temporizador
+            partida.iniciarPartida();
+
             // Notificar para iniciar el juego
             determinarJugadorInicial();
             notificarIniciarJuego();
@@ -352,6 +355,8 @@ public class PartidaBO {
         }
         // falta guardar los disparos que fallan
         if (estadoPartida) {
+            // para el tiempo
+            partida.finalizarPartida();
             return generarMensajeVictoria(ClientManager.getJugadorByClientId(clientId));
         }
 
@@ -404,10 +409,10 @@ public class PartidaBO {
         mensajeVictoria.put("accion", AccionesJugador.ATACAR.name());
         mensajeVictoria.put("ganador", jugadorGanador.getNombre());
         mensajeVictoria.put(ControlPartida.DETERMINAR_TURNO.name(), null);
-        Map<String, Object> response = obtenerEstadisticasJugador(jugadorGanador.getId());
-        for (Map.Entry<String, Object> entry : response.entrySet()) {
-            System.out.println("Clave: " + entry.getKey() + ", Valor: " + entry.getValue());
-        }
+        
+        
+        Map<String, Object> estadisticas = obtenerEstadisticasJugador(jugadorGanador.getId());
+        mensajeVictoria.put("estadisticas", estadisticas);
         // mensajeVictoria.put("turnos_jugados", turnosJugados);
         // mensajeVictoria.put("naves_restantes", navesRestantes);
         return mensajeVictoria;
@@ -450,16 +455,16 @@ public class PartidaBO {
         Tablero tableroEnemigo = partida.getTableroJugador(jugadorEnemigo.getId());
 
         Map<String, Object> jugadoresRespuestas = new HashMap<>();
-        jugadoresRespuestas.put(clientId, generarEstadisticas(tableroPrincipal, tableroEnemigo, partida.getDuracion()));
-        jugadoresRespuestas.put(jugadorEnemigo.getId(), generarEstadisticas(tableroEnemigo, tableroPrincipal, partida.getDuracion()));
+        jugadoresRespuestas.put(clientId, generarEstadisticas(jugadorPrincipal, tableroPrincipal, tableroEnemigo, partida.getDuracion()));
+        jugadoresRespuestas.put(jugadorEnemigo.getId(), generarEstadisticas(jugadorEnemigo, tableroEnemigo, tableroPrincipal, partida.getDuracion()));
 
         return jugadoresRespuestas;
     }
 
-    private Map<String, Object> generarEstadisticas(Tablero tableroPropio, Tablero tableroEnemigo, long duracionPartida) {
+    private Map<String, Object> generarEstadisticas(Jugador jugador, Tablero tableroPropio, Tablero tableroEnemigo, long duracionPartida) {
         Map<String, Object> estadisticas = new HashMap<>();
 
-        estadisticas.put("accion", AccionesJugador.ESTADISTICAS.toString());
+        estadisticas.put("nombre", jugador.getNombre());
         estadisticas.put("naves_destruidas", tableroEnemigo.getNumNavesDestruidas());
         estadisticas.put("naves_restantes", 11 - tableroEnemigo.getNumNavesDestruidas());
         estadisticas.put("tiempo_partida", duracionPartida);

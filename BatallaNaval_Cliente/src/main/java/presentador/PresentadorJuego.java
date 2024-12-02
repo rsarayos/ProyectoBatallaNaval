@@ -2,6 +2,7 @@ package presentador;
 
 import comunicacion.ClientConnection;
 import enums.ControlPartida;
+import estados.EstadoEstadisticas;
 import ivistas.IVistaJuego;
 import java.util.HashMap;
 import java.util.Map;
@@ -28,14 +29,25 @@ public class PresentadorJuego implements AtaqueListener{
      * Conexión con el servidor.
      */
     private ClientConnection clientConnection;
+    
+    /**
+     * Instancia de la clase juego
+     */
+    private Juego juego;
+    
+    /**
+     * Mapa que contiene las estadisticas de los jugadores.
+     */
+    private Map<String, Object> estadisticas;
 
     /**
      * Constructor que inicializa el presentador con la vista especificada.
      *
      * @param vista la vista del juego
      */
-    public PresentadorJuego(IVistaJuego vista) {
+    public PresentadorJuego(IVistaJuego vista, Juego juego) {
         this.vista = vista;
+        this.juego = juego;
         this.modeloJugador = ModeloJugador.getInstance();
         this.clientConnection = ClientConnection.getInstance();
     }
@@ -136,6 +148,17 @@ public class PresentadorJuego implements AtaqueListener{
      */
     public void finalizarJuegoPorRendicion(String ganador) {
         vista.finalizarJuegoPorRendicion(ganador);
+    }
+
+    public void setEstadisticas(Map<String, Object> estadisticas) {
+        this.estadisticas = estadisticas;
+    }
+
+    /**
+     * Accion del boton para continuar a la vista de estadisticas
+     */
+    public void continuarEstadisticas() {
+        juego.cambiarEstado(new EstadoEstadisticas(juego, estadisticas));
     }
 
 }

@@ -14,11 +14,10 @@ public class Partida {
 
     public static Partida instance;
     private List<Jugador> jugadores = new ArrayList<>();
-    // private Tablero tableroJugador1;
-    // private Tablero tableroJugador2;
     private Map<String, Tablero> tableros = new HashMap();
     private Jugador ganador;
-    private Long duracion;
+    private long tiempoInicio;
+    private long tiempoFin; 
     private EstadoPartida estado;
     private Jugador jugadorTurno;
     private String codigoAcceso;
@@ -55,7 +54,6 @@ public class Partida {
 
     public void ReiniciarPartida() {
         this.ganador = null;
-        this.duracion = null;
         this.estado = null;
         this.jugadorTurno = null;
     }
@@ -72,14 +70,6 @@ public class Partida {
 
     public void setGanador(Jugador ganador) {
         this.ganador = ganador;
-    }
-
-    public Long getDuracion() {
-        return duracion;
-    }
-
-    public void setDuracion(Long duracion) {
-        this.duracion = duracion;
     }
 
     public Tablero getTableroJugador(String id) {
@@ -129,6 +119,24 @@ public class Partida {
             }
         }
         return true;
+    }
+    
+    public synchronized void iniciarPartida() {
+        this.tiempoInicio = System.currentTimeMillis();
+        this.estado = EstadoPartida.EN_CURSO;
+    }
+    
+    public synchronized void finalizarPartida() {
+        this.tiempoFin = System.currentTimeMillis();
+        this.estado = EstadoPartida.FINALIZADA;
+    }
+    
+    public synchronized long getDuracion() {
+        if (tiempoFin > 0 && tiempoInicio > 0) {
+            return tiempoFin - tiempoInicio;
+        } else {
+            return 0;
+        }
     }
 
 }

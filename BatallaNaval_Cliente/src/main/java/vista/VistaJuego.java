@@ -101,6 +101,11 @@ public class VistaJuego implements IVistasPanel, IVistaJuego {
     private JButton btnRendirse;
     
     /**
+     * Botón para continuar a la pantalla de estadisticas al terminar la partida.
+     */
+    private JButton btnEstadisticas;
+    
+    /**
      * El presentador asociado a la vista de juego.
      */
     private PresentadorJuego presentador;
@@ -121,9 +126,9 @@ public class VistaJuego implements IVistasPanel, IVistaJuego {
      *
      * @param panelJuego El panel de juego principal donde se agregarán los componentes.
      */
-    public VistaJuego(PanelJuego panelJuego) {
+    public VistaJuego(PanelJuego panelJuego, Juego juego) {
         this.panelJuego = panelJuego;
-        this.presentador = new PresentadorJuego(this);
+        this.presentador = new PresentadorJuego(this, juego);
         crearComponentes();
         accionesComponentes();
     }
@@ -166,6 +171,7 @@ public class VistaJuego implements IVistasPanel, IVistaJuego {
         tableroEnemigo.getPresentador().setAtaqueListener(presentador);
 
         btnRendirse = UtilesVista.crearBoton("Rendirse");
+        btnEstadisticas = UtilesVista.crearBoton("Estadisticas");
         
         panelJuego.revalidate();
         panelJuego.repaint();
@@ -184,6 +190,13 @@ public class VistaJuego implements IVistasPanel, IVistaJuego {
                 if (opcion == JOptionPane.YES_OPTION) {
                     presentador.enviarRendicion();
                 }
+            }
+        });
+        
+        btnEstadisticas.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                presentador.continuarEstadisticas();
             }
         });
 
@@ -226,6 +239,12 @@ public class VistaJuego implements IVistasPanel, IVistaJuego {
             g2d.drawString(mensaje, x, y);
 
             g2d.dispose();
+            
+            // añadir el boton de estadisticas
+            if (!panelJuego.isAncestorOf(btnEstadisticas)) {
+                panelJuego.agregarComponente(btnEstadisticas, (Juego.GAME_ANCHO - 200) / 2, 660, 200, 30);
+            }
+            
         } else {
 
             g.setColor(UtilesVista.COLOR_FONDO);
