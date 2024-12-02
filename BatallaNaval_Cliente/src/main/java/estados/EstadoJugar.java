@@ -126,6 +126,8 @@ public class EstadoJugar implements IEstadoJuego {
             Map<String, Object> estadisticas = (Map<String, Object>) mensaje.get("estadisticas");
             System.out.println("Se obtuvieron las estadisticas");
             this.presentador.setEstadisticas(estadisticas);
+            this.presentador.setGanador((String) mensaje.get("ganador"));
+            this.presentador.setTiempoPartida((String) mensaje.get("tiempo_partida"));
         }
 
     }

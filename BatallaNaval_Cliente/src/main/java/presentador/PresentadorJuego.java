@@ -39,6 +39,9 @@ public class PresentadorJuego implements AtaqueListener{
      * Mapa que contiene las estadisticas de los jugadores.
      */
     private Map<String, Object> estadisticas;
+    
+    private String ganador;
+    private String tiempoPartida;
 
     /**
      * Constructor que inicializa el presentador con la vista especificada.
@@ -154,11 +157,19 @@ public class PresentadorJuego implements AtaqueListener{
         this.estadisticas = estadisticas;
     }
 
+    public void setGanador(String ganador) {
+        this.ganador = ganador;
+    }
+
+    public void setTiempoPartida(String tiempoPartida) {
+        this.tiempoPartida = tiempoPartida;
+    }
+
     /**
      * Accion del boton para continuar a la vista de estadisticas
      */
     public void continuarEstadisticas() {
-        juego.cambiarEstado(new EstadoEstadisticas(juego, estadisticas));
+        juego.cambiarEstado(new EstadoEstadisticas(juego, estadisticas, ganador, tiempoPartida));
     }
 
 }

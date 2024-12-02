@@ -413,6 +413,11 @@ public class PartidaBO {
         
         Map<String, Object> estadisticas = obtenerEstadisticasJugador(jugadorGanador.getId());
         mensajeVictoria.put("estadisticas", estadisticas);
+        
+        // Agregar el tiempo de la partida
+        String tiempoPartida = formatoDuracion(partida.getDuracion());
+        mensajeVictoria.put("tiempo_partida", tiempoPartida);
+
         // mensajeVictoria.put("turnos_jugados", turnosJugados);
         // mensajeVictoria.put("naves_restantes", navesRestantes);
         return mensajeVictoria;
@@ -465,14 +470,14 @@ public class PartidaBO {
         Map<String, Object> estadisticas = new HashMap<>();
 
         estadisticas.put("nombre", jugador.getNombre());
-        estadisticas.put("naves_destruidas", tableroEnemigo.getNumNavesDestruidas());
-        estadisticas.put("naves_restantes", 11 - tableroEnemigo.getNumNavesDestruidas());
+        estadisticas.put("naves_destruidas", tableroPropio.getNumNavesDestruidas());
+        estadisticas.put("naves_restantes", 11 - tableroPropio.getNumNavesDestruidas());
         estadisticas.put("tiempo_partida", duracionPartida);
 
         int disparosAcertados = 0;
         int disparosFallados = 0;
 
-        for (var disparo : tableroPropio.getDisparosRecibidos()) {
+        for (var disparo : tableroEnemigo.getDisparosRecibidos()) {
             if (disparo.getEstado() == EstadoCasilla.IMPACTADA) {
                 disparosAcertados++;
             } else {
@@ -493,5 +498,12 @@ public class PartidaBO {
 
     public void finalizarPartida() {
         Partida.instance = null;
+    }
+
+    private String formatoDuracion(long duracionMilisegundos) {
+        long segundos = duracionMilisegundos / 1000;
+        long minutos = segundos / 60;
+        segundos = segundos % 60;
+        return String.format("%02d:%02d", minutos, segundos);
     }
 }

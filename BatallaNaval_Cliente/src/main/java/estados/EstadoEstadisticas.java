@@ -38,10 +38,10 @@ public class EstadoEstadisticas implements IEstadoJuego {
      */
     private Map<String, Object> estadisticas;
 
-    public EstadoEstadisticas(Juego juego, Map<String, Object> estadisticas) {
+    public EstadoEstadisticas(Juego juego, Map<String, Object> estadisticas, String ganador, String tiempoPartida) {
         this.juego = juego;
         this.estadisticas = estadisticas;
-        this.vista = new VistaEstadisticas(juego.getPanel(), estadisticas);
+        this.vista = new VistaEstadisticas(juego.getPanel(), estadisticas, ganador, tiempoPartida);
     }
 
     @Override
