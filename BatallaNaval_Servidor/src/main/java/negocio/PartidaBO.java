@@ -533,53 +533,82 @@ public class PartidaBO {
         return mensajeVictoria;
     }
     
-    public Map<String, Object> volverAJugar(String clientId) {
-        Map<String, Object> response = new HashMap<>();
+    public void volverAJugar(String clientId) {
         Jugador jugador = ClientManager.getJugadorByClientId(clientId);
         Jugador oponente = ClientManager.getOtherPlayer(clientId);
 
         if (jugador == null || oponente == null) {
-            response.put("accion", "VOLVER_A_JUGAR");
-            response.put("error", "No se pudo encontrar a ambos jugadores.");
-            return response;
+            // Manejar error
+            return;
         }
 
         jugador.setQuiereRevancha(true);
 
-        // Verificar si ambos jugadores quieren jugar de nuevo
-        if (jugador.isQuiereRevancha() && oponente.isQuiereRevancha()) {
-            // Reiniciar la partida
-            partida.ReiniciarPartida();
-            partida.limpiarTableros();
-
-            // Enviar mensaje a ambos jugadores para iniciar partida
-            Map<String, Object> mensajeIniciarPartida = new HashMap<>();
-            mensajeIniciarPartida.put("accion", "INICIAR_PARTIDA");
-
-            MessageUtil.enviarMensaje(ClientManager.getClientSocket(jugador.getId()), mensajeIniciarPartida);
-            MessageUtil.enviarMensaje(ClientManager.getClientSocket(oponente.getId()), mensajeIniciarPartida);
-
-            // Resetear el estado de revancha de ambos jugadores
-            jugador.setListo(false);
-            oponente.setListo(false);
-            jugador.setQuiereRevancha(false);
-            oponente.setQuiereRevancha(false);
-
-            response.put("accion", "VOLVER_A_JUGAR");
-            response.put("mensaje", "Iniciando nueva partida.");
+        if (oponente.isQuiereRevancha()) {
+            // Ambos quieren jugar de nuevo
+            iniciarNuevaPartida();
         } else {
             // Notificar al oponente que el jugador quiere volver a jugar
             Map<String, Object> mensajeOponente = new HashMap<>();
-            mensajeOponente.put("accion", "VOLVER_A_JUGAR");
-            mensajeOponente.put("oponenteQuiereJugar", true);
+            mensajeOponente.put("accion", "OPONENTE_QUIERE_VOLVER_A_JUGAR");
+            mensajeOponente.put("mensaje", jugador.getNombre() + " quiere volver a jugar");
+            mensajeOponente.put("clientId", oponente.getId());
+
+            MessageUtil.enviarMensaje(ClientManager.getClientSocket(oponente.getId()), mensajeOponente);
+        }
+    }
+    
+    public void respuestaVolverAJugar(String clientId, boolean acepta) {
+        Jugador jugador = ClientManager.getJugadorByClientId(clientId);
+        Jugador oponente = ClientManager.getOtherPlayer(clientId);
+
+        if (jugador == null || oponente == null) {
+            // Manejar error
+            return;
+        }
+
+        if (acepta) {
+            jugador.setQuiereRevancha(true);
+
+            if (oponente.isQuiereRevancha()) {
+                // Ambos quieren jugar de nuevo
+                iniciarNuevaPartida();
+            } else {
+                // Esperar a que el oponente decida
+                // Opcionalmente, puedes notificar al oponente que este jugador ha aceptado
+            }
+        } else {
+            // Jugador rechazó volver a jugar
+            jugador.setQuiereRevancha(false);
+
+            // Notificar al oponente que el jugador no quiere volver a jugar
+            Map<String, Object> mensajeOponente = new HashMap<>();
+            mensajeOponente.put("accion", "OPONENTE_NO_QUIERE_VOLVER_A_JUGAR");
+            mensajeOponente.put("mensaje", jugador.getNombre() + " no quiere volver a jugar.");
+            mensajeOponente.put("clientId", oponente.getId());
 
             MessageUtil.enviarMensaje(ClientManager.getClientSocket(oponente.getId()), mensajeOponente);
 
-            response.put("accion", "VOLVER_A_JUGAR");
-            response.put("mensaje", "Esperando respuesta del oponente.");
+            // Reiniciar los estados de revancha
+            oponente.setQuiereRevancha(false);
         }
+    }
+    
+    private void iniciarNuevaPartida() {
+        // Reiniciar la partida
+        partida.ReiniciarPartida();
+        partida.limpiarTableros();
 
-        return response;
+        // Notificar a ambos jugadores que la nueva partida comenzará
+        Map<String, Object> mensajeIniciar = new HashMap<>();
+        mensajeIniciar.put("accion", "INICIAR_PARTIDA");
+
+        for (Jugador jugador : partida.getJugadores()) {
+            MessageUtil.enviarMensaje(ClientManager.getClientSocket(jugador.getId()), mensajeIniciar);
+            // Reiniciar el estado de revancha
+            jugador.setListo(false);
+            jugador.setQuiereRevancha(false);
+        }
     }
     
     public Map<String, Object> salir(String clientId) {

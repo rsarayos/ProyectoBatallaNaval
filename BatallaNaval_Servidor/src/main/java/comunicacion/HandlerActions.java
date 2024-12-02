@@ -103,16 +103,15 @@ public class HandlerActions {
             Map<String, Object> response = partidaBO.obtenerEstadisticasJugador(clientId);
             MessageUtil.enviarMensaje(clientSocket, response);
         } else if (AccionesJugador.VOLVER_A_JUGAR.toString().equalsIgnoreCase(accion)) {
-            Map<String, Object> response = partidaBO.volverAJugar(clientId);
-            // Enviar la respuesta al cliente
-            MessageUtil.enviarMensaje(clientSocket, response);
+            partidaBO.volverAJugar(clientId);
+        } else if (AccionesJugador.RESPUESTA_VOLVER_A_JUGAR.toString().equalsIgnoreCase(accion)) {
+            boolean acepta = (Boolean) request.get("acepta");
+            partidaBO.respuestaVolverAJugar(clientId, acepta);
         } else if (AccionesJugador.SALIR.toString().equalsIgnoreCase(accion)) {
             Map<String, Object> response = partidaBO.salir(clientId);
             // Enviar la respuesta al cliente
             MessageUtil.enviarMensaje(clientSocket, response);
-        }
-        
-        else {
+        } else {
             System.out.println("Acción no reconocida: " + accion);
         }
     }

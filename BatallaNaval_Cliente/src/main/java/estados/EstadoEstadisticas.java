@@ -1,7 +1,10 @@
 package estados;
 
+import comunicacion.ClientConnection;
 import comunicacion.IComando;
 import comunicacion.IniciarPartidaComando;
+import comunicacion.OponenteNoQuiereVolverAJugarComando;
+import comunicacion.OponenteQuiereVolverAJugarComando;
 import comunicacion.OponenteSalioComando;
 import comunicacion.VolverAJugarComando;
 import java.awt.Graphics;
@@ -52,9 +55,9 @@ public class EstadoEstadisticas implements IEstadoJuego {
     
     private void inicializarComandos() {
         comandos = new HashMap<>();
-        comandos.put("VOLVER_A_JUGAR", new VolverAJugarComando(this));
+        comandos.put("OPONENTE_QUIERE_VOLVER_A_JUGAR", new OponenteQuiereVolverAJugarComando(this));
+        comandos.put("OPONENTE_NO_QUIERE_VOLVER_A_JUGAR", new OponenteNoQuiereVolverAJugarComando(this));
         comandos.put("INICIAR_PARTIDA", new IniciarPartidaComando(this));
-        comandos.put("OPONENTE_SALIO", new OponenteSalioComando(this));
     }
 
     @Override
@@ -92,11 +95,42 @@ public class EstadoEstadisticas implements IEstadoJuego {
 
     public void manejarIniciarPartida(Map<String, Object> mensaje) {
         // Ambos jugadores están listos, iniciar nueva partida
+        JOptionPane.showMessageDialog(null, "Ambos jugadores han aceptado volver a jugar. Iniciando nueva partida.");
         juego.cambiarEstado(new EstadoOrganizar(juego));
     }
 
     public void manejarOponenteSalio(Map<String, Object> mensaje) {
         JOptionPane.showMessageDialog(null, "El oponente ha salido del juego. Regresando al menú.");
+        juego.cambiarEstado(new EstadoMenu(juego));
+    }
+    
+    public void manejarOponenteQuiereVolverAJugar(Map<String, Object> mensaje) {
+        String textoMensaje = (String) mensaje.get("mensaje");
+        int respuesta = JOptionPane.showConfirmDialog(null, textoMensaje, "Volver a Jugar", JOptionPane.YES_NO_OPTION);
+
+        boolean acepta = (respuesta == JOptionPane.YES_OPTION);
+
+        // Enviar la respuesta al servidor
+        Map<String, Object> respuestaMensaje = new HashMap<>();
+        respuestaMensaje.put("accion", "RESPUESTA_VOLVER_A_JUGAR");
+        respuestaMensaje.put("acepta", acepta);
+
+        ClientConnection.getInstance().sendMessage(respuestaMensaje);
+
+        if (!acepta) {
+            // El jugador declinó, regresar al menú
+            JOptionPane.showMessageDialog(null, "Has decidido no volver a jugar. Regresando al menú.");
+            juego.cambiarEstado(new EstadoMenu(juego));
+        } else {
+            // Esperar a que el servidor confirme si el oponente también quiere jugar
+            JOptionPane.showMessageDialog(null, "Has aceptado volver a jugar. Esperando confirmación del oponente.");
+        }
+    }
+    
+    public void manejarOponenteNoQuiereVolverAJugar(Map<String, Object> mensaje) {
+        String textoMensaje = (String) mensaje.get("mensaje");
+        JOptionPane.showMessageDialog(null, textoMensaje, "Volver a Jugar", JOptionPane.INFORMATION_MESSAGE);
+        // Regresar al menú
         juego.cambiarEstado(new EstadoMenu(juego));
     }
 

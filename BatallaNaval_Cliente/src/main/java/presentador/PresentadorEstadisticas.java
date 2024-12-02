@@ -5,6 +5,7 @@ import estados.EstadoMenu;
 import ivistas.IVistaEstadisticas;
 import java.util.HashMap;
 import java.util.Map;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -26,6 +27,9 @@ public class PresentadorEstadisticas {
         mensaje.put("accion", "VOLVER_A_JUGAR");
 
         ClientConnection.getInstance().sendMessage(mensaje);
+
+        // Mostrar mensaje de espera
+        JOptionPane.showMessageDialog(null, "Has solicitado volver a jugar. Esperando respuesta del oponente.");
     }
 
     public void salirAlMenu() {
