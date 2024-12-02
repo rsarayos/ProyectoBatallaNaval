@@ -16,6 +16,7 @@ public class Unidad {
     private int numNave;
     private final String nombre;
     private int vida;
+    private int vidaMaxima;
     private final int tamano;
     private Orientacion orientacion;
     private EstadoUnidad estado;
@@ -24,6 +25,7 @@ public class Unidad {
     public Unidad(String nombre, int tamano) {
         this.nombre = nombre;
         this.vida = tamano;
+        this.vidaMaxima = vida;
         this.tamano = tamano;
         this.estado = EstadoUnidad.SIN_DANO;
     }
@@ -66,6 +68,11 @@ public class Unidad {
 
     public void setEstado(EstadoUnidad estado) {
         this.estado = estado;
+    }
+    
+    public void reiniciarVida(){
+        this.vida = vidaMaxima;
+        this.estado = EstadoUnidad.SIN_DANO;
     }
 
     @Override

@@ -598,6 +598,11 @@ public class PartidaBO {
         // Reiniciar la partida
         partida.ReiniciarPartida();
         partida.limpiarTableros();
+        for (Jugador jugador : partida.getJugadores()) {
+            for (Unidad unidad : jugador.getUnidades()) {
+                unidad.reiniciarVida();
+            }
+        }
 
         // Notificar a ambos jugadores que la nueva partida comenzará
         Map<String, Object> mensajeIniciar = new HashMap<>();
@@ -621,6 +626,11 @@ public class PartidaBO {
             oponente.setListo(false);
             jugador.setQuiereRevancha(false);
             oponente.setQuiereRevancha(false);
+        for (Jugador j : partida.getJugadores()) {
+            for (Unidad unidad : j.getUnidades()) {
+                unidad.reiniciarVida();
+            }
+        }
 
         if (jugador == null) {
             response.put("accion", "SALIR");
