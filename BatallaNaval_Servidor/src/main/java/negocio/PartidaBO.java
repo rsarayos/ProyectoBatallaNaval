@@ -429,27 +429,33 @@ public class PartidaBO {
         return tablero.getNumNavesDestruidas() == 11;
     }
 
-    public Map<String, Object> rendirse(Map<String, Object> request, String clientId) {
-        Map<String, Object> response = new HashMap<>();
-        response.put("accion", "RENDIRSE");
-
+    public void rendirse(Map<String, Object> request, String clientId) {
         Jugador jugadorQueSeRinde = ClientManager.getJugadorByClientId(clientId);
         if (jugadorQueSeRinde == null) {
-            response.put("error", "Jugador no encontrado.");
-            return response;
+            // Manejar error si el jugador no existe
+            return;
         }
 
         Jugador jugadorGanador = ClientManager.getOtherPlayer(clientId);
 
         if (jugadorGanador == null) {
-            response.put("error", "No se pudo determinar el ganador.");
-            return response;
+            // Manejar error si el otro jugador no existe
+            return;
         }
 
-        // Preparar la respuesta
-        response.put("ganador", jugadorGanador.getNombre());
+        // Finalizar la partida
+        partida.finalizarPartida();
+        partida.setGanador(jugadorGanador);
 
-        return response;
+        // Generar el mensaje de victoria con las estadísticas
+        Map<String, Object> mensajeVictoria = generarMensajeVictoria(jugadorGanador);
+
+        // Enviar el mensaje a ambos jugadores
+        Socket jugadorSocket = ClientManager.getClientSocket(jugadorGanador.getId());
+        MessageUtil.enviarMensaje(jugadorSocket, mensajeVictoria);
+        
+        Socket otroJugadorSocket = ClientManager.getClientSocket(jugadorQueSeRinde.getId());
+        MessageUtil.enviarMensaje(otroJugadorSocket, mensajeVictoria);
     }
 
     public Map<String, Object> obtenerEstadisticasJugador(String clientId) {
@@ -506,4 +512,25 @@ public class PartidaBO {
         segundos = segundos % 60;
         return String.format("%02d:%02d", minutos, segundos);
     }
+    
+    private Map<String, Object> generarMensajeVictoriaPorRendicion(Jugador jugadorGanador) {
+        Map<String, Object> mensajeVictoria = new HashMap<>();
+
+        mensajeVictoria.put("resultado", ControlPartida.PARTIDA_FINALIZADA.name());
+        mensajeVictoria.put("mensaje", "El jugador oponente se ha rendido. " + jugadorGanador.getNombre() + " ha ganado la partida.");
+        mensajeVictoria.put("accion", AccionesJugador.RENDIRSE.name());
+        mensajeVictoria.put("ganador", jugadorGanador.getNombre());
+        mensajeVictoria.put(ControlPartida.DETERMINAR_TURNO.name(), null);
+
+        // Obtener las estadísticas
+        Map<String, Object> estadisticas = obtenerEstadisticasJugador(jugadorGanador.getId());
+        mensajeVictoria.put("estadisticas", estadisticas); // Agregar las estadísticas bajo la clave "estadisticas"
+
+        // Agregar el tiempo de la partida
+        String tiempoPartida = formatoDuracion(partida.getDuracion());
+        mensajeVictoria.put("tiempo_partida", tiempoPartida);
+
+        return mensajeVictoria;
+    }
+    
 }

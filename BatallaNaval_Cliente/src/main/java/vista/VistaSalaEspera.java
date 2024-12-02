@@ -120,6 +120,14 @@ public class VistaSalaEspera implements IVistasPanel, IVistaSalaEspera {
         String[] columnas = {"Nombre de Jugador", "Listo"};
         modeloTabla = new DefaultTableModel(columnas, 0);
         listaJugadores = new JTable(modeloTabla);
+        // colocar las fuentes
+        listaJugadores.setFont(UtilesVista.FUENTE_CAMPO_TEXTO);
+        listaJugadores.setForeground(UtilesVista.COLOR_BOTON_FONDO);
+        listaJugadores.setBackground(UtilesVista.COLOR_BOTON_TEXTO);
+
+        listaJugadores.getTableHeader().setFont(UtilesVista.FUENTE_SUBTITULO);
+        listaJugadores.getTableHeader().setForeground(UtilesVista.COLOR_BOTON_TEXTO);
+        listaJugadores.getTableHeader().setBackground(UtilesVista.COLOR_BOTON_FONDO);
     }
 
     /**

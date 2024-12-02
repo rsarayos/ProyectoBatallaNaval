@@ -114,6 +114,15 @@ public class VistaEstadisticas implements IVistasPanel, IVistaEstadisticas {
 
         // Crear la tabla
         tablaEstadisticas = new JTable(modeloTabla);
+        
+        // colocar las fuentes
+        tablaEstadisticas.setFont(UtilesVista.FUENTE_CAMPO_TEXTO);
+        tablaEstadisticas.setForeground(UtilesVista.COLOR_BOTON_FONDO);
+        tablaEstadisticas.setBackground(UtilesVista.COLOR_BOTON_TEXTO);
+
+        tablaEstadisticas.getTableHeader().setFont(UtilesVista.FUENTE_SUBTITULO);
+        tablaEstadisticas.getTableHeader().setForeground(UtilesVista.COLOR_BOTON_TEXTO);
+        tablaEstadisticas.getTableHeader().setBackground(UtilesVista.COLOR_BOTON_FONDO);
 
         // Configurar la tabla
         tablaEstadisticas.setEnabled(false);
@@ -172,8 +181,8 @@ public class VistaEstadisticas implements IVistasPanel, IVistaEstadisticas {
 
         // Configurar y agregar la tabla
         JScrollPane scrollPane = new JScrollPane(tablaEstadisticas);
-        scrollPane.setBounds(100, 220, 600, 150);
-        panelJuego.agregarComponente(scrollPane, 100, 220, 600, 150);
+        scrollPane.setBounds(150, 220, 600, 115);
+        panelJuego.agregarComponente(scrollPane, 150, 220, 600, 115);
 
 //        // Configurar y agregar los botones
 //        btnVolverAJugar.setBounds(250, 400, 150, 40);

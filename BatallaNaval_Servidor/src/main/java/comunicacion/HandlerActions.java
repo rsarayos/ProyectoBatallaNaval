@@ -98,19 +98,19 @@ public class HandlerActions {
             MessageUtil.enviarMensaje(clientSocket, clienteAtacanteResponse);
             MessageUtil.enviarMensaje(ClientManager.getClientSocket(otherClient.getId()), clienteAtacadoResponse);
         } else if (AccionesJugador.RENDIRSE.toString().equalsIgnoreCase(accion)) {
-            Map<String, Object> response = partidaBO.rendirse(request, clientId);
+            partidaBO.rendirse(request, clientId);
             // Enviar respuestas a los jugadores involucrados
             Jugador jugador = ClientManager.getJugadorByClientId(clientId);
             Jugador otroJugador = ClientManager.getOtherPlayer(clientId);
 
-            if (jugador != null && otroJugador != null) {
-                Socket jugadorSocket = ClientManager.getClientSocket(jugador.getId());
-                Socket otroJugadorSocket = ClientManager.getClientSocket(otroJugador.getId());
-
-                // Enviar la respuesta a ambos jugadores
-                MessageUtil.enviarMensaje(jugadorSocket, response);
-                MessageUtil.enviarMensaje(otroJugadorSocket, response);
-            }
+//            if (jugador != null && otroJugador != null) {
+//                Socket jugadorSocket = ClientManager.getClientSocket(jugador.getId());
+//                Socket otroJugadorSocket = ClientManager.getClientSocket(otroJugador.getId());
+//
+//                // Enviar la respuesta a ambos jugadores
+//                MessageUtil.enviarMensaje(jugadorSocket, response);
+//                MessageUtil.enviarMensaje(otroJugadorSocket, response);
+//            }
         } else if (AccionesJugador.ESTADISTICAS.toString().equalsIgnoreCase(accion)) {
             Map<String, Object> response = partidaBO.obtenerEstadisticasJugador(clientId);
             MessageUtil.enviarMensaje(clientSocket, response);
